@@ -1,15 +1,15 @@
-# ![logo](/assets/Dragonite-100.png) dragonite-java
+# ![logo](/assets/Dragonite-64.png) dragonite-java
 
     MAKE INTERNET GREAT AGAIN
 
 ![powered by dragonite](https://img.shields.io/badge/powered%20by-dragonite-yellow.svg)
 
-Current status (2017-4-28):
-- [x] **dragonite-sdk** (Protocol library) (90% completion for v0.1.0)
-- [ ] **dragonite-mux** (Connection multiplexing library)
-- [ ] **dragonite-forwarder** (Reverse proxy)
-- [ ] **dragonite-proxy** (Advanced SOCKS5 proxy)
-- [ ] **dragonite-chat** (Simple chat platform)
+Current status (2017-5-29):
+- [x] **dragonite-sdk** (Protocol library) (v0.1.1 released)
+- [x] **dragonite-mux** (Connection multiplexing library) (v0.2.0 released)
+- [x] **dragonite-forwarder** (Reverse proxy) (v0.1.0 released)
+- [ ] **dragonite-proxy** (Advanced SOCKS5 proxy) (WIP)
+- [ ] **dragonite-chat** (Simple chat platform) (WIP)
 
 Dragonite is a (yet another, but one of the few that are being actively developed) reliable application level data transport protocol (and implementation) based on UDP.
 
