@@ -1,0 +1,48 @@
+package com.vecsight.dragonite.forwarder.config;
+
+import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
+import com.vecsight.dragonite.sdk.exception.InvalidValueException;
+
+import java.net.InetSocketAddress;
+
+public class ForwarderServerConfig {
+
+    private InetSocketAddress bindAddress;
+
+    private int forwardingPort;
+
+    private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
+
+    public ForwarderServerConfig(InetSocketAddress bindAddress, int forwardingPort) {
+        this.bindAddress = bindAddress;
+        this.forwardingPort = forwardingPort;
+    }
+
+    public InetSocketAddress getBindAddress() {
+        return bindAddress;
+    }
+
+    public void setBindAddress(InetSocketAddress bindAddress) {
+        this.bindAddress = bindAddress;
+    }
+
+    public int getForwardingPort() {
+        return forwardingPort;
+    }
+
+    public void setForwardingPort(int forwardingPort) {
+        this.forwardingPort = forwardingPort;
+    }
+
+    public int getMTU() {
+        return dragoniteSocketParameters.getPacketSize();
+    }
+
+    public void setMTU(int mtu) throws InvalidValueException {
+        dragoniteSocketParameters.setPacketSize(mtu);
+    }
+
+    public DragoniteSocketParameters getDragoniteSocketParameters() {
+        return dragoniteSocketParameters;
+    }
+}
