@@ -25,9 +25,12 @@ public class ForwarderClientHandler {
 
     private final DragoniteSocket dragoniteSocket;
 
-    public ForwarderClientHandler(int forwardingPort, DragoniteSocket dragoniteSocket) {
+    private final short limitMbps;
+
+    public ForwarderClientHandler(int forwardingPort, DragoniteSocket dragoniteSocket, short limitMbps) {
         this.forwardingPort = forwardingPort;
         this.dragoniteSocket = dragoniteSocket;
+        this.limitMbps = limitMbps;
     }
 
     public void run() {
@@ -63,7 +66,14 @@ public class ForwarderClientHandler {
                         infoHeader.getName(), infoHeader.getAppVer(), infoHeader.getOsName(),
                         infoHeader.getDownMbps(), infoHeader.getUpMbps());
 
-                dragoniteSocket.setSendSpeed(UnitConverter.mbpsToSpeed(infoHeader.getDownMbps()));
+                short realMbps = infoHeader.getDownMbps();
+                if (realMbps > limitMbps && limitMbps > 0) {
+                    realMbps = limitMbps;
+                    Logger.info("The DL Mbps of client \"{}\" has been limited from {} to {}",
+                            infoHeader.getName(), infoHeader.getDownMbps(), realMbps);
+                }
+
+                dragoniteSocket.setSendSpeed(UnitConverter.mbpsToSpeed(realMbps));
 
                 final Multiplexer multiplexer = new Multiplexer(bytes -> {
                     try {

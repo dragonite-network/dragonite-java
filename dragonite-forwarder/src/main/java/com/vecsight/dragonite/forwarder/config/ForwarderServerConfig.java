@@ -11,6 +11,8 @@ public class ForwarderServerConfig {
 
     private int forwardingPort;
 
+    private short mbpsLimit = 0;
+
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
     public ForwarderServerConfig(InetSocketAddress bindAddress, int forwardingPort) {
@@ -32,6 +34,14 @@ public class ForwarderServerConfig {
 
     public void setForwardingPort(int forwardingPort) {
         this.forwardingPort = forwardingPort;
+    }
+
+    public short getMbpsLimit() {
+        return mbpsLimit;
+    }
+
+    public void setMbpsLimit(short mbpsLimit) {
+        this.mbpsLimit = mbpsLimit;
     }
 
     public int getMTU() {

@@ -82,6 +82,14 @@ public class CLIMain {
                 .type(Number.class)
                 .build());
         options.addOption(Option
+                .builder("l")
+                .longOpt("limit-mbps")
+                .desc("Max Mbps per client for server")
+                .hasArg()
+                .argName("mbps")
+                .type(Number.class)
+                .build());
+        options.addOption(Option
                 .builder("h")
                 .longOpt("help")
                 .desc("Help message")
@@ -127,6 +135,9 @@ public class CLIMain {
                     ForwarderServerConfig config = new ForwarderServerConfig(bindAddress, ((Number) commandLine.getParsedOptionValue("f")).intValue());
                     if (commandLine.hasOption("m")) {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
+                    }
+                    if (commandLine.hasOption("l")) {
+                        config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).shortValue());
                     }
                     ForwarderServer forwarderServer = new ForwarderServer(config);
                 } catch (ParseException | InvalidValueException e) {
