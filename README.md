@@ -7,7 +7,7 @@
 Current status (2017-5-29):
 - [x] **dragonite-sdk** (Protocol library) (v0.1.1 released)
 - [x] **dragonite-mux** (Connection multiplexing library) (v0.2.0 released)
-- [x] **dragonite-forwarder** (Reverse proxy) (v0.1.0 released)
+- [x] **dragonite-forwarder** (Reverse proxy) (v0.1.1 released)
 - [ ] **dragonite-proxy** (Advanced SOCKS5 proxy) (WIP)
 - [ ] **dragonite-chat** (Simple chat platform) (WIP)
 
