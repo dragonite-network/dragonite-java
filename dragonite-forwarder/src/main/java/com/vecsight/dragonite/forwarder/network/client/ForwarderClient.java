@@ -76,7 +76,7 @@ public class ForwarderClient {
                     multiplexer.onReceiveBytes(buf);
                 }
             } catch (InterruptedException | ConnectionNotAliveException e) {
-                Logger.debug(e, "Cannot receive data from underlying socket");
+                Logger.error(e, "Cannot receive data from underlying socket");
             } finally {
                 try {
                     dragoniteClientSocket.closeGracefully();
