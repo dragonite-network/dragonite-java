@@ -69,6 +69,10 @@ public class Multiplexer {
         }
     }
 
+    public boolean isAlive() {
+        return alive;
+    }
+
     public void close() {
         if (alive) {
             alive = false;
