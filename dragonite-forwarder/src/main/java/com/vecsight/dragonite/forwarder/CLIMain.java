@@ -90,6 +90,11 @@ public class CLIMain {
                 .type(Number.class)
                 .build());
         options.addOption(Option
+                .builder()
+                .longOpt("debug")
+                .desc("Set the logging level to DEBUG")
+                .build());
+        options.addOption(Option
                 .builder("h")
                 .longOpt("help")
                 .desc("Help message")
@@ -100,7 +105,7 @@ public class CLIMain {
     public static void main(String[] args) {
 
         Configurator.currentConfig()
-                .level(Level.DEBUG)
+                .level(Level.INFO)
                 .formatPattern("{date:HH:mm:ss(X)} {{level}|min-size=6} {message}")
                 .maxStackTraceElements(0)
                 .activate();
@@ -124,6 +129,13 @@ public class CLIMain {
             HelpFormatter helpFormatter = new HelpFormatter();
             helpFormatter.printHelp(CMD_NAME, options);
             return;
+        }
+
+        if (commandLine.hasOption("debug")) {
+            Configurator.currentConfig()
+                    .level(Level.DEBUG)
+                    .activate();
+            Logger.debug("Debug mode enabled");
         }
 
         final boolean isServer = commandLine.hasOption("s");

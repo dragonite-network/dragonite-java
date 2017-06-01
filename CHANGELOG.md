@@ -23,3 +23,8 @@ The initial release.
 
 ### 0.1.1
 Added a new speed limit option for server (-l)
+
+### 0.1.2
+Auto reconnect for broken underlying dragonite socket connections
+
+Set default logging level to INFO, use --debug to enable debug mode
