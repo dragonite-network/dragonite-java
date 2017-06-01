@@ -8,9 +8,21 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        sh '''gradle clean
-gradle distZip'''
+        sh '''
+gradle clean
+gradle distZip
+'''
         archiveArtifacts '**/build/distributions/*.zip'
+      }
+    }
+    stage('test') {
+      steps {
+        echo 'should run tests'
+      }
+    }
+    stage('deploy') {
+      steps {
+        echo 'should deploy'
       }
     }
   }
