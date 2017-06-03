@@ -8,6 +8,10 @@ The initial release.
 ### 0.1.1
 Fix a thread deadlock problem
 
+### 0.1.2
+
+Add slow retransmission mode for packets that lost too many times
+
 ## dragonite-mux
 
 ### 0.1.0
