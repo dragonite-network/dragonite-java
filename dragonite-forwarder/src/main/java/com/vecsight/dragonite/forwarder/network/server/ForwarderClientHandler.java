@@ -134,7 +134,9 @@ public class ForwarderClientHandler {
                         }
 
                     } catch (InterruptedException | MultiplexerClosedException e) {
-                        Logger.error(e, "Cannot accept multiplexed connection");
+                        if (dragoniteSocket.isAlive()) {
+                            Logger.error(e, "Cannot accept multiplexed connection");
+                        }
                     }
                 }, "FS-MuxAcceptor");
                 multiplexerAcceptThread.start();
@@ -144,14 +146,15 @@ public class ForwarderClientHandler {
                     while ((buf = dragoniteSocket.read()) != null) {
                         multiplexer.onReceiveBytes(buf);
                     }
-                } catch (InterruptedException | ConnectionNotAliveException e) {
-                    Logger.error(e, "Cannot receive data from underlying socket");
+                } catch (InterruptedException | ConnectionNotAliveException ignored) {
                 } finally {
                     try {
                         dragoniteSocket.closeGracefully();
                     } catch (Exception ignored) {
                     }
                     multiplexer.close();
+                    Logger.info("Client \"{}\" ({}) disconnected",
+                            infoHeader.getName(), dragoniteSocket.getRemoteSocketAddress().toString());
                 }
 
             }
