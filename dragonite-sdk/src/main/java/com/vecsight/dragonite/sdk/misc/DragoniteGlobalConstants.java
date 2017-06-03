@@ -16,7 +16,11 @@ public class DragoniteGlobalConstants {
 
     public static final int MIN_SEND_WINDOW = 20;
 
-    //RTT shits
+    //RTT and resend shits
+
+    public static final int MAX_FAST_RESEND_COUNT = 5;
+
+    public static final int MAX_SLOW_RESEND_MULT = 4;
 
     public static final int MIN_RESEND_WAIT_MS = 2;
 

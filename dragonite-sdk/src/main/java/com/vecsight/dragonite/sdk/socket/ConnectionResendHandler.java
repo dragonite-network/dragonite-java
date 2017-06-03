@@ -101,10 +101,11 @@ public class ConnectionResendHandler {
     }
 
     private long getNextSendTime(int count, long timeOffset) {
-        //int resendMult = count <= fastResendMaxCount ? 1 : (int) Math.pow(1.5, count - fastResendMaxCount);
+        final int resendMult = count <= DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT ? 1 :
+                NumUtils.min(count - DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT + 1, DragoniteGlobalConstants.MAX_SLOW_RESEND_MULT);
         //int delay = (int) (sharedData.getEstimatedRTT() * (count <= fastResendMaxCount ? DragoniteGlobalConstants.fastResendMul : DragoniteGlobalConstants.slowResendMul));
-        long drtt = NumUtils.max(DragoniteGlobalConstants.DEV_RTT_MULT * sharedData.getDevRTT(), DragoniteGlobalConstants.MIN_RESEND_WAIT_MS);
-        int delay = (int) (sharedData.getEstimatedRTT() + drtt);
+        final long drtt = NumUtils.max(DragoniteGlobalConstants.DEV_RTT_MULT * sharedData.getDevRTT(), DragoniteGlobalConstants.MIN_RESEND_WAIT_MS);
+        int delay = (int) ((sharedData.getEstimatedRTT() + drtt) * resendMult);
         if (delay < minResendMS) {
             delay = minResendMS;
         }
