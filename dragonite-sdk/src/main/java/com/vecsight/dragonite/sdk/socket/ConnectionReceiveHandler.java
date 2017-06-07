@@ -47,7 +47,9 @@ public class ConnectionReceiveHandler {
 
     private final AtomicLong readLength = new AtomicLong(0);
 
-    private final AtomicLong receivedRawLength = new AtomicLong(0);
+    private volatile long receivedRawLength = 0;
+
+    private volatile long receivedPktCount = 0, dupPktCount = 0;
 
     protected ConnectionReceiveHandler(DragoniteSocket socket, ACKMessageManager ackMessageManager, ConnectionSharedData sharedData,
                                        int aggressiveWindowMultiplier, int passiveWindowMultiplier, ConnectionResendHandler resender,
@@ -62,7 +64,6 @@ public class ConnectionReceiveHandler {
         this.rttController = new RTTController(sharedData);
     }
 
-    //TODO thread-safety fix!!
     private byte[] readRaw() throws InterruptedException, ConnectionNotAliveException {
         if (socket.isAlive()) {
             ReliableMessage reliableMessage;
@@ -108,12 +109,13 @@ public class ConnectionReceiveHandler {
         return tmp;
     }
 
+    //single threaded
     protected void onHandleMessage(final Message message, final int pktLength) {
         if (socket.isAlive()) {
 
             socket.updateLastReceiveTime();
 
-            receivedRawLength.addAndGet(pktLength);
+            receivedRawLength += pktLength;
 
             if (message instanceof ReliableMessage) {
                 ReliableMessage reliableMessage = (ReliableMessage) message;
@@ -128,12 +130,17 @@ public class ConnectionReceiveHandler {
                 ackMessageManager.addACK(reliableMessage.getSequence());
 
                 synchronized (receiveLock) {
+
+                    receivedPktCount++;
+
                     if (reliableMessage.getSequence() >= nextReadSequence) {
                         receiveMap.put(reliableMessage.getSequence(), reliableMessage);
 
                         if (receiveMap.containsKey(nextReadSequence)) {
                             receiveLock.notify();
                         }
+                    } else {
+                        dupPktCount++;
                     }
                 }
 
@@ -211,6 +218,10 @@ public class ConnectionReceiveHandler {
         return agressiveOK && passiveOK;
     }
 
+    protected float getDuplicateRate() {
+        return (float) dupPktCount / receivedPktCount;
+    }
+
     protected void close() {
         synchronized (receiveLock) {
             receiveMap.clear();
@@ -226,6 +237,6 @@ public class ConnectionReceiveHandler {
     }
 
     protected long getReceivedRawLength() {
-        return receivedRawLength.get();
+        return receivedRawLength;
     }
 }

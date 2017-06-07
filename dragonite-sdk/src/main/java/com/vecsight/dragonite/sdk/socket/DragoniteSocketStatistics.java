@@ -4,13 +4,17 @@ public class DragoniteSocketStatistics {
 
     private final long sendLength, sendRawLength, readLength, receiveRawLength, estimatedRTT, devRTT;
 
-    public DragoniteSocketStatistics(long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT) {
+    private final float resendRate, duplicateRate;
+
+    public DragoniteSocketStatistics(long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT, float resendRate, float duplicateRate) {
         this.sendLength = sendLength;
         this.sendRawLength = sendRawLength;
         this.readLength = readLength;
         this.receiveRawLength = receiveRawLength;
         this.estimatedRTT = estimatedRTT;
         this.devRTT = devRTT;
+        this.resendRate = resendRate;
+        this.duplicateRate = duplicateRate;
     }
 
     public long getSendLength() {
@@ -35,5 +39,13 @@ public class DragoniteSocketStatistics {
 
     public long getDevRTT() {
         return devRTT;
+    }
+
+    public float getResendRate() {
+        return resendRate;
+    }
+
+    public float getDuplicateRate() {
+        return duplicateRate;
     }
 }

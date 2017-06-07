@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ConnectionResendHandler {
 
@@ -26,6 +27,10 @@ public class ConnectionResendHandler {
     private final ConcurrentMap<Integer, ReliableMessage> messageConcurrentMap = new ConcurrentHashMap<>();
 
     private final Object queueLock = new Object();
+
+    private final AtomicLong totalMessageCount = new AtomicLong(0);
+
+    private volatile long resendCount = 0;
 
     /*private final PriorityBlockingQueue<ResendItem> resendQueue =
             new PriorityBlockingQueue<>(100, (o1, o2) -> (int) (o1.getNextSendTime() - o2.getNextSendTime()));*/
@@ -83,6 +88,7 @@ public class ConnectionResendHandler {
                         try {
                             resendItem.setResended();
                             sendAction.sendPacket(message.toBytes());
+                            resendCount++;
                             //System.out.println(message.getSequence());
                         } catch (IOException ignored) {
                         }
@@ -113,6 +119,7 @@ public class ConnectionResendHandler {
     }
 
     protected void addMessage(ReliableMessage message) {
+        totalMessageCount.incrementAndGet();
         messageConcurrentMap.put(message.getSequence(), message);
         synchronized (queueLock) {
             riQueue.add(new ResendItem(message.getSequence(), System.currentTimeMillis(), getNextSendTime(0, 0)));
@@ -146,6 +153,10 @@ public class ConnectionResendHandler {
             size = riQueue.size();
         }
         return size;
+    }
+
+    protected float getResendRate() {
+        return (float) resendCount / totalMessageCount.get();
     }
 
     protected void close() {

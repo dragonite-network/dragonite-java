@@ -195,7 +195,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
     public DragoniteSocketStatistics getStatistics() {
         return new DragoniteSocketStatistics(sender.getSendLength(), managedSendAction.getSendRawLength(),
                 receiver.getReadLength(), receiver.getReceivedRawLength(),
-                sharedData.getEstimatedRTT(), sharedData.getDevRTT());
+                sharedData.getEstimatedRTT(), sharedData.getDevRTT(),
+                resender.getResendRate(), receiver.getDuplicateRate());
     }
 
     @Override
