@@ -27,6 +27,10 @@ public abstract class DragoniteSocket {
 
     public abstract DragoniteSocketStatistics getStatistics();
 
+    public abstract String getDescription();
+
+    public abstract void setDescription(String description);
+
     protected abstract void closeSender();
 
     public abstract void closeGracefully() throws InterruptedException, IOException, SenderClosedException;

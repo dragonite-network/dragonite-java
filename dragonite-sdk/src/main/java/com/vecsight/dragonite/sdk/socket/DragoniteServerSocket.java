@@ -32,6 +32,8 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
     private final Object closeLock = new Object();
 
+    private volatile String description;
+
     public DragoniteServerSocket(SocketAddress remoteAddress, long sendSpeed, DragoniteServer dragoniteServer) {
         this.remoteAddress = remoteAddress;
         this.dragoniteServer = dragoniteServer;
@@ -81,10 +83,21 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
     @Override
     public DragoniteSocketStatistics getStatistics() {
-        return new DragoniteSocketStatistics(sender.getSendLength(), managedSendAction.getSendRawLength(),
+        return new DragoniteSocketStatistics(remoteAddress, description,
+                sender.getSendLength(), managedSendAction.getSendRawLength(),
                 receiver.getReadLength(), receiver.getReceivedRawLength(),
                 sharedData.getEstimatedRTT(), sharedData.getDevRTT(),
                 resender.getResendRate(), receiver.getDuplicateRate());
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

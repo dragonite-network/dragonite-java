@@ -1,12 +1,20 @@
 package com.vecsight.dragonite.sdk.socket;
 
+import java.net.SocketAddress;
+
 public class DragoniteSocketStatistics {
+
+    private final SocketAddress remoteAddress;
+
+    private final String description;
 
     private final long sendLength, sendRawLength, readLength, receiveRawLength, estimatedRTT, devRTT;
 
     private final float resendRate, duplicateRate;
 
-    public DragoniteSocketStatistics(long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT, float resendRate, float duplicateRate) {
+    public DragoniteSocketStatistics(SocketAddress remoteAddress, String description, long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT, float resendRate, float duplicateRate) {
+        this.remoteAddress = remoteAddress;
+        this.description = description;
         this.sendLength = sendLength;
         this.sendRawLength = sendRawLength;
         this.readLength = readLength;
@@ -47,5 +55,13 @@ public class DragoniteSocketStatistics {
 
     public float getDuplicateRate() {
         return duplicateRate;
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
