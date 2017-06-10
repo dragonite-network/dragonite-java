@@ -218,8 +218,12 @@ public class ConnectionReceiveHandler {
         return agressiveOK && passiveOK;
     }
 
-    protected float getDuplicateRate() {
-        return (float) dupPktCount / receivedPktCount;
+    protected long getReceivedPktCount() {
+        return receivedPktCount;
+    }
+
+    protected long getDupPktCount() {
+        return dupPktCount;
     }
 
     protected void close() {

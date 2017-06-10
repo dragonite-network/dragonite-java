@@ -44,12 +44,14 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
         ackMessageManager = new ACKMessageManager(this, managedSendAction, dragoniteServer.getAckIntervalMS(), dragoniteServer.getPacketSize());
 
-        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, dragoniteServer.getResendMinDelayMS());
+        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, dragoniteServer.getResendMinDelayMS(), dragoniteServer.getAckIntervalMS());
 
         receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, dragoniteServer.getAggressiveWindowMultiplier(),
                 dragoniteServer.getPassiveWindowMultiplier(), resender, dragoniteServer.getPacketSize());
 
         sender = new ConnectionSendHandler(this, managedSendAction, receiver, sharedData, resender, dragoniteServer.getPacketSize());
+
+        description = "DSSocket";
 
     }
 
@@ -87,7 +89,8 @@ public class DragoniteServerSocket extends DragoniteSocket {
                 sender.getSendLength(), managedSendAction.getSendRawLength(),
                 receiver.getReadLength(), receiver.getReceivedRawLength(),
                 sharedData.getEstimatedRTT(), sharedData.getDevRTT(),
-                resender.getResendRate(), receiver.getDuplicateRate());
+                resender.getTotalMessageCount(), resender.getResendCount(),
+                receiver.getReceivedPktCount(), receiver.getDupPktCount());
     }
 
     @Override

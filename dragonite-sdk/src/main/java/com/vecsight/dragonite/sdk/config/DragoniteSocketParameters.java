@@ -1,6 +1,10 @@
 package com.vecsight.dragonite.sdk.config;
 
 import com.vecsight.dragonite.sdk.exception.InvalidValueException;
+import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 public class DragoniteSocketParameters {
 
@@ -21,6 +25,10 @@ public class DragoniteSocketParameters {
     private int heartbeatIntervalSec = 5;
 
     private int receiveTimeoutSec = 10;
+
+    private boolean enableWebPanel = false;
+
+    private InetSocketAddress webPanelBindAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), DragoniteGlobalConstants.WEB_PANEL_PORT);
 
     public int getPacketSize() {
         return packetSize;
@@ -116,5 +124,21 @@ public class DragoniteSocketParameters {
             throw new InvalidValueException("Receive timeout must be greater than zero");
         }
         this.receiveTimeoutSec = receiveTimeoutSec;
+    }
+
+    public boolean isEnableWebPanel() {
+        return enableWebPanel;
+    }
+
+    public void setEnableWebPanel(boolean enableWebPanel) {
+        this.enableWebPanel = enableWebPanel;
+    }
+
+    public InetSocketAddress getWebPanelBindAddress() {
+        return webPanelBindAddress;
+    }
+
+    public void setWebPanelBindAddress(InetSocketAddress webPanelBindAddress) {
+        this.webPanelBindAddress = webPanelBindAddress;
     }
 }

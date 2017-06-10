@@ -22,7 +22,8 @@ public class DragoniteGlobalConstants {
 
     public static final int MAX_SLOW_RESEND_MULT = 4;
 
-    public static final int MIN_RESEND_WAIT_MS = 2;
+    //public static final int MIN_RESEND_WAIT_MS = 2;
+    //Replaced with ackDelayCompensation
 
     public static final int INIT_RTT = 200, RTT_MAX_VARIATION = 200, RTT_UPDATE_INTERVAL_MS = 100, RTT_RESEND_CORRECTION_INTERVAL_MS = 2000;
 
@@ -33,5 +34,9 @@ public class DragoniteGlobalConstants {
     //Close shits
 
     public static final int MIN_CLOSE_WAIT_MS = 100, CLOSE_WAIT_RTT_MULT = 4;
+
+    //Web panel shits
+
+    public static final int WEB_PANEL_PORT = 8000;
 
 }

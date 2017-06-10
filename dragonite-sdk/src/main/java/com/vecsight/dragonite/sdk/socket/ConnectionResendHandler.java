@@ -20,6 +20,8 @@ public class ConnectionResendHandler {
 
     private final int minResendMS;
 
+    private final int ackDelayCompensation;
+
     private final Thread resendThread;
 
     private volatile boolean running = true;
@@ -38,11 +40,13 @@ public class ConnectionResendHandler {
     private final PriorityQueue<ResendItem> riQueue = new PriorityQueue<>(100,
             (o1, o2) -> (int) (o1.getNextSendTime() - o2.getNextSendTime()));
 
-    protected ConnectionResendHandler(DragoniteSocket socket, SendAction sendAction, ConnectionSharedData sharedData, int minResendMS) {
+    protected ConnectionResendHandler(DragoniteSocket socket, SendAction sendAction, ConnectionSharedData sharedData, int minResendMS,
+                                      int ackDelayCompensation) {
         this.socket = socket;
         this.sendAction = sendAction;
         this.sharedData = sharedData;
         this.minResendMS = minResendMS;
+        this.ackDelayCompensation = ackDelayCompensation;
 
         resendThread = new Thread(() -> {
             try {
@@ -110,7 +114,7 @@ public class ConnectionResendHandler {
         final int resendMult = count <= DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT ? 1 :
                 NumUtils.min(count - DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT + 1, DragoniteGlobalConstants.MAX_SLOW_RESEND_MULT);
         //int delay = (int) (sharedData.getEstimatedRTT() * (count <= fastResendMaxCount ? DragoniteGlobalConstants.fastResendMul : DragoniteGlobalConstants.slowResendMul));
-        final long drtt = NumUtils.max(DragoniteGlobalConstants.DEV_RTT_MULT * sharedData.getDevRTT(), DragoniteGlobalConstants.MIN_RESEND_WAIT_MS);
+        final long drtt = NumUtils.max(DragoniteGlobalConstants.DEV_RTT_MULT * sharedData.getDevRTT(), ackDelayCompensation);
         int delay = (int) ((sharedData.getEstimatedRTT() + drtt) * resendMult);
         if (delay < minResendMS) {
             delay = minResendMS;
@@ -155,8 +159,12 @@ public class ConnectionResendHandler {
         return size;
     }
 
-    protected float getResendRate() {
-        return (float) resendCount / totalMessageCount.get();
+    protected long getTotalMessageCount() {
+        return totalMessageCount.get();
+    }
+
+    protected long getResendCount() {
+        return resendCount;
     }
 
     protected void close() {

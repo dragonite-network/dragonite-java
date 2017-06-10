@@ -10,9 +10,9 @@ public class DragoniteSocketStatistics {
 
     private final long sendLength, sendRawLength, readLength, receiveRawLength, estimatedRTT, devRTT;
 
-    private final float resendRate, duplicateRate;
+    private final long sendCount, resendCount, receiveCount, dupCount;
 
-    public DragoniteSocketStatistics(SocketAddress remoteAddress, String description, long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT, float resendRate, float duplicateRate) {
+    public DragoniteSocketStatistics(SocketAddress remoteAddress, String description, long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT, long sendCount, long resendCount, long receiveCount, long dupCount) {
         this.remoteAddress = remoteAddress;
         this.description = description;
         this.sendLength = sendLength;
@@ -21,8 +21,10 @@ public class DragoniteSocketStatistics {
         this.receiveRawLength = receiveRawLength;
         this.estimatedRTT = estimatedRTT;
         this.devRTT = devRTT;
-        this.resendRate = resendRate;
-        this.duplicateRate = duplicateRate;
+        this.sendCount = sendCount;
+        this.resendCount = resendCount;
+        this.receiveCount = receiveCount;
+        this.dupCount = dupCount;
     }
 
     public long getSendLength() {
@@ -49,12 +51,20 @@ public class DragoniteSocketStatistics {
         return devRTT;
     }
 
-    public float getResendRate() {
-        return resendRate;
+    public long getSendCount() {
+        return sendCount;
     }
 
-    public float getDuplicateRate() {
-        return duplicateRate;
+    public long getResendCount() {
+        return resendCount;
+    }
+
+    public long getReceiveCount() {
+        return receiveCount;
+    }
+
+    public long getDupCount() {
+        return dupCount;
     }
 
     public SocketAddress getRemoteAddress() {

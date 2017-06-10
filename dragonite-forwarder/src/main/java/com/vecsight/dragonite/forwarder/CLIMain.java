@@ -95,6 +95,11 @@ public class CLIMain {
                 .desc("Set the logging level to DEBUG")
                 .build());
         options.addOption(Option
+                .builder()
+                .longOpt("web-panel")
+                .desc("Enable Web Panel of underlying Dragonite sockets")
+                .build());
+        options.addOption(Option
                 .builder("h")
                 .longOpt("help")
                 .desc("Help message")
@@ -151,6 +156,9 @@ public class CLIMain {
                     if (commandLine.hasOption("l")) {
                         config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).shortValue());
                     }
+                    if (commandLine.hasOption("web-panel")) {
+                        config.setWebPanelEnabled(true);
+                    }
                     ForwarderServer forwarderServer = new ForwarderServer(config);
                 } catch (ParseException | InvalidValueException e) {
                     Logger.error(e, "Incorrect value");
@@ -170,6 +178,9 @@ public class CLIMain {
                             ((Number) commandLine.getParsedOptionValue("u")).shortValue());
                     if (commandLine.hasOption("m")) {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
+                    }
+                    if (commandLine.hasOption("web-panel")) {
+                        config.setWebPanelEnabled(true);
                     }
                     ForwarderClient forwarderClient = new ForwarderClient(config);
                 } catch (ParseException | InvalidValueException e) {

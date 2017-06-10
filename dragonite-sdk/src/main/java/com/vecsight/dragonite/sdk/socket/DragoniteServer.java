@@ -8,9 +8,11 @@ import com.vecsight.dragonite.sdk.msg.MessageParser;
 import com.vecsight.dragonite.sdk.msg.ReliableMessage;
 import com.vecsight.dragonite.sdk.msg.types.ACKMessage;
 import com.vecsight.dragonite.sdk.msg.types.CloseMessage;
+import com.vecsight.dragonite.sdk.web.DevConsoleWebServer;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -27,6 +29,7 @@ public class DragoniteServer {
     private final int resendMinDelayMS;
     private final int heartbeatIntervalSec, receiveTimeoutSec;
     private final boolean autoSplit;
+    private final boolean enableWebPanel;
     //end
 
     private volatile long defaultSendSpeed;
@@ -51,6 +54,10 @@ public class DragoniteServer {
 
     private final Object closeLock = new Object();
 
+    private final DevConsoleWebServer devConsoleWebServer;
+
+    private final InetSocketAddress devConsoleBindAddress;
+
     public DragoniteServer(InetAddress address, int port, long defaultSendSpeed, DragoniteSocketParameters parameters) throws SocketException {
         datagramSocket = new DatagramSocket(port, address);
 
@@ -64,6 +71,8 @@ public class DragoniteServer {
         heartbeatIntervalSec = parameters.getHeartbeatIntervalSec();
         receiveTimeoutSec = parameters.getReceiveTimeoutSec();
         autoSplit = parameters.isAutoSplit();
+        enableWebPanel = parameters.isEnableWebPanel();
+        devConsoleBindAddress = parameters.getWebPanelBindAddress();
         //end
 
         this.defaultSendSpeed = defaultSendSpeed;
@@ -135,6 +144,20 @@ public class DragoniteServer {
         }, "DS-AliveDetect");
         aliveDetectThread.start();
 
+        DevConsoleWebServer tmpServer = null;
+        if (enableWebPanel) {
+            try {
+                tmpServer = new DevConsoleWebServer(devConsoleBindAddress, () -> {
+                    final ArrayList<DragoniteSocketStatistics> list = new ArrayList<>();
+                    for (DragoniteServerSocket socket : connectionMap_concurrent.values()) {
+                        list.add(socket.getStatistics());
+                    }
+                    return list;
+                });
+            } catch (IOException ignored) {
+            }
+        }
+        devConsoleWebServer = tmpServer;
     }
 
     public DragoniteServer(int port, long defaultSendSpeed, DragoniteSocketParameters parameters) throws SocketException {
@@ -232,6 +255,10 @@ public class DragoniteServer {
 
     public boolean isAutoSplit() {
         return autoSplit;
+    }
+
+    public boolean isEnableWebPanel() {
+        return enableWebPanel;
     }
 
     public void destroy() {

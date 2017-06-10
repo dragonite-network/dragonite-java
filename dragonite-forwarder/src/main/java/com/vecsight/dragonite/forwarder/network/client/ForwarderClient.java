@@ -14,7 +14,6 @@ import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.socket.DragoniteClientSocket;
-import com.vecsight.dragonite.sdk.socket.DragoniteSocketStatistics;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
@@ -71,19 +70,6 @@ public class ForwarderClient {
             }
         }, "FC-Accept");
         acceptThread.start();
-
-        new Thread(() -> {
-            while (dragoniteClientSocket.isAlive()) {
-                final DragoniteSocketStatistics statistics = dragoniteClientSocket.getStatistics();
-                Logger.debug("RTT: {}(+-{})ms, DupRate: {0.000}, ResendRate: {0.000}",
-                        statistics.getEstimatedRTT(), statistics.getDevRTT(),
-                        statistics.getDuplicateRate(), statistics.getResendRate());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }).start();
     }
 
     private void prepareUnderlyingConnection(final DragoniteSocketParameters dragoniteSocketParameters) throws IOException, InterruptedException, IncorrectSizeException, SenderClosedException {

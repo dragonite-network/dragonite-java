@@ -7,12 +7,11 @@ import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.msg.Message;
 import com.vecsight.dragonite.sdk.msg.MessageParser;
+import com.vecsight.dragonite.sdk.web.DevConsoleWebServer;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketAddress;
-import java.net.SocketException;
+import java.net.*;
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -25,6 +24,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
     private final int resendMinDelayMS;
     private final int heartbeatIntervalSec, receiveTimeoutSec;
     private final boolean autoSplit;
+    private final boolean enableWebPanel;
     //end
 
     private final Thread receiveThread; //THREAD
@@ -61,6 +61,10 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     private volatile String description;
 
+    private final DevConsoleWebServer devConsoleWebServer;
+
+    private final InetSocketAddress devConsoleBindAddress;
+
     public DragoniteClientSocket(SocketAddress remoteAddress, long sendSpeed, DragoniteSocketParameters parameters) throws SocketException {
         this.remoteAddress = remoteAddress;
         datagramSocket = new DatagramSocket();
@@ -75,6 +79,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
         heartbeatIntervalSec = parameters.getHeartbeatIntervalSec();
         receiveTimeoutSec = parameters.getReceiveTimeoutSec();
         autoSplit = parameters.isAutoSplit();
+        enableWebPanel = parameters.isEnableWebPanel();
+        devConsoleBindAddress = parameters.getWebPanelBindAddress();
         //end
 
         if (maxPacketBufferSize == 0) {
@@ -89,12 +95,14 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         ackMessageManager = new ACKMessageManager(this, managedSendAction, ackIntervalMS, packetSize);
 
-        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, resendMinDelayMS);
+        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, resendMinDelayMS, ackIntervalMS);
 
         receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, aggressiveWindowMultiplier,
                 passiveWindowMultiplier, resender, packetSize);
 
         sender = new ConnectionSendHandler(this, managedSendAction, receiver, sharedData, resender, packetSize);
+
+        description = "DCSocket";
 
         receiveThread = new Thread(() -> {
             try {
@@ -151,6 +159,19 @@ public class DragoniteClientSocket extends DragoniteSocket {
         }, "DC-AliveDetect");
         aliveDetectThread.start();
 
+        DevConsoleWebServer tmpServer = null;
+        if (enableWebPanel) {
+            try {
+                tmpServer = new DevConsoleWebServer(devConsoleBindAddress, () -> {
+                    final ArrayList<DragoniteSocketStatistics> list = new ArrayList<>(1);
+                    list.add(getStatistics());
+                    return list;
+                });
+            } catch (IOException ignored) {
+            }
+        }
+        devConsoleWebServer = tmpServer;
+
     }
 
     private void handlePacket(final DatagramPacket packet) {
@@ -199,7 +220,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
                 sender.getSendLength(), managedSendAction.getSendRawLength(),
                 receiver.getReadLength(), receiver.getReceivedRawLength(),
                 sharedData.getEstimatedRTT(), sharedData.getDevRTT(),
-                resender.getResendRate(), receiver.getDuplicateRate());
+                resender.getTotalMessageCount(), resender.getResendCount(),
+                receiver.getReceivedPktCount(), receiver.getDupPktCount());
     }
 
     @Override
@@ -254,6 +276,10 @@ public class DragoniteClientSocket extends DragoniteSocket {
                 packetBuffer.clear();
 
                 datagramSocket.close();
+
+                if (devConsoleWebServer != null) {
+                    devConsoleWebServer.stop();
+                }
             }
         }
     }
@@ -317,5 +343,9 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     public boolean isAutoSplit() {
         return autoSplit;
+    }
+
+    public boolean isEnableWebPanel() {
+        return enableWebPanel;
     }
 }

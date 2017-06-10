@@ -52,6 +52,14 @@ public class ForwarderServerConfig {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
+    public boolean getWebPanelEnabled() {
+        return dragoniteSocketParameters.isEnableWebPanel();
+    }
+
+    public void setWebPanelEnabled(boolean enabled) {
+        dragoniteSocketParameters.setEnableWebPanel(enabled);
+    }
+
     public DragoniteSocketParameters getDragoniteSocketParameters() {
         return dragoniteSocketParameters;
     }
