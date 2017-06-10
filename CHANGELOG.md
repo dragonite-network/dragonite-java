@@ -9,8 +9,12 @@ The initial release.
 Fix a thread deadlock problem
 
 ### 0.1.2
-
 Add slow retransmission mode for packets that lost too many times
+
+### 0.2.0
+Add HTTP(JSON) statistics interface
+
+Fix redundant retransmissions caused by delayed ACKs
 
 ## dragonite-mux
 
@@ -26,9 +30,12 @@ New flow control mechanism (Buffer size limitations, Pause & Continue frames)
 The initial release.
 
 ### 0.1.1
-Added a new speed limit option for server (-l)
+Add a new speed limit option for server (-l)
 
 ### 0.1.2
 Auto reconnect for broken underlying dragonite socket connections
 
 Set default logging level to INFO, use --debug to enable debug mode
+
+### 0.1.3
+Add an option for enabling HTTP(JSON) statistics interface of underlying dragonite socket connections
