@@ -15,16 +15,22 @@ import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class CLIMain {
 
     private static final String PRODUCT_NAME = "Dragonite Forwarder";
     private static final String CMD_NAME = "dragonite-forwarder";
+
+    private static final String ARGS_FILE_NAME = "args.txt";
 
     private static Options getOptions() {
         Options options = new Options();
@@ -107,6 +113,27 @@ public class CLIMain {
         return options;
     }
 
+    private static String[] getArgs(final String[] cmdArgs) {
+        final File argsFile = new File(ARGS_FILE_NAME);
+        if (argsFile.canRead()) {
+            try {
+                final Scanner scanner = new Scanner(argsFile);
+                final ArrayList<String> argsList = new ArrayList<>();
+                while (scanner.hasNext()) {
+                    argsList.add(scanner.next());
+                }
+                Logger.info("Arguments loaded from file \"{}\"", ARGS_FILE_NAME);
+                return argsList.toArray(new String[0]);
+            } catch (FileNotFoundException e) {
+                Logger.warn(e, "Unable to load file \"{}\", using commandline arguments", ARGS_FILE_NAME);
+                return cmdArgs;
+            }
+        } else {
+            Logger.info("Using commandline arguments");
+            return cmdArgs;
+        }
+    }
+
     public static void main(String[] args) {
 
         Configurator.currentConfig()
@@ -123,8 +150,9 @@ public class CLIMain {
         final CommandLineParser parser = new DefaultParser();
         final CommandLine commandLine;
 
+
         try {
-            commandLine = parser.parse(options, args);
+            commandLine = parser.parse(options, getArgs(args));
         } catch (ParseException e) {
             Logger.error(e, "Cannot parse arguments");
             return;
