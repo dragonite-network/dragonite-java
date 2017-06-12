@@ -75,6 +75,8 @@ public class ForwarderClient {
     private void prepareUnderlyingConnection(final DragoniteSocketParameters dragoniteSocketParameters) throws IOException, InterruptedException, IncorrectSizeException, SenderClosedException {
         dragoniteClientSocket = new DragoniteClientSocket(remoteAddress, UnitConverter.mbpsToSpeed(upMbps), dragoniteSocketParameters);
 
+        dragoniteClientSocket.setDescription("Forwarder");
+
         try {
             dragoniteClientSocket.send(new ClientInfoHeader(downMbps, upMbps, getUsername(), ForwarderGlobalConstants.APP_VERSION, getOS()).toBytes());
         } catch (InterruptedException | IncorrectSizeException | SenderClosedException | IOException e) {

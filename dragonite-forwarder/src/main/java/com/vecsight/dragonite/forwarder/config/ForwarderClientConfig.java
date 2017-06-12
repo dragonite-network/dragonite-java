@@ -70,6 +70,14 @@ public class ForwarderClientConfig {
         dragoniteSocketParameters.setEnableWebPanel(enabled);
     }
 
+    public InetSocketAddress getWebPanelBind() {
+        return dragoniteSocketParameters.getWebPanelBindAddress();
+    }
+
+    public void setWebPanelBind(InetSocketAddress address) {
+        dragoniteSocketParameters.setWebPanelBindAddress(address);
+    }
+
     public DragoniteSocketParameters getDragoniteSocketParameters() {
         return dragoniteSocketParameters;
     }

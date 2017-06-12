@@ -50,13 +50,16 @@ public class DevConsoleWebServer {
 
     public DevConsoleWebServer(final InetSocketAddress bindAddress, final StatisticsProvider provider) throws IOException {
         this.statisticsProvider = provider;
+
         httpServer = HttpServer.create(bindAddress, 0);
         httpServer.createContext("/statistics", httpExchange -> {
             final byte[] jsonBytes = getJSON(statisticsProvider.getLatest()).getBytes(CHARSET);
+            httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             httpExchange.sendResponseHeaders(200, jsonBytes.length);
             httpExchange.getResponseBody().write(jsonBytes);
             httpExchange.close();
         });
+
         httpServer.start();
     }
 

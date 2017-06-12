@@ -16,6 +16,9 @@ Add HTTP(JSON) statistics interface
 
 Fix redundant retransmissions caused by delayed ACKs
 
+### 0.2.1
+Enable Cross-Origin Resource Sharing (CORS) for HTTP(JSON) statistics interface
+
 ## dragonite-mux
 
 ### 0.1.0
@@ -39,3 +42,8 @@ Set default logging level to INFO, use --debug to enable debug mode
 
 ### 0.1.3
 Add an option for enabling HTTP(JSON) statistics interface of underlying dragonite socket connections
+
+### 0.1.4
+GUI Web Panel for HTTP(JSON) statistics interface
+
+--web-panel & --web-panel-public options

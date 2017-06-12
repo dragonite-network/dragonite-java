@@ -15,13 +15,11 @@ import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -31,6 +29,8 @@ public class CLIMain {
     private static final String CMD_NAME = "dragonite-forwarder";
 
     private static final String ARGS_FILE_NAME = "args.txt";
+
+    private static final String WEB_PANEL_URL = "http://dragonite-webdev.vecsight.com/#/?api=http%3A%2F%2Flocalhost%3A8000%2Fstatistics&tick=1000";
 
     private static Options getOptions() {
         Options options = new Options();
@@ -103,7 +103,12 @@ public class CLIMain {
         options.addOption(Option
                 .builder()
                 .longOpt("web-panel")
-                .desc("Enable Web Panel of underlying Dragonite sockets")
+                .desc("Enable Web Panel of underlying Dragonite sockets (Bind to loopback interface)")
+                .build());
+        options.addOption(Option
+                .builder()
+                .longOpt("web-panel-public")
+                .desc("Enable Web Panel of underlying Dragonite sockets (Bind to all interfaces)")
                 .build());
         options.addOption(Option
                 .builder("h")
@@ -131,6 +136,19 @@ public class CLIMain {
         } else {
             Logger.info("Using commandline arguments");
             return cmdArgs;
+        }
+    }
+
+    private static boolean openWebPanel() {
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(new URI(WEB_PANEL_URL));
+                return true;
+            } else {
+                return false;
+            }
+        } catch (URISyntaxException | IOException e) {
+            return false;
         }
     }
 
@@ -184,10 +202,25 @@ public class CLIMain {
                     if (commandLine.hasOption("l")) {
                         config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).shortValue());
                     }
+
+                    boolean openWebPanel = false;
                     if (commandLine.hasOption("web-panel")) {
                         config.setWebPanelEnabled(true);
+                        openWebPanel = true;
                     }
+                    if (commandLine.hasOption("web-panel-public")) {
+                        config.setWebPanelEnabled(true);
+                        config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
+                        openWebPanel = true;
+                    }
+
                     ForwarderServer forwarderServer = new ForwarderServer(config);
+
+                    if (openWebPanel) {
+                        if (!openWebPanel()) {
+                            Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
+                        }
+                    }
                 } catch (ParseException | InvalidValueException e) {
                     Logger.error(e, "Incorrect value");
                 } catch (SocketException | UnknownHostException e) {
@@ -207,10 +240,25 @@ public class CLIMain {
                     if (commandLine.hasOption("m")) {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
                     }
+
+                    boolean openWebPanel = false;
                     if (commandLine.hasOption("web-panel")) {
                         config.setWebPanelEnabled(true);
+                        openWebPanel = true;
                     }
+                    if (commandLine.hasOption("web-panel-public")) {
+                        config.setWebPanelEnabled(true);
+                        config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
+                        openWebPanel = true;
+                    }
+
                     ForwarderClient forwarderClient = new ForwarderClient(config);
+
+                    if (openWebPanel) {
+                        if (!openWebPanel()) {
+                            Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
+                        }
+                    }
                 } catch (ParseException | InvalidValueException e) {
                     Logger.error(e, "Incorrect value");
                 } catch (InterruptedException | IncorrectSizeException | SenderClosedException | IOException e) {

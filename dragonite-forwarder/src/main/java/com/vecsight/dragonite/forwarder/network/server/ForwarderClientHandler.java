@@ -66,6 +66,8 @@ public class ForwarderClientHandler {
                         infoHeader.getName(), infoHeader.getAppVer(), infoHeader.getOsName(),
                         infoHeader.getDownMbps(), infoHeader.getUpMbps());
 
+                dragoniteSocket.setDescription(infoHeader.getName());
+
                 short realMbps = infoHeader.getDownMbps();
                 if (realMbps > limitMbps && limitMbps > 0) {
                     realMbps = limitMbps;
