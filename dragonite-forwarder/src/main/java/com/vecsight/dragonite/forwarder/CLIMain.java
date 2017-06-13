@@ -147,7 +147,7 @@ public class CLIMain {
             } else {
                 return false;
             }
-        } catch (URISyntaxException | IOException | UnsupportedOperationException | AWTError e) {
+        } catch (Exception | Error e) {
             return false;
         }
     }
