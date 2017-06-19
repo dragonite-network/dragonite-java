@@ -3,6 +3,7 @@ package com.vecsight.dragonite.forwarder.network.client;
 import com.vecsight.dragonite.forwarder.config.ForwarderClientConfig;
 import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
 import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
+import com.vecsight.dragonite.forwarder.misc.SystemInfo;
 import com.vecsight.dragonite.forwarder.misc.UnitConverter;
 import com.vecsight.dragonite.forwarder.network.Pipe;
 import com.vecsight.dragonite.mux.conn.MultiplexedConnection;
@@ -78,7 +79,7 @@ public class ForwarderClient {
         dragoniteClientSocket.setDescription("Forwarder");
 
         try {
-            dragoniteClientSocket.send(new ClientInfoHeader(downMbps, upMbps, getUsername(), ForwarderGlobalConstants.APP_VERSION, getOS()).toBytes());
+            dragoniteClientSocket.send(new ClientInfoHeader(downMbps, upMbps, SystemInfo.getUsername(), ForwarderGlobalConstants.APP_VERSION, SystemInfo.getOS()).toBytes());
         } catch (InterruptedException | IncorrectSizeException | SenderClosedException | IOException e) {
             Logger.error(e, "Unable to send client header");
             try {
@@ -121,16 +122,6 @@ public class ForwarderClient {
         Logger.info("Connection established with {}", remoteAddress.toString());
     }
 
-    private String getUsername() {
-        String name = System.getProperty("user.name");
-        return name != null ? name : "Unknown";
-    }
-
-    private String getOS() {
-        String os = System.getProperty("os.name");
-        return os != null ? os : "Unknown";
-    }
-
     private void handleClient(Socket socket) {
 
         synchronized (reconnectLock) {
@@ -147,7 +138,7 @@ public class ForwarderClient {
         }
 
         try {
-            MultiplexedConnection multiplexedConnection = multiplexer.createConnection(nextConnID++);
+            final MultiplexedConnection multiplexedConnection = multiplexer.createConnection(nextConnID++);
 
             final Thread pipeFromRemoteThread = new Thread(() -> {
                 final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);

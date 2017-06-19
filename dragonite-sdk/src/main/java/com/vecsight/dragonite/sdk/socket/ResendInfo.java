@@ -19,11 +19,10 @@ public class ResendInfo {
 
     @Override
     public String toString() {
-        String sb = "ResendInfo{" + "exist=" + exist +
+        return "ResendInfo{" + "exist=" + exist +
                 ", RTT=" + RTT +
                 ", resended=" + resended +
                 '}';
-        return sb;
     }
 
     public boolean isExist() {

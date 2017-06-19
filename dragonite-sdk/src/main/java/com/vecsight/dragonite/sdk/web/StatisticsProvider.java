@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface StatisticsProvider {
 
-    public List<DragoniteSocketStatistics> getLatest();
+    List<DragoniteSocketStatistics> getLatest();
 
 }
