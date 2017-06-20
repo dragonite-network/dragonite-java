@@ -6,7 +6,7 @@ public class SenderClosedException extends Exception {
         super("Sender closed");
     }
 
-    public SenderClosedException(String msg) {
+    public SenderClosedException(final String msg) {
         super(msg);
     }
 

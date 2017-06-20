@@ -6,7 +6,7 @@ public class ConnectionAlreadyExistsException extends Exception {
         super("Connection already exists");
     }
 
-    public ConnectionAlreadyExistsException(String msg) {
+    public ConnectionAlreadyExistsException(final String msg) {
         super(msg);
     }
 

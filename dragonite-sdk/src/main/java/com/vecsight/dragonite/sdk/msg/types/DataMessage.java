@@ -19,14 +19,15 @@ public class DataMessage implements ReliableMessage {
 
     private byte[] data;
 
-    public DataMessage(int sequence, byte[] data) {
+    public DataMessage(final int sequence, final byte[] data) {
         this.sequence = sequence;
         this.data = data;
     }
 
-    public DataMessage(byte[] msg) throws IncorrectMessageException {
-        ByteBuffer buffer = ByteBuffer.wrap(msg);
-        byte remoteVersion = buffer.get(), remoteType = buffer.get();
+    public DataMessage(final byte[] msg) throws IncorrectMessageException {
+        final ByteBuffer buffer = ByteBuffer.wrap(msg);
+        final byte remoteVersion = buffer.get();
+        final byte remoteType = buffer.get();
 
         if (remoteVersion != VERSION) {
             throw new IncorrectMessageException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
@@ -37,7 +38,7 @@ public class DataMessage implements ReliableMessage {
 
         sequence = buffer.getInt();
 
-        short length = buffer.getShort();
+        final short length = buffer.getShort();
         data = new byte[length];
         buffer.get(data);
     }
@@ -58,7 +59,7 @@ public class DataMessage implements ReliableMessage {
     }
 
     @Override
-    public void setSequence(int sequence) {
+    public void setSequence(final int sequence) {
         this.sequence = sequence;
     }
 
@@ -66,13 +67,13 @@ public class DataMessage implements ReliableMessage {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public void setData(final byte[] data) {
         this.data = data;
     }
 
     @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + data.length);
+        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + data.length);
         buffer.put(VERSION);
         buffer.put(TYPE);
         buffer.putInt(sequence);

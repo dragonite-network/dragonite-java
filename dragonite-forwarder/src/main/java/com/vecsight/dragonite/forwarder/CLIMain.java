@@ -23,7 +23,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class CLIMain {
+public final class CLIMain {
 
     private static final String PRODUCT_NAME = "Dragonite Forwarder";
     private static final String CMD_NAME = "dragonite-forwarder";
@@ -33,7 +33,7 @@ public class CLIMain {
     private static final String WEB_PANEL_URL = "http://dragonite-webdev.vecsight.com/#/?api=http%3A%2F%2Flocalhost%3A8000%2Fstatistics&tick=1000";
 
     private static Options getOptions() {
-        Options options = new Options();
+        final Options options = new Options();
         options.addOption(Option
                 .builder("s")
                 .longOpt("server-mode")
@@ -129,7 +129,7 @@ public class CLIMain {
                 }
                 Logger.info("Arguments loaded from file \"{}\"", ARGS_FILE_NAME);
                 return argsList.toArray(new String[0]);
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 Logger.warn(e, "Unable to load file \"{}\", using commandline arguments", ARGS_FILE_NAME);
                 return cmdArgs;
             }
@@ -152,7 +152,7 @@ public class CLIMain {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
         Configurator.currentConfig()
                 .level(Level.INFO)
@@ -171,13 +171,13 @@ public class CLIMain {
 
         try {
             commandLine = parser.parse(options, getArgs(args));
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             Logger.error(e, "Cannot parse arguments");
             return;
         }
 
         if (commandLine.hasOption("h")) {
-            HelpFormatter helpFormatter = new HelpFormatter();
+            final HelpFormatter helpFormatter = new HelpFormatter();
             helpFormatter.printHelp(CMD_NAME, options);
             return;
         }
@@ -193,9 +193,9 @@ public class CLIMain {
         if (isServer) {
             if (commandLine.hasOption("f")) {
                 try {
-                    InetSocketAddress bindAddress = new InetSocketAddress(commandLine.hasOption("a") ? InetAddress.getByName(commandLine.getOptionValue("a")) : null,
+                    final InetSocketAddress bindAddress = new InetSocketAddress(commandLine.hasOption("a") ? InetAddress.getByName(commandLine.getOptionValue("a")) : null,
                             commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ForwarderGlobalConstants.DEFAULT_SERVER_PORT);
-                    ForwarderServerConfig config = new ForwarderServerConfig(bindAddress, ((Number) commandLine.getParsedOptionValue("f")).intValue());
+                    final ForwarderServerConfig config = new ForwarderServerConfig(bindAddress, ((Number) commandLine.getParsedOptionValue("f")).intValue());
                     if (commandLine.hasOption("m")) {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
                     }
@@ -214,7 +214,7 @@ public class CLIMain {
                         openWebPanel = true;
                     }
 
-                    ForwarderServer forwarderServer = new ForwarderServer(config);
+                    final ForwarderServer forwarderServer = new ForwarderServer(config);
 
                     if (openWebPanel) {
                         if (!openWebPanel()) {
@@ -232,7 +232,7 @@ public class CLIMain {
         } else {
             if (commandLine.hasOption("a") && commandLine.hasOption("f") && commandLine.hasOption("d") && commandLine.hasOption("u")) {
                 try {
-                    ForwarderClientConfig config = new ForwarderClientConfig(new InetSocketAddress(commandLine.getOptionValue("a"),
+                    final ForwarderClientConfig config = new ForwarderClientConfig(new InetSocketAddress(commandLine.getOptionValue("a"),
                             commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ForwarderGlobalConstants.DEFAULT_SERVER_PORT),
                             ((Number) commandLine.getParsedOptionValue("f")).intValue(),
                             ((Number) commandLine.getParsedOptionValue("d")).shortValue(),
@@ -252,7 +252,7 @@ public class CLIMain {
                         openWebPanel = true;
                     }
 
-                    ForwarderClient forwarderClient = new ForwarderClient(config);
+                    final ForwarderClient forwarderClient = new ForwarderClient(config);
 
                     if (openWebPanel) {
                         if (!openWebPanel()) {

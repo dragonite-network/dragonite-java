@@ -51,9 +51,9 @@ public class ConnectionReceiveHandler {
 
     private volatile long receivedPktCount = 0, dupPktCount = 0;
 
-    protected ConnectionReceiveHandler(DragoniteSocket socket, ACKMessageManager ackMessageManager, ConnectionSharedData sharedData,
-                                       int aggressiveWindowMultiplier, int passiveWindowMultiplier, ConnectionResendHandler resender,
-                                       int MTU) {
+    protected ConnectionReceiveHandler(final DragoniteSocket socket, final ACKMessageManager ackMessageManager, final ConnectionSharedData sharedData,
+                                       final int aggressiveWindowMultiplier, final int passiveWindowMultiplier, final ConnectionResendHandler resender,
+                                       final int MTU) {
         this.socket = socket;
         this.ackMessageManager = ackMessageManager;
         this.sharedData = sharedData;
@@ -118,7 +118,7 @@ public class ConnectionReceiveHandler {
             receivedRawLength += pktLength;
 
             if (message instanceof ReliableMessage) {
-                ReliableMessage reliableMessage = (ReliableMessage) message;
+                final ReliableMessage reliableMessage = (ReliableMessage) message;
 
                 if (message instanceof CloseMessage) {
 
@@ -148,14 +148,14 @@ public class ConnectionReceiveHandler {
 
             if (message instanceof ACKMessage) {
 
-                ACKMessage ackMessage = (ACKMessage) message;
+                final ACKMessage ackMessage = (ACKMessage) message;
                 if (ackMessage.getReceiveSeq() > remoteAckedConsecutiveSeq) {
                     remoteAckedConsecutiveSeq = ackMessage.getReceiveSeq();
                 }
 
-                int[] seqs = ackMessage.getSequenceList();
+                final int[] seqs = ackMessage.getSequenceList();
 
-                for (int seq : seqs) {
+                for (final int seq : seqs) {
                     if (seq > remoteAckedMaxSeq) {
                         remoteAckedMaxSeq = seq;
                     }
@@ -185,7 +185,7 @@ public class ConnectionReceiveHandler {
         }
     }
 
-    protected void setRemoteReceiveCloseSeq(int sequence) {
+    protected void setRemoteReceiveCloseSeq(final int sequence) {
         closeMsgSequence = sequence;
         waitForClose = true;
     }
@@ -198,21 +198,21 @@ public class ConnectionReceiveHandler {
         }
     }
 
-    private int getProperWindow(boolean passive) {
-        int mult = passive ? passiveWindowMultiplier : aggressiveWindowMultiplier;
+    private int getProperWindow(final boolean passive) {
+        final int mult = passive ? passiveWindowMultiplier : aggressiveWindowMultiplier;
 
-        float targetPPS = socket.getSendSpeed() / (float) MTU;
-        long currentRTT = sharedData.getEstimatedRTT();
-        int wnd = (int) (targetPPS * (currentRTT / 1000f) * mult);
+        final float targetPPS = socket.getSendSpeed() / (float) MTU;
+        final long currentRTT = sharedData.getEstimatedRTT();
+        final int wnd = (int) (targetPPS * (currentRTT / 1000f) * mult);
 
         return NumUtils.max(wnd, DragoniteGlobalConstants.MIN_SEND_WINDOW);
     }
 
     protected boolean checkWindowAvailable() {
-        int aggressiveDelta = sharedData.getSendSequence() - remoteAckedMaxSeq;
-        int passiveDelta = sharedData.getSendSequence() - remoteAckedConsecutiveSeq;
-        boolean agressiveOK = aggressiveDelta < getProperWindow(false),
-                passiveOK = passiveDelta < getProperWindow(true);
+        final int aggressiveDelta = sharedData.getSendSequence() - remoteAckedMaxSeq;
+        final int passiveDelta = sharedData.getSendSequence() - remoteAckedConsecutiveSeq;
+        final boolean agressiveOK = aggressiveDelta < getProperWindow(false);
+        final boolean passiveOK = passiveDelta < getProperWindow(true);
         //if (!agressiveOK) System.out.println("NO AGG!");
         //if (!passiveOK) System.out.println("NO PSV!");
         return agressiveOK && passiveOK;

@@ -29,14 +29,15 @@ public class DataFrame implements Frame {
 
     private byte[] data;
 
-    public DataFrame(short connectionID, byte[] data) {
+    public DataFrame(final short connectionID, final byte[] data) {
         this.connectionID = connectionID;
         this.data = data;
     }
 
-    public DataFrame(byte[] frame) throws IncorrectFrameException, DataLengthMismatchException {
-        ByteBuffer buffer = ByteBuffer.wrap(frame);
-        byte remoteVersion = buffer.get(), remoteType = buffer.get();
+    public DataFrame(final byte[] frame) throws IncorrectFrameException, DataLengthMismatchException {
+        final ByteBuffer buffer = ByteBuffer.wrap(frame);
+        final byte remoteVersion = buffer.get();
+        final byte remoteType = buffer.get();
 
         if (remoteVersion != VERSION) {
             throw new IncorrectFrameException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
@@ -47,11 +48,11 @@ public class DataFrame implements Frame {
 
         connectionID = buffer.getShort();
 
-        short length = buffer.getShort();
+        final short length = buffer.getShort();
         data = new byte[length];
         try {
             buffer.get(data);
-        } catch (BufferUnderflowException e) {
+        } catch (final BufferUnderflowException e) {
             throw new DataLengthMismatchException("Length mismatch (" + length + ")");
         }
 
@@ -61,7 +62,7 @@ public class DataFrame implements Frame {
         return connectionID;
     }
 
-    public void setConnectionID(short connectionID) {
+    public void setConnectionID(final short connectionID) {
         this.connectionID = connectionID;
     }
 
@@ -69,7 +70,7 @@ public class DataFrame implements Frame {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public void setData(final byte[] data) {
         this.data = data;
     }
 
@@ -85,7 +86,7 @@ public class DataFrame implements Frame {
 
     @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + data.length);
+        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + data.length);
         buffer.put(VERSION);
         buffer.put(TYPE);
         buffer.putShort(connectionID);

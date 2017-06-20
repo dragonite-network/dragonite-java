@@ -12,7 +12,7 @@ public class ResendItem {
 
     private volatile boolean resended = false;
 
-    public ResendItem(int sequence, long startTime, long nextSendTime) {
+    public ResendItem(final int sequence, final long startTime, final long nextSendTime) {
         this.sequence = sequence;
         this.startTime = startTime;
         this.nextSendTime = nextSendTime;
@@ -38,7 +38,7 @@ public class ResendItem {
         return nextSendTime;
     }
 
-    public void setNextSendTime(long nextSendTime) {
+    public void setNextSendTime(final long nextSendTime) {
         this.nextSendTime = nextSendTime;
     }
 

@@ -24,16 +24,16 @@ public class Multiplexer {
 
     private volatile boolean alive = true;
 
-    public Multiplexer(SendAction sendAction, short maxFrameSize) {
+    public Multiplexer(final SendAction sendAction, final short maxFrameSize) {
         this.sendAction = sendAction;
         frameParser = new FrameParser(maxFrameSize);
     }
 
-    public MultiplexedConnection createConnection(short connID) throws ConnectionAlreadyExistsException, MultiplexerClosedException {
+    public MultiplexedConnection createConnection(final short connID) throws ConnectionAlreadyExistsException, MultiplexerClosedException {
         if (alive) {
             synchronized (connLock) {
                 if (!connectionMap.containsKey(connID)) {
-                    MultiplexedConnection connection = new MultiplexedConnection(this, connID, sendAction);
+                    final MultiplexedConnection connection = new MultiplexedConnection(this, connID, sendAction);
                     connectionMap.put(connID, connection);
                     sendAction.sendPacket(new CreateConnectionFrame(connID).toBytes());
                     return connection;
@@ -63,7 +63,7 @@ public class Multiplexer {
         }
     }
 
-    protected void removeConnectionFromMap(short connID) {
+    protected void removeConnectionFromMap(final short connID) {
         synchronized (connLock) {
             connectionMap.remove(connID);
         }
@@ -77,8 +77,8 @@ public class Multiplexer {
         if (alive) {
             alive = false;
             synchronized (connLock) {
-                for (Iterator<Map.Entry<Short, MultiplexedConnection>> it = connectionMap.entrySet().iterator(); it.hasNext(); ) {
-                    Map.Entry<Short, MultiplexedConnection> entry = it.next();
+                for (final Iterator<Map.Entry<Short, MultiplexedConnection>> it = connectionMap.entrySet().iterator(); it.hasNext(); ) {
+                    final Map.Entry<Short, MultiplexedConnection> entry = it.next();
                     entry.getValue().closeNoRemove();
                     it.remove();
                 }
@@ -90,25 +90,25 @@ public class Multiplexer {
         }
     }
 
-    public void onReceiveBytes(byte[] rawBytes) {
-        Frame frame = frameParser.tryParseFrame(rawBytes);
+    public void onReceiveBytes(final byte[] rawBytes) {
+        final Frame frame = frameParser.tryParseFrame(rawBytes);
         if (frame != null) {
             processFrame(frame);
         }
     }
 
-    private void processFrame(Frame frame) {
+    private void processFrame(final Frame frame) {
         if (frame instanceof DataFrame) {
 
-            short connID = ((DataFrame) frame).getConnectionID();
-            MultiplexedConnection connection = connectionMap.get(connID);
+            final short connID = ((DataFrame) frame).getConnectionID();
+            final MultiplexedConnection connection = connectionMap.get(connID);
 
             if (connection != null) connection.addFrame(frame);
 
         } else if (frame instanceof CloseConnectionFrame) {
 
-            short connID = ((CloseConnectionFrame) frame).getConnectionID();
-            MultiplexedConnection connection = connectionMap.get(connID);
+            final short connID = ((CloseConnectionFrame) frame).getConnectionID();
+            final MultiplexedConnection connection = connectionMap.get(connID);
 
             if (connection != null) {
                 connection.closeSender();
@@ -117,8 +117,8 @@ public class Multiplexer {
 
         } else if (frame instanceof CreateConnectionFrame) {
 
-            short connID = ((CreateConnectionFrame) frame).getConnectionID();
-            MultiplexedConnection connection;
+            final short connID = ((CreateConnectionFrame) frame).getConnectionID();
+            final MultiplexedConnection connection;
             synchronized (connLock) {
                 connection = new MultiplexedConnection(this, connID, sendAction);
                 connectionMap.put(connID, connection);
@@ -129,15 +129,15 @@ public class Multiplexer {
                 acceptLock.notifyAll();
             }
         } else if (frame instanceof PauseConnectionFrame) {
-            short connID = ((PauseConnectionFrame) frame).getConnectionID();
-            MultiplexedConnection connection = connectionMap.get(connID);
+            final short connID = ((PauseConnectionFrame) frame).getConnectionID();
+            final MultiplexedConnection connection = connectionMap.get(connID);
 
             if (connection != null) {
                 connection.pauseSend();
             }
         } else if (frame instanceof ContinueConnectionFrame) {
-            short connID = ((ContinueConnectionFrame) frame).getConnectionID();
-            MultiplexedConnection connection = connectionMap.get(connID);
+            final short connID = ((ContinueConnectionFrame) frame).getConnectionID();
+            final MultiplexedConnection connection = connectionMap.get(connID);
 
             if (connection != null) {
                 connection.continueSend();

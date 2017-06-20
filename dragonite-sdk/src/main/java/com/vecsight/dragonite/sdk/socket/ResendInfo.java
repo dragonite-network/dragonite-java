@@ -8,7 +8,7 @@ public class ResendInfo {
 
     private boolean resended;
 
-    public ResendInfo(boolean exist, long RTT, boolean resended) {
+    public ResendInfo(final boolean exist, final long RTT, final boolean resended) {
         this.exist = exist;
         this.RTT = RTT;
         this.resended = resended;
@@ -29,7 +29,7 @@ public class ResendInfo {
         return exist;
     }
 
-    public void setExist(boolean exist) {
+    public void setExist(final boolean exist) {
         this.exist = exist;
     }
 
@@ -37,7 +37,7 @@ public class ResendInfo {
         return RTT;
     }
 
-    public void setRTT(long RTT) {
+    public void setRTT(final long RTT) {
         this.RTT = RTT;
     }
 
@@ -45,7 +45,7 @@ public class ResendInfo {
         return resended;
     }
 
-    public void setResended(boolean resended) {
+    public void setResended(final boolean resended) {
         this.resended = resended;
     }
 

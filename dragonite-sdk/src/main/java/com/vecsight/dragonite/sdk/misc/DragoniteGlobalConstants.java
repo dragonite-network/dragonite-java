@@ -2,7 +2,7 @@ package com.vecsight.dragonite.sdk.misc;
 
 import com.vecsight.dragonite.DragoniteBuildConfig;
 
-public class DragoniteGlobalConstants {
+public final class DragoniteGlobalConstants {
 
     //Version shits
 

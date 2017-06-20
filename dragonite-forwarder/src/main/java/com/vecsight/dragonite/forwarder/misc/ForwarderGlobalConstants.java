@@ -5,7 +5,7 @@ import com.vecsight.dragonite.ForwarderBuildConfig;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class ForwarderGlobalConstants {
+public final class ForwarderGlobalConstants {
 
     //Version shits
 

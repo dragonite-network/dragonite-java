@@ -38,16 +38,16 @@ public class ForwarderServer {
                     Logger.debug("New client from {}", socket.getRemoteSocketAddress().toString());
                     handleClient(socket);
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 Logger.error(e, "Unable to accept Dragonite connections");
             }
         }, "FS-Accept");
         acceptThread.start();
     }
 
-    private void handleClient(DragoniteSocket socket) {
-        ForwarderClientHandler clientHandler = new ForwarderClientHandler(forwardingPort, socket, limitMbps);
-        Thread handlerThread = new Thread(clientHandler::run, "FS-Handler");
+    private void handleClient(final DragoniteSocket socket) {
+        final ForwarderClientHandler clientHandler = new ForwarderClientHandler(forwardingPort, socket, limitMbps);
+        final Thread handlerThread = new Thread(clientHandler::run, "FS-Handler");
         handlerThread.start();
     }
 

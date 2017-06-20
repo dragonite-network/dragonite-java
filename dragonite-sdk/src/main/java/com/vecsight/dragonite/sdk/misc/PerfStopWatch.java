@@ -8,7 +8,7 @@ public class PerfStopWatch {
 
     private volatile long lastTick;
 
-    public PerfStopWatch(boolean warn, long warnDelta) {
+    public PerfStopWatch(final boolean warn, final long warnDelta) {
         this.warn = warn;
         this.warnDelta = warnDelta;
         start();
@@ -18,8 +18,8 @@ public class PerfStopWatch {
         lastTick = System.currentTimeMillis();
     }
 
-    public long tick(String msg) {
-        long time = System.currentTimeMillis() - lastTick;
+    public long tick(final String msg) {
+        final long time = System.currentTimeMillis() - lastTick;
         if (warn && time >= warnDelta) {
             System.out.println("[PerfStopWatch] " + msg + " " + time + "ms");
         }

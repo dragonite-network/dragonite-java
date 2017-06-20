@@ -6,7 +6,7 @@ public class ConnectionNotAliveException extends Exception {
         super("Connection is not alive");
     }
 
-    public ConnectionNotAliveException(String msg) {
+    public ConnectionNotAliveException(final String msg) {
         super(msg);
     }
 

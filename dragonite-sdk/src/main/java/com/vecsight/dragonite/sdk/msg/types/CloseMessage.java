@@ -19,14 +19,15 @@ public class CloseMessage implements ReliableMessage {
 
     private short status;
 
-    public CloseMessage(int sequence, short status) {
+    public CloseMessage(final int sequence, final short status) {
         this.sequence = sequence;
         this.status = status;
     }
 
-    public CloseMessage(byte[] msg) throws IncorrectMessageException {
-        ByteBuffer buffer = ByteBuffer.wrap(msg);
-        byte remoteVersion = buffer.get(), remoteType = buffer.get();
+    public CloseMessage(final byte[] msg) throws IncorrectMessageException {
+        final ByteBuffer buffer = ByteBuffer.wrap(msg);
+        final byte remoteVersion = buffer.get();
+        final byte remoteType = buffer.get();
 
         if (remoteVersion != VERSION) {
             throw new IncorrectMessageException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
@@ -52,7 +53,7 @@ public class CloseMessage implements ReliableMessage {
 
     @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(getFixedLength());
+        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength());
         buffer.put(VERSION);
         buffer.put(TYPE);
         buffer.putInt(sequence);
@@ -71,7 +72,7 @@ public class CloseMessage implements ReliableMessage {
     }
 
     @Override
-    public void setSequence(int sequence) {
+    public void setSequence(final int sequence) {
         this.sequence = sequence;
     }
 
@@ -79,7 +80,7 @@ public class CloseMessage implements ReliableMessage {
         return status;
     }
 
-    public void setStatus(short status) {
+    public void setStatus(final short status) {
         this.status = status;
     }
 }

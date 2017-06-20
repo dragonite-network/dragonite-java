@@ -34,7 +34,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
     private volatile String description;
 
-    public DragoniteServerSocket(SocketAddress remoteAddress, long sendSpeed, DragoniteServer dragoniteServer) {
+    public DragoniteServerSocket(final SocketAddress remoteAddress, final long sendSpeed, final DragoniteServer dragoniteServer) {
         this.remoteAddress = remoteAddress;
         this.dragoniteServer = dragoniteServer;
 
@@ -75,7 +75,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
     }
 
     @Override
-    public void send(byte[] bytes) throws InterruptedException, IncorrectSizeException, IOException, SenderClosedException {
+    public void send(final byte[] bytes) throws InterruptedException, IncorrectSizeException, IOException, SenderClosedException {
         if (dragoniteServer.isAutoSplit()) {
             sender.sendDataMessage_autoSplit(bytes);
         } else {
@@ -99,7 +99,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
     }
 
     @Override
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -119,7 +119,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
     }
 
     @Override
-    public void setSendSpeed(long sendSpeed) {
+    public void setSendSpeed(final long sendSpeed) {
         managedSendAction.setSpeed(sendSpeed);
     }
 
@@ -161,7 +161,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
         destroy_impl(false);
     }
 
-    private void destroy_impl(boolean remove) {
+    private void destroy_impl(final boolean remove) {
         synchronized (closeLock) {
             if (alive) {
                 alive = false;

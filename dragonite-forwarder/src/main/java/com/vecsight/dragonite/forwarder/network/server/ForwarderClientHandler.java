@@ -27,7 +27,7 @@ public class ForwarderClientHandler {
 
     private final short limitMbps;
 
-    public ForwarderClientHandler(int forwardingPort, DragoniteSocket dragoniteSocket, short limitMbps) {
+    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final short limitMbps) {
         this.forwardingPort = forwardingPort;
         this.dragoniteSocket = dragoniteSocket;
         this.limitMbps = limitMbps;
@@ -35,7 +35,7 @@ public class ForwarderClientHandler {
 
     public void run() {
         if (dragoniteSocket.isAlive()) {
-            byte[] headerBytes;
+            final byte[] headerBytes;
             try {
                 headerBytes = dragoniteSocket.read();
             } catch (InterruptedException | ConnectionNotAliveException e) {
@@ -101,12 +101,12 @@ public class ForwarderClientHandler {
                                     final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
                                     try {
                                         pipeFromRemotePipe.pipe(tmpMuxConn, tcpSocket.getOutputStream());
-                                    } catch (Exception e) {
+                                    } catch (final Exception e) {
                                         Logger.debug(e, "Pipe closed");
                                     } finally {
                                         try {
                                             tcpSocket.close();
-                                        } catch (IOException ignored) {
+                                        } catch (final IOException ignored) {
                                         }
                                         tmpMuxConn.close();
                                     }
@@ -117,19 +117,19 @@ public class ForwarderClientHandler {
                                     final Pipe pipeFromLocalPipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
                                     try {
                                         pipeFromLocalPipe.pipe(tcpSocket.getInputStream(), tmpMuxConn);
-                                    } catch (Exception e) {
+                                    } catch (final Exception e) {
                                         Logger.debug(e, "Pipe closed");
                                     } finally {
                                         try {
                                             tcpSocket.close();
-                                        } catch (IOException ignored) {
+                                        } catch (final IOException ignored) {
                                         }
                                         tmpMuxConn.close();
                                     }
                                 }, "FS-L2R");
                                 pipeFromLocalThread.start();
 
-                            } catch (IOException e) {
+                            } catch (final IOException e) {
                                 Logger.error(e, "Unable to establish local connection");
                                 tmpMuxConn.close();
                             }
@@ -152,7 +152,7 @@ public class ForwarderClientHandler {
                 } finally {
                     try {
                         dragoniteSocket.closeGracefully();
-                    } catch (Exception ignored) {
+                    } catch (final Exception ignored) {
                     }
                     multiplexer.close();
                     Logger.info("Client \"{}\" ({}) disconnected",

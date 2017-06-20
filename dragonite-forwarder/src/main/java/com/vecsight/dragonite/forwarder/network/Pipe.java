@@ -15,20 +15,20 @@ public class Pipe {
 
     private final short bufferSize;
 
-    public Pipe(short bufferSize) {
+    public Pipe(final short bufferSize) {
         this.bufferSize = bufferSize;
     }
 
-    public void pipe(InputStream inputStream, MultiplexedConnection connection) throws IOException, SenderClosedException, InterruptedException {
+    public void pipe(final InputStream inputStream, final MultiplexedConnection connection) throws IOException, SenderClosedException, InterruptedException {
         int len;
-        byte[] buf = new byte[bufferSize];
+        final byte[] buf = new byte[bufferSize];
         while ((len = inputStream.read(buf)) > 0) {
             pipedBytes += len;
             connection.send(Arrays.copyOf(buf, len));
         }
     }
 
-    public void pipe(MultiplexedConnection connection, OutputStream outputStream) throws ConnectionNotAliveException, InterruptedException, IOException {
+    public void pipe(final MultiplexedConnection connection, final OutputStream outputStream) throws ConnectionNotAliveException, InterruptedException, IOException {
         int len;
         byte[] buf;
         while ((buf = connection.read()) != null) {

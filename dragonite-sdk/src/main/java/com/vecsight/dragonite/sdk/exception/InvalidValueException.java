@@ -2,7 +2,7 @@ package com.vecsight.dragonite.sdk.exception;
 
 public class InvalidValueException extends Exception {
 
-    public InvalidValueException(String msg) {
+    public InvalidValueException(final String msg) {
         super(msg);
     }
 

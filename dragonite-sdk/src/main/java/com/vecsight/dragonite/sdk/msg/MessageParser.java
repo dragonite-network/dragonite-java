@@ -6,9 +6,9 @@ import com.vecsight.dragonite.sdk.msg.types.CloseMessage;
 import com.vecsight.dragonite.sdk.msg.types.DataMessage;
 import com.vecsight.dragonite.sdk.msg.types.HeartbeatMessage;
 
-public class MessageParser {
+public final class MessageParser {
 
-    public static Message parseMessage(byte[] msgBytes) throws IncorrectMessageException {
+    public static Message parseMessage(final byte[] msgBytes) throws IncorrectMessageException {
         if (msgBytes.length >= 2) {
             switch (msgBytes[1]) {
                 case MessageType.DATA:

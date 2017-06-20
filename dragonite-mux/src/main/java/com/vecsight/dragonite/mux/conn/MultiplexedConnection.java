@@ -38,13 +38,13 @@ public class MultiplexedConnection {
 
     private final Object sendLock = new Object();
 
-    public MultiplexedConnection(Multiplexer multiplexer, short connectionID, SendAction sendAction) {
+    public MultiplexedConnection(final Multiplexer multiplexer, final short connectionID, final SendAction sendAction) {
         this.multiplexer = multiplexer;
         this.connectionID = connectionID;
         this.sendAction = sendAction;
     }
 
-    protected void addFrame(Frame frame) {
+    protected void addFrame(final Frame frame) {
         if (alive) {
             synchronized (frameLock) {
                 frameQueue.add(frame);
@@ -76,7 +76,7 @@ public class MultiplexedConnection {
             }
 
             if (frame instanceof DataFrame) {
-                byte[] data = ((DataFrame) frame).getData();
+                final byte[] data = ((DataFrame) frame).getData();
 
                 synchronized (frameLock) {
                     bufSize -= data.length;
@@ -110,7 +110,7 @@ public class MultiplexedConnection {
         return alive && !stopSend;
     }
 
-    public void send(byte[] bytes) throws SenderClosedException, InterruptedException {
+    public void send(final byte[] bytes) throws SenderClosedException, InterruptedException {
         if (canSend()) {
             synchronized (sendLock) {
                 while (localPauseSend && canSend()) {
@@ -154,7 +154,7 @@ public class MultiplexedConnection {
         close_impl(false);
     }
 
-    private void close_impl(boolean removeFromMap) {
+    private void close_impl(final boolean removeFromMap) {
         synchronized (closeLock) {
             if (alive) {
 

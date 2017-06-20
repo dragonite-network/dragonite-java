@@ -58,7 +58,7 @@ public class DragoniteServer {
 
     private final InetSocketAddress devConsoleBindAddress;
 
-    public DragoniteServer(InetAddress address, int port, long defaultSendSpeed, DragoniteSocketParameters parameters) throws SocketException {
+    public DragoniteServer(final InetAddress address, final int port, final long defaultSendSpeed, final DragoniteSocketParameters parameters) throws SocketException {
         datagramSocket = new DatagramSocket(port, address);
 
         //set from parameters
@@ -86,15 +86,15 @@ public class DragoniteServer {
         receiveThread = new Thread(() -> {
             try {
                 while (doReceive) {
-                    byte[] b = new byte[packetSize];
-                    DatagramPacket packet = new DatagramPacket(b, b.length);
+                    final byte[] b = new byte[packetSize];
+                    final DatagramPacket packet = new DatagramPacket(b, b.length);
                     try {
                         datagramSocket.receive(packet);
                         packetBuffer.put(packet);
-                    } catch (IOException ignored) {
+                    } catch (final IOException ignored) {
                     }
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
             }
         }, "DS-Receive");
         receiveThread.start();
@@ -107,7 +107,7 @@ public class DragoniteServer {
                         handlePacket(packet);
                     }
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 //okay
             }
         }, "DS-PacketHandle");
@@ -117,9 +117,9 @@ public class DragoniteServer {
             try {
                 while (doAliveDetect) {
                     final long current = System.currentTimeMillis();
-                    Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap_concurrent.entrySet().iterator();
+                    final Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap_concurrent.entrySet().iterator();
                     while (it.hasNext()) {
-                        DragoniteServerSocket socket = it.next().getValue();
+                        final DragoniteServerSocket socket = it.next().getValue();
                         if (socket.isAlive()) {
                             if (current - socket.getLastReceiveTime() > receiveTimeoutSec * 1000) {
                                 //TIMEOUT
@@ -138,7 +138,7 @@ public class DragoniteServer {
                     }
                     Thread.sleep(1000);
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 //okay
             }
         }, "DS-AliveDetect");
@@ -149,18 +149,18 @@ public class DragoniteServer {
             try {
                 tmpServer = new DevConsoleWebServer(devConsoleBindAddress, () -> {
                     final ArrayList<DragoniteSocketStatistics> list = new ArrayList<>();
-                    for (DragoniteServerSocket socket : connectionMap_concurrent.values()) {
+                    for (final DragoniteServerSocket socket : connectionMap_concurrent.values()) {
                         list.add(socket.getStatistics());
                     }
                     return list;
                 });
-            } catch (IOException ignored) {
+            } catch (final IOException ignored) {
             }
         }
         devConsoleWebServer = tmpServer;
     }
 
-    public DragoniteServer(int port, long defaultSendSpeed, DragoniteSocketParameters parameters) throws SocketException {
+    public DragoniteServer(final int port, final long defaultSendSpeed, final DragoniteSocketParameters parameters) throws SocketException {
         this(null, port, defaultSendSpeed, parameters);
     }
 
@@ -169,11 +169,11 @@ public class DragoniteServer {
     }
 
     private void handlePacket(final DatagramPacket packet) throws InterruptedException {
-        SocketAddress remoteAddress = packet.getSocketAddress();
+        final SocketAddress remoteAddress = packet.getSocketAddress();
         Message message = null;
         try {
             message = MessageParser.parseMessage(packet.getData());
-        } catch (IncorrectMessageException ignored) {
+        } catch (final IncorrectMessageException ignored) {
         }
 
         if (message != null) {
@@ -182,10 +182,10 @@ public class DragoniteServer {
                 //no connection yet
                 if (message instanceof ReliableMessage) {
                     if (message instanceof CloseMessage) {
-                        ACKMessage ackMessage = new ACKMessage(new int[]{((CloseMessage) message).getSequence()}, 0);
+                        final ACKMessage ackMessage = new ACKMessage(new int[]{((CloseMessage) message).getSequence()}, 0);
                         try {
                             sendPacket(ackMessage.toBytes(), remoteAddress);
-                        } catch (IOException ignored) {
+                        } catch (final IOException ignored) {
                         }
                     } else if (((ReliableMessage) message).getSequence() == 0) {
                         dragoniteServerSocket = createConnection(remoteAddress, defaultSendSpeed);
@@ -200,19 +200,19 @@ public class DragoniteServer {
         }
     }
 
-    private DragoniteServerSocket createConnection(SocketAddress remoteAddress, long sendSpeed) {
-        DragoniteServerSocket socket = new DragoniteServerSocket(remoteAddress, sendSpeed, this);
+    private DragoniteServerSocket createConnection(final SocketAddress remoteAddress, final long sendSpeed) {
+        final DragoniteServerSocket socket = new DragoniteServerSocket(remoteAddress, sendSpeed, this);
         connectionMap_concurrent.put(remoteAddress, socket);
         return socket;
     }
 
-    protected void removeConnectionFromMap(SocketAddress remoteAddress) {
+    protected void removeConnectionFromMap(final SocketAddress remoteAddress) {
         connectionMap_concurrent.remove(remoteAddress);
     }
 
     //SEND ALL PACKETS THROUGH THIS!!
-    protected void sendPacket(byte[] bytes, SocketAddress socketAddress) throws IOException {
-        DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
+    protected void sendPacket(final byte[] bytes, final SocketAddress socketAddress) throws IOException {
+        final DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
         packet.setSocketAddress(socketAddress);
         datagramSocket.send(packet);
     }
@@ -221,7 +221,7 @@ public class DragoniteServer {
         return defaultSendSpeed;
     }
 
-    public void setDefaultSendSpeed(long defaultSendSpeed) {
+    public void setDefaultSendSpeed(final long defaultSendSpeed) {
         this.defaultSendSpeed = defaultSendSpeed;
     }
 
@@ -271,9 +271,9 @@ public class DragoniteServer {
                 doHandle = false;
                 doAliveDetect = false;
 
-                Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap_concurrent.entrySet().iterator();
+                final Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap_concurrent.entrySet().iterator();
                 while (it.hasNext()) {
-                    DragoniteServerSocket socket = it.next().getValue();
+                    final DragoniteServerSocket socket = it.next().getValue();
                     socket.destroy_NoRemove();
                     it.remove();
                 }

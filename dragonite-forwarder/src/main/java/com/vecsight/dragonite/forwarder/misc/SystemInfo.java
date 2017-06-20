@@ -1,6 +1,6 @@
 package com.vecsight.dragonite.forwarder.misc;
 
-public class SystemInfo {
+public final class SystemInfo {
 
     public static String getUsername() {
         final String name = System.getProperty("user.name");

@@ -18,12 +18,12 @@ public class ManagedSendAction implements SendAction {
 
     private final AtomicLong sendRawLength = new AtomicLong(0);
 
-    public ManagedSendAction(SendAction sendAction, long speed) {
+    public ManagedSendAction(final SendAction sendAction, final long speed) {
         this.sendAction = sendAction;
         setSpeed(speed);
     }
 
-    public void setSpeed(long speed) {
+    public void setSpeed(final long speed) {
         bucket = Bucket4j.builder().addLimit(Bandwidth.simple(speed, Duration.ofSeconds(1))).build();
         this.speed = speed;
     }
@@ -32,7 +32,7 @@ public class ManagedSendAction implements SendAction {
         return speed;
     }
 
-    public void sendPacket(byte[] bytes) throws InterruptedException, IOException {
+    public void sendPacket(final byte[] bytes) throws InterruptedException, IOException {
         bucket.consume(bytes.length);
         sendAction.sendPacket(bytes);
         sendRawLength.addAndGet(bytes.length);

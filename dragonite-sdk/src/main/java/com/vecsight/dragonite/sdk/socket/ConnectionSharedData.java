@@ -16,7 +16,7 @@ public class ConnectionSharedData {
         return estimatedRTT;
     }
 
-    protected void setEstimatedRTT(long estimatedRTT) {
+    protected void setEstimatedRTT(final long estimatedRTT) {
         this.estimatedRTT = estimatedRTT;
     }
 
@@ -24,7 +24,7 @@ public class ConnectionSharedData {
         return devRTT;
     }
 
-    public void setDevRTT(long devRTT) {
+    public void setDevRTT(final long devRTT) {
         this.devRTT = devRTT;
     }
 
@@ -32,7 +32,7 @@ public class ConnectionSharedData {
         return sendSequence;
     }
 
-    public void setSendSequence(int sendSequence) {
+    public void setSendSequence(final int sendSequence) {
         this.sendSequence = sendSequence;
     }
 }

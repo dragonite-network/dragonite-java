@@ -66,7 +66,7 @@ public class ForwarderClient {
                     Logger.debug("New connection from {}", socket.getRemoteSocketAddress().toString());
                     handleClient(socket);
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 Logger.error(e, "Unable to accept TCP connections");
             }
         }, "FC-Accept");
@@ -111,7 +111,7 @@ public class ForwarderClient {
                 synchronized (reconnectLock) {
                     try {
                         dragoniteClientSocket.closeGracefully();
-                    } catch (Exception ignored) {
+                    } catch (final Exception ignored) {
                     }
                     multiplexer.close();
                 }
@@ -122,7 +122,7 @@ public class ForwarderClient {
         Logger.info("Connection established with {}", remoteAddress.toString());
     }
 
-    private void handleClient(Socket socket) {
+    private void handleClient(final Socket socket) {
 
         synchronized (reconnectLock) {
             if (!dragoniteClientSocket.isAlive()) {
@@ -144,12 +144,12 @@ public class ForwarderClient {
                 final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
                 try {
                     pipeFromRemotePipe.pipe(multiplexedConnection, socket.getOutputStream());
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Logger.debug(e, "Pipe closed");
                 } finally {
                     try {
                         socket.close();
-                    } catch (IOException ignored) {
+                    } catch (final IOException ignored) {
                     }
                     multiplexedConnection.close();
                 }
@@ -160,12 +160,12 @@ public class ForwarderClient {
                 final Pipe pipeFromLocalPipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
                 try {
                     pipeFromLocalPipe.pipe(socket.getInputStream(), multiplexedConnection);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     Logger.debug(e, "Pipe closed");
                 } finally {
                     try {
                         socket.close();
-                    } catch (IOException ignored) {
+                    } catch (final IOException ignored) {
                     }
                     multiplexedConnection.close();
                 }

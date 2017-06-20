@@ -72,8 +72,8 @@ public class DevConsoleWebServer {
     private String getConnectionsJSONArray(final List<DragoniteSocketStatistics> statisticsList) {
         String json = "[";
         int i = 0;
-        for (DragoniteSocketStatistics statistics : statisticsList) {
-            String cinfo = "{\"remote\":\"" + statistics.getRemoteAddress().toString() +
+        for (final DragoniteSocketStatistics statistics : statisticsList) {
+            final String cinfo = "{\"remote\":\"" + statistics.getRemoteAddress().toString() +
                     "\",\"description\":\"" + statistics.getDescription() +
                     "\",\"rtt\":" + statistics.getEstimatedRTT() +
                     ",\"devrtt\":" + statistics.getDevRTT() +

@@ -15,14 +15,14 @@ public class RTTController {
 
     private int continuousResendCount = 0;
 
-    public RTTController(ConnectionSharedData sharedData) {
+    public RTTController(final ConnectionSharedData sharedData) {
         this.sharedData = sharedData;
     }
 
-    public void pushInfo(ResendInfo info) {
+    public void pushInfo(final ResendInfo info) {
         //System.out.println(info);
         if (info.isExist()) {
-            long currentTime = System.currentTimeMillis();
+            final long currentTime = System.currentTimeMillis();
             /*if (currentTime - lastRefresh >= DragoniteGlobalConstants.rttRefreshIntervalMS) {
                 lastRefresh = System.currentTimeMillis();
                 if (info.isResended()) {
@@ -42,8 +42,8 @@ public class RTTController {
                 } else {
                     continuousResendCount++;
                     if (continuousResendCount > (DragoniteGlobalConstants.RTT_RESEND_CORRECTION_INTERVAL_MS / DragoniteGlobalConstants.RTT_UPDATE_INTERVAL_MS)) {
-                        long maxCRTT = (long) (estimatedRTT * DragoniteGlobalConstants.RTT_RESENDED_REFRESH_MAX_MULT);
-                        long tmpRTT = NumUtils.min(info.getRTT(), maxCRTT);
+                        final long maxCRTT = (long) (estimatedRTT * DragoniteGlobalConstants.RTT_RESENDED_REFRESH_MAX_MULT);
+                        final long tmpRTT = NumUtils.min(info.getRTT(), maxCRTT);
                         setRTT_limited((long) ((1 - estimatedRTTUpdateFactor) * estimatedRTT + estimatedRTTUpdateFactor * tmpRTT),
                                 (long) ((1 - devRTTUpdateFactor) * devRTT + devRTTUpdateFactor * Math.abs(tmpRTT - estimatedRTT)));
                         continuousResendCount = 0;
@@ -53,7 +53,7 @@ public class RTTController {
         }
     }
 
-    private void setRTT_limited(long estimatedRTT, long devRTT) {
+    private void setRTT_limited(final long estimatedRTT, final long devRTT) {
         long tempDevRTT = devRTT * DragoniteGlobalConstants.DEV_RTT_MULT;
         if (tempDevRTT > estimatedRTT && tempDevRTT > DragoniteGlobalConstants.RTT_MAX_VARIATION) {
             tempDevRTT = estimatedRTT;
@@ -62,7 +62,7 @@ public class RTTController {
         setRTT(estimatedRTT, tempDevRTT);
     }
 
-    private void setRTT(long estimatedRTT, long devRTT) {
+    private void setRTT(final long estimatedRTT, final long devRTT) {
         this.estimatedRTT = estimatedRTT;
         this.devRTT = devRTT;
         sharedData.setEstimatedRTT(estimatedRTT);

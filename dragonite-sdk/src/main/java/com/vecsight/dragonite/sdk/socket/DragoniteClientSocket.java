@@ -65,7 +65,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     private final InetSocketAddress devConsoleBindAddress;
 
-    public DragoniteClientSocket(SocketAddress remoteAddress, long sendSpeed, DragoniteSocketParameters parameters) throws SocketException {
+    public DragoniteClientSocket(final SocketAddress remoteAddress, final long sendSpeed, final DragoniteSocketParameters parameters) throws SocketException {
         this.remoteAddress = remoteAddress;
         datagramSocket = new DatagramSocket();
 
@@ -107,15 +107,15 @@ public class DragoniteClientSocket extends DragoniteSocket {
         receiveThread = new Thread(() -> {
             try {
                 while (doReceive) {
-                    byte[] b = new byte[packetSize];
-                    DatagramPacket packet = new DatagramPacket(b, b.length);
+                    final byte[] b = new byte[packetSize];
+                    final DatagramPacket packet = new DatagramPacket(b, b.length);
                     try {
                         datagramSocket.receive(packet);
                         packetBuffer.put(packet);
-                    } catch (IOException ignored) {
+                    } catch (final IOException ignored) {
                     }
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 //okay
             }
         }, "DC-Receive");
@@ -129,7 +129,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
                         handlePacket(packet);
                     }
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 //okay
             }
         }, "DC-PacketHandle");
@@ -153,7 +153,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
                     }
                     Thread.sleep(1000);
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 //okay
             }
         }, "DC-AliveDetect");
@@ -167,7 +167,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
                     list.add(getStatistics());
                     return list;
                 });
-            } catch (IOException ignored) {
+            } catch (final IOException ignored) {
             }
         }
         devConsoleWebServer = tmpServer;
@@ -179,7 +179,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
         Message message = null;
         try {
             message = MessageParser.parseMessage(packet.getData());
-        } catch (IncorrectMessageException ignored) {
+        } catch (final IncorrectMessageException ignored) {
         }
 
         if (message != null) {
@@ -194,8 +194,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
     }
 
     //SEND ALL PACKETS THROUGH THIS!!
-    protected void sendPacket(byte[] bytes, SocketAddress socketAddress) throws IOException {
-        DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
+    protected void sendPacket(final byte[] bytes, final SocketAddress socketAddress) throws IOException {
+        final DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
         packet.setSocketAddress(socketAddress);
         datagramSocket.send(packet);
     }
@@ -206,7 +206,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
     }
 
     @Override
-    public void send(byte[] bytes) throws InterruptedException, IncorrectSizeException, IOException, SenderClosedException {
+    public void send(final byte[] bytes) throws InterruptedException, IncorrectSizeException, IOException, SenderClosedException {
         if (autoSplit) {
             sender.sendDataMessage_autoSplit(bytes);
         } else {
@@ -230,7 +230,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
     }
 
     @Override
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -300,7 +300,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
     }
 
     @Override
-    public void setSendSpeed(long sendSpeed) {
+    public void setSendSpeed(final long sendSpeed) {
         managedSendAction.setSpeed(sendSpeed);
     }
 

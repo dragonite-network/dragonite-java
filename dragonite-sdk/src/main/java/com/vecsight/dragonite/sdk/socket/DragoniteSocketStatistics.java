@@ -12,7 +12,7 @@ public class DragoniteSocketStatistics {
 
     private final long sendCount, resendCount, receiveCount, dupCount;
 
-    public DragoniteSocketStatistics(SocketAddress remoteAddress, String description, long sendLength, long sendRawLength, long readLength, long receiveRawLength, long estimatedRTT, long devRTT, long sendCount, long resendCount, long receiveCount, long dupCount) {
+    public DragoniteSocketStatistics(final SocketAddress remoteAddress, final String description, final long sendLength, final long sendRawLength, final long readLength, final long receiveRawLength, final long estimatedRTT, final long devRTT, final long sendCount, final long resendCount, final long receiveCount, final long dupCount) {
         this.remoteAddress = remoteAddress;
         this.description = description;
         this.sendLength = sendLength;

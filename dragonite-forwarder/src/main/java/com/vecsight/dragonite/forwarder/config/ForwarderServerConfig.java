@@ -15,7 +15,7 @@ public class ForwarderServerConfig {
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
-    public ForwarderServerConfig(InetSocketAddress bindAddress, int forwardingPort) {
+    public ForwarderServerConfig(final InetSocketAddress bindAddress, final int forwardingPort) {
         this.bindAddress = bindAddress;
         this.forwardingPort = forwardingPort;
     }
@@ -24,7 +24,7 @@ public class ForwarderServerConfig {
         return bindAddress;
     }
 
-    public void setBindAddress(InetSocketAddress bindAddress) {
+    public void setBindAddress(final InetSocketAddress bindAddress) {
         this.bindAddress = bindAddress;
     }
 
@@ -32,7 +32,7 @@ public class ForwarderServerConfig {
         return forwardingPort;
     }
 
-    public void setForwardingPort(int forwardingPort) {
+    public void setForwardingPort(final int forwardingPort) {
         this.forwardingPort = forwardingPort;
     }
 
@@ -40,7 +40,7 @@ public class ForwarderServerConfig {
         return mbpsLimit;
     }
 
-    public void setMbpsLimit(short mbpsLimit) {
+    public void setMbpsLimit(final short mbpsLimit) {
         this.mbpsLimit = mbpsLimit;
     }
 
@@ -48,7 +48,7 @@ public class ForwarderServerConfig {
         return dragoniteSocketParameters.getPacketSize();
     }
 
-    public void setMTU(int mtu) throws InvalidValueException {
+    public void setMTU(final int mtu) throws InvalidValueException {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
@@ -56,7 +56,7 @@ public class ForwarderServerConfig {
         return dragoniteSocketParameters.isEnableWebPanel();
     }
 
-    public void setWebPanelEnabled(boolean enabled) {
+    public void setWebPanelEnabled(final boolean enabled) {
         dragoniteSocketParameters.setEnableWebPanel(enabled);
     }
 
@@ -64,7 +64,7 @@ public class ForwarderServerConfig {
         return dragoniteSocketParameters.getWebPanelBindAddress();
     }
 
-    public void setWebPanelBind(InetSocketAddress address) {
+    public void setWebPanelBind(final InetSocketAddress address) {
         dragoniteSocketParameters.setWebPanelBindAddress(address);
     }
 

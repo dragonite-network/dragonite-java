@@ -19,14 +19,15 @@ public class ACKMessage implements Message {
 
     private int receiveSeq;
 
-    public ACKMessage(int[] sequenceList, int receiveSeq) {
+    public ACKMessage(final int[] sequenceList, final int receiveSeq) {
         this.sequenceList = sequenceList;
         this.receiveSeq = receiveSeq;
     }
 
-    public ACKMessage(byte[] msg) throws IncorrectMessageException {
-        ByteBuffer buffer = ByteBuffer.wrap(msg);
-        byte remoteVersion = buffer.get(), remoteType = buffer.get();
+    public ACKMessage(final byte[] msg) throws IncorrectMessageException {
+        final ByteBuffer buffer = ByteBuffer.wrap(msg);
+        final byte remoteVersion = buffer.get();
+        final byte remoteType = buffer.get();
 
         if (remoteVersion != VERSION) {
             throw new IncorrectMessageException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
@@ -37,7 +38,7 @@ public class ACKMessage implements Message {
 
         receiveSeq = buffer.getInt();
 
-        short seqCount = buffer.getShort();
+        final short seqCount = buffer.getShort();
 
         sequenceList = new int[seqCount];
         for (int i = 0; i < seqCount; i++) {
@@ -57,12 +58,12 @@ public class ACKMessage implements Message {
 
     @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + sequenceList.length * Integer.BYTES);
+        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + sequenceList.length * Integer.BYTES);
         buffer.put(VERSION);
         buffer.put(TYPE);
         buffer.putInt(receiveSeq);
         buffer.putShort((short) sequenceList.length);
-        for (int seq : sequenceList) {
+        for (final int seq : sequenceList) {
             buffer.putInt(seq);
         }
         return buffer.array();
@@ -77,7 +78,7 @@ public class ACKMessage implements Message {
         return sequenceList;
     }
 
-    public void setSequenceList(int[] sequenceList) {
+    public void setSequenceList(final int[] sequenceList) {
         this.sequenceList = sequenceList;
     }
 
@@ -85,7 +86,7 @@ public class ACKMessage implements Message {
         return receiveSeq;
     }
 
-    public void setReceiveSeq(int receiveSeq) {
+    public void setReceiveSeq(final int receiveSeq) {
         this.receiveSeq = receiveSeq;
     }
 }

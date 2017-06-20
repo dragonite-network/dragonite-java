@@ -1,6 +1,6 @@
 package com.vecsight.dragonite.mux.frame;
 
-public class FrameType {
+public final class FrameType {
 
     public static final byte CREATE = 0;
 

@@ -13,30 +13,30 @@ public class FrameParser {
 
     private short position = 0;
 
-    public FrameParser(short maxFrameSize) {
+    public FrameParser(final short maxFrameSize) {
         this.maxFrameSize = maxFrameSize;
         bytesBuffer = new byte[maxFrameSize];
     }
 
-    public Frame tryParseFrame(byte[] rawBytes) {
+    public Frame tryParseFrame(final byte[] rawBytes) {
         System.arraycopy(rawBytes, 0, bytesBuffer, position, rawBytes.length);
         position += rawBytes.length;
 
-        byte[] tmpBytes = new byte[position];
+        final byte[] tmpBytes = new byte[position];
         System.arraycopy(bytesBuffer, 0, tmpBytes, 0, position);
 
         Frame frame = null;
         try {
             frame = parseFrameRaw(tmpBytes);
             position = 0;
-        } catch (IncorrectFrameException e) {
+        } catch (final IncorrectFrameException e) {
             position = 0;
-        } catch (DataLengthMismatchException ignored) {
+        } catch (final DataLengthMismatchException ignored) {
         }
         return frame;
     }
 
-    private static Frame parseFrameRaw(byte[] rawBytes) throws IncorrectFrameException, DataLengthMismatchException {
+    private static Frame parseFrameRaw(final byte[] rawBytes) throws IncorrectFrameException, DataLengthMismatchException {
         if (rawBytes.length >= 2) {
             switch (rawBytes[1]) {
                 case FrameType.CREATE:

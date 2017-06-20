@@ -15,7 +15,7 @@ public class ForwarderClientConfig {
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
-    public ForwarderClientConfig(InetSocketAddress remoteAddress, int localPort, short downMbps, short upMbps) {
+    public ForwarderClientConfig(final InetSocketAddress remoteAddress, final int localPort, final short downMbps, final short upMbps) {
         this.remoteAddress = remoteAddress;
         this.localPort = localPort;
         this.downMbps = downMbps;
@@ -26,7 +26,7 @@ public class ForwarderClientConfig {
         return remoteAddress;
     }
 
-    public void setRemoteAddress(InetSocketAddress remoteAddress) {
+    public void setRemoteAddress(final InetSocketAddress remoteAddress) {
         this.remoteAddress = remoteAddress;
     }
 
@@ -34,7 +34,7 @@ public class ForwarderClientConfig {
         return localPort;
     }
 
-    public void setLocalPort(int localPort) {
+    public void setLocalPort(final int localPort) {
         this.localPort = localPort;
     }
 
@@ -42,7 +42,7 @@ public class ForwarderClientConfig {
         return downMbps;
     }
 
-    public void setDownMbps(short downMbps) {
+    public void setDownMbps(final short downMbps) {
         this.downMbps = downMbps;
     }
 
@@ -50,7 +50,7 @@ public class ForwarderClientConfig {
         return upMbps;
     }
 
-    public void setUpMbps(short upMbps) {
+    public void setUpMbps(final short upMbps) {
         this.upMbps = upMbps;
     }
 
@@ -58,7 +58,7 @@ public class ForwarderClientConfig {
         return dragoniteSocketParameters.getPacketSize();
     }
 
-    public void setMTU(int mtu) throws InvalidValueException {
+    public void setMTU(final int mtu) throws InvalidValueException {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
@@ -66,7 +66,7 @@ public class ForwarderClientConfig {
         return dragoniteSocketParameters.isEnableWebPanel();
     }
 
-    public void setWebPanelEnabled(boolean enabled) {
+    public void setWebPanelEnabled(final boolean enabled) {
         dragoniteSocketParameters.setEnableWebPanel(enabled);
     }
 
@@ -74,7 +74,7 @@ public class ForwarderClientConfig {
         return dragoniteSocketParameters.getWebPanelBindAddress();
     }
 
-    public void setWebPanelBind(InetSocketAddress address) {
+    public void setWebPanelBind(final InetSocketAddress address) {
         dragoniteSocketParameters.setWebPanelBindAddress(address);
     }
 

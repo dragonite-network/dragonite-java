@@ -1,6 +1,6 @@
 package com.vecsight.dragonite.sdk.msg;
 
-public class MessageType {
+public final class MessageType {
 
     public static final byte DATA = 0;
 

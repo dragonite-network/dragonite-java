@@ -3,7 +3,7 @@ package com.vecsight.dragonite.mux.misc;
 
 import com.vecsight.dragonite.MuxBuildConfig;
 
-public class MuxGlobalConstants {
+public final class MuxGlobalConstants {
 
     //Version shits
 

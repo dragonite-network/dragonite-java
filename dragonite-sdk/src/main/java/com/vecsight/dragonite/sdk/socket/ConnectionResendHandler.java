@@ -40,8 +40,8 @@ public class ConnectionResendHandler {
     private final PriorityQueue<ResendItem> riQueue = new PriorityQueue<>(100,
             (o1, o2) -> (int) (o1.getNextSendTime() - o2.getNextSendTime()));
 
-    protected ConnectionResendHandler(DragoniteSocket socket, SendAction sendAction, ConnectionSharedData sharedData, int minResendMS,
-                                      int ackDelayCompensation) {
+    protected ConnectionResendHandler(final DragoniteSocket socket, final SendAction sendAction, final ConnectionSharedData sharedData, final int minResendMS,
+                                      final int ackDelayCompensation) {
         this.socket = socket;
         this.sendAction = sendAction;
         this.sharedData = sharedData;
@@ -94,12 +94,12 @@ public class ConnectionResendHandler {
                             sendAction.sendPacket(message.toBytes());
                             resendCount++;
                             //System.out.println(message.getSequence());
-                        } catch (IOException ignored) {
+                        } catch (final IOException ignored) {
                         }
                     }
 
                 }
-            } catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 //okay
             }
         }, "DS-Resend");
@@ -110,7 +110,7 @@ public class ConnectionResendHandler {
         return running && socket.isAlive();
     }
 
-    private long getNextSendTime(int count, long timeOffset) {
+    private long getNextSendTime(final int count, final long timeOffset) {
         final int resendMult = count <= DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT ? 1 :
                 NumUtils.min(count - DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT + 1, DragoniteGlobalConstants.MAX_SLOW_RESEND_MULT);
         //int delay = (int) (sharedData.getEstimatedRTT() * (count <= fastResendMaxCount ? DragoniteGlobalConstants.fastResendMul : DragoniteGlobalConstants.slowResendMul));
@@ -122,7 +122,7 @@ public class ConnectionResendHandler {
         return System.currentTimeMillis() + delay + timeOffset;
     }
 
-    protected void addMessage(ReliableMessage message) {
+    protected void addMessage(final ReliableMessage message) {
         totalMessageCount.incrementAndGet();
         messageConcurrentMap.put(message.getSequence(), message);
         synchronized (queueLock) {
@@ -133,7 +133,7 @@ public class ConnectionResendHandler {
     }
 
     //only returns valid (existing & unresended) RTTs or -1
-    protected ResendInfo removeMessage(int sequence) {
+    protected ResendInfo removeMessage(final int sequence) {
         final ResendInfo resendInfo = new ResendInfo();
         synchronized (queueLock) {
             riQueue.removeIf(resendItem -> {
@@ -152,7 +152,7 @@ public class ConnectionResendHandler {
     }
 
     protected int queueTaskCount() {
-        int size;
+        final int size;
         synchronized (queueLock) {
             size = riQueue.size();
         }

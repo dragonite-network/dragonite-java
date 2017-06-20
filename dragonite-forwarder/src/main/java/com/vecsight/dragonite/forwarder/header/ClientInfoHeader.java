@@ -27,7 +27,7 @@ public class ClientInfoHeader {
 
     private String name, appVer, osName;
 
-    public ClientInfoHeader(short downMbps, short upMbps, String name, String appVer, String osName) {
+    public ClientInfoHeader(final short downMbps, final short upMbps, final String name, final String appVer, final String osName) {
         this.downMbps = downMbps;
         this.upMbps = upMbps;
         this.name = name;
@@ -35,9 +35,9 @@ public class ClientInfoHeader {
         this.osName = osName;
     }
 
-    public ClientInfoHeader(byte[] header) throws IncorrectHeaderException {
-        ByteBuffer buffer = ByteBuffer.wrap(header);
-        byte remoteVersion = buffer.get();
+    public ClientInfoHeader(final byte[] header) throws IncorrectHeaderException {
+        final ByteBuffer buffer = ByteBuffer.wrap(header);
+        final byte remoteVersion = buffer.get();
 
         if (remoteVersion != VERSION) {
             throw new IncorrectHeaderException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
@@ -46,18 +46,18 @@ public class ClientInfoHeader {
         downMbps = buffer.getShort();
         upMbps = buffer.getShort();
 
-        byte nameLen = buffer.get();
-        byte[] rawName = new byte[nameLen];
+        final byte nameLen = buffer.get();
+        final byte[] rawName = new byte[nameLen];
         buffer.get(rawName);
         name = new String(rawName, ForwarderGlobalConstants.STRING_CHARSET);
 
-        byte verLen = buffer.get();
-        byte[] rawVer = new byte[verLen];
+        final byte verLen = buffer.get();
+        final byte[] rawVer = new byte[verLen];
         buffer.get(rawVer);
         appVer = new String(rawVer, ForwarderGlobalConstants.STRING_CHARSET);
 
-        byte osLen = buffer.get();
-        byte[] rawOs = new byte[osLen];
+        final byte osLen = buffer.get();
+        final byte[] rawOs = new byte[osLen];
         buffer.get(rawOs);
         osName = new String(rawOs, ForwarderGlobalConstants.STRING_CHARSET);
     }
@@ -66,7 +66,7 @@ public class ClientInfoHeader {
         return downMbps;
     }
 
-    public void setDownMbps(short downMbps) {
+    public void setDownMbps(final short downMbps) {
         this.downMbps = downMbps;
     }
 
@@ -74,7 +74,7 @@ public class ClientInfoHeader {
         return upMbps;
     }
 
-    public void setUpMbps(short upMbps) {
+    public void setUpMbps(final short upMbps) {
         this.upMbps = upMbps;
     }
 
@@ -82,7 +82,7 @@ public class ClientInfoHeader {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -90,7 +90,7 @@ public class ClientInfoHeader {
         return appVer;
     }
 
-    public void setAppVer(String appVer) {
+    public void setAppVer(final String appVer) {
         this.appVer = appVer;
     }
 
@@ -98,7 +98,7 @@ public class ClientInfoHeader {
         return osName;
     }
 
-    public void setOsName(String osName) {
+    public void setOsName(final String osName) {
         this.osName = osName;
     }
 
@@ -111,11 +111,11 @@ public class ClientInfoHeader {
     }
 
     public byte[] toBytes() {
-        byte[] nameBytes = name.getBytes(ForwarderGlobalConstants.STRING_CHARSET),
-                appVerBytes = appVer.getBytes(ForwarderGlobalConstants.STRING_CHARSET),
-                osNameBytes = osName.getBytes(ForwarderGlobalConstants.STRING_CHARSET);
+        final byte[] nameBytes = name.getBytes(ForwarderGlobalConstants.STRING_CHARSET);
+        final byte[] appVerBytes = appVer.getBytes(ForwarderGlobalConstants.STRING_CHARSET);
+        final byte[] osNameBytes = osName.getBytes(ForwarderGlobalConstants.STRING_CHARSET);
 
-        ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + nameBytes.length + appVerBytes.length + osNameBytes.length);
+        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + nameBytes.length + appVerBytes.length + osNameBytes.length);
         buffer.put(VERSION);
         buffer.putShort(downMbps);
         buffer.putShort(upMbps);

@@ -17,13 +17,14 @@ public class HeartbeatMessage implements ReliableMessage {
 
     private int sequence;
 
-    public HeartbeatMessage(int sequence) {
+    public HeartbeatMessage(final int sequence) {
         this.sequence = sequence;
     }
 
-    public HeartbeatMessage(byte[] msg) throws IncorrectMessageException {
-        ByteBuffer buffer = ByteBuffer.wrap(msg);
-        byte remoteVersion = buffer.get(), remoteType = buffer.get();
+    public HeartbeatMessage(final byte[] msg) throws IncorrectMessageException {
+        final ByteBuffer buffer = ByteBuffer.wrap(msg);
+        final byte remoteVersion = buffer.get();
+        final byte remoteType = buffer.get();
 
         if (remoteVersion != VERSION) {
             throw new IncorrectMessageException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
@@ -47,7 +48,7 @@ public class HeartbeatMessage implements ReliableMessage {
 
     @Override
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(getFixedLength());
+        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength());
         buffer.put(VERSION);
         buffer.put(TYPE);
         buffer.putInt(sequence);
@@ -65,7 +66,7 @@ public class HeartbeatMessage implements ReliableMessage {
     }
 
     @Override
-    public void setSequence(int sequence) {
+    public void setSequence(final int sequence) {
         this.sequence = sequence;
     }
 }

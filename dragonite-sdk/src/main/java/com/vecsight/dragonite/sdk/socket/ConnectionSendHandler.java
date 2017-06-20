@@ -31,8 +31,8 @@ public class ConnectionSendHandler {
 
     private final AtomicLong sendLength = new AtomicLong(0);
 
-    protected ConnectionSendHandler(DragoniteSocket socket, SendAction sendAction, ConnectionReceiveHandler receiveHandler,
-                                    ConnectionSharedData sharedData, ConnectionResendHandler resender, int MTU) {
+    protected ConnectionSendHandler(final DragoniteSocket socket, final SendAction sendAction, final ConnectionReceiveHandler receiveHandler,
+                                    final ConnectionSharedData sharedData, final ConnectionResendHandler resender, final int MTU) {
         this.socket = socket;
         this.sendAction = sendAction;
         this.receiveHandler = receiveHandler;
@@ -57,9 +57,9 @@ public class ConnectionSendHandler {
         return socket.isAlive() && !stopSend;
     }
 
-    protected void sendDataMessage_noSplit(byte[] data) throws IncorrectSizeException, InterruptedException, IOException, SenderClosedException {
+    protected void sendDataMessage_noSplit(final byte[] data) throws IncorrectSizeException, InterruptedException, IOException, SenderClosedException {
         if (canSend()) {
-            int tlength = DataMessage.FIXED_LENGTH + data.length;
+            final int tlength = DataMessage.FIXED_LENGTH + data.length;
             if (tlength > MTU) {
                 throw new IncorrectSizeException("Packet is too big (" + tlength + ")");
             }
@@ -71,7 +71,7 @@ public class ConnectionSendHandler {
             //have to check again after wait!
             if (!canSend()) throw new SenderClosedException();
 
-            DataMessage dataMessage;
+            final DataMessage dataMessage;
             synchronized (sendLock) {
                 dataMessage = new DataMessage(sendSequence, data);
                 addSendSequence();
@@ -84,8 +84,8 @@ public class ConnectionSendHandler {
         }
     }
 
-    protected boolean sendDataMessage_autoSplit(byte[] data) throws InterruptedException, IncorrectSizeException, IOException, SenderClosedException {
-        int payloadSize = MTU - DataMessage.FIXED_LENGTH;
+    protected boolean sendDataMessage_autoSplit(final byte[] data) throws InterruptedException, IncorrectSizeException, IOException, SenderClosedException {
+        final int payloadSize = MTU - DataMessage.FIXED_LENGTH;
         int msgCount = data.length / payloadSize;
         if (data.length % payloadSize != 0) {
             msgCount += 1;
@@ -99,7 +99,7 @@ public class ConnectionSendHandler {
             int offset = 0, nextLen = payloadSize;
             synchronized (sendLock) {
                 for (int i = 0; i < msgCount; i++) {
-                    byte[] b = new byte[nextLen];
+                    final byte[] b = new byte[nextLen];
                     System.arraycopy(data, offset, b, 0, nextLen);
                     sendDataMessage_noSplit(b);
                     offset += nextLen;
@@ -114,7 +114,7 @@ public class ConnectionSendHandler {
 
     protected void sendHeartbeatMessage() throws IOException, InterruptedException, SenderClosedException {
         if (canSend()) {
-            HeartbeatMessage heartbeatMessage;
+            final HeartbeatMessage heartbeatMessage;
             synchronized (sendLock) {
                 heartbeatMessage = new HeartbeatMessage(sendSequence);
                 addSendSequence();
@@ -126,10 +126,10 @@ public class ConnectionSendHandler {
         }
     }
 
-    protected void sendCloseMessage(short status, boolean stopLocalSend, boolean waitRemote) throws IOException, InterruptedException, SenderClosedException {
+    protected void sendCloseMessage(final short status, final boolean stopLocalSend, final boolean waitRemote) throws IOException, InterruptedException, SenderClosedException {
         if (canSend()) {
             if (stopLocalSend) stopSend();
-            CloseMessage closeMessage;
+            final CloseMessage closeMessage;
             synchronized (sendLock) {
                 closeMessage = new CloseMessage(sendSequence, status);
                 receiveHandler.setRemoteReceiveCloseSeq(sendSequence);

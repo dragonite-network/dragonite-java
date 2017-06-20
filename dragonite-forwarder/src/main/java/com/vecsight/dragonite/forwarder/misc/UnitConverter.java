@@ -1,8 +1,8 @@
 package com.vecsight.dragonite.forwarder.misc;
 
-public class UnitConverter {
+public final class UnitConverter {
 
-    public static long mbpsToSpeed(int mbps) {
+    public static long mbpsToSpeed(final int mbps) {
         return mbps * 125000;
     }
 

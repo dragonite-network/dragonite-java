@@ -6,7 +6,7 @@ public class MultiplexerClosedException extends Exception {
         super("Multiplexer closed");
     }
 
-    public MultiplexerClosedException(String msg) {
+    public MultiplexerClosedException(final String msg) {
         super(msg);
     }
 

@@ -34,7 +34,7 @@ public class DragoniteSocketParameters {
         return packetSize;
     }
 
-    public void setPacketSize(int packetSize) throws InvalidValueException {
+    public void setPacketSize(final int packetSize) throws InvalidValueException {
         if (packetSize < 100) {
             throw new InvalidValueException("Packet size is too small");
         }
@@ -45,7 +45,7 @@ public class DragoniteSocketParameters {
         return autoSplit;
     }
 
-    public void setAutoSplit(boolean autoSplit) {
+    public void setAutoSplit(final boolean autoSplit) {
         this.autoSplit = autoSplit;
     }
 
@@ -53,7 +53,7 @@ public class DragoniteSocketParameters {
         return maxPacketBufferSize;
     }
 
-    public void setMaxPacketBufferSize(int maxPacketBufferSize) throws InvalidValueException {
+    public void setMaxPacketBufferSize(final int maxPacketBufferSize) throws InvalidValueException {
         if (maxPacketBufferSize < 1) {
             throw new InvalidValueException("Receive window must be greater than zero");
         }
@@ -64,7 +64,7 @@ public class DragoniteSocketParameters {
         return aggressiveWindowMultiplier;
     }
 
-    public void setAggressiveWindowMultiplier(int aggressiveWindowMultiplier) throws InvalidValueException {
+    public void setAggressiveWindowMultiplier(final int aggressiveWindowMultiplier) throws InvalidValueException {
         if (aggressiveWindowMultiplier < 1) {
             throw new InvalidValueException("Aggressive window must be greater than zero");
         }
@@ -75,7 +75,7 @@ public class DragoniteSocketParameters {
         return passiveWindowMultiplier;
     }
 
-    public void setPassiveWindowMultiplier(int passiveWindowMultiplier) throws InvalidValueException {
+    public void setPassiveWindowMultiplier(final int passiveWindowMultiplier) throws InvalidValueException {
         if (passiveWindowMultiplier < 1) {
             throw new InvalidValueException("Passive window must be greater than zero");
         }
@@ -86,7 +86,7 @@ public class DragoniteSocketParameters {
         return ackIntervalMS;
     }
 
-    public void setAckIntervalMS(int ackIntervalMS) throws InvalidValueException {
+    public void setAckIntervalMS(final int ackIntervalMS) throws InvalidValueException {
         if (ackIntervalMS < 1) {
             throw new InvalidValueException("ACK interval must be greater than zero");
         }
@@ -97,7 +97,7 @@ public class DragoniteSocketParameters {
         return resendMinDelayMS;
     }
 
-    public void setResendMinDelayMS(int resendMinDelayMS) throws InvalidValueException {
+    public void setResendMinDelayMS(final int resendMinDelayMS) throws InvalidValueException {
         if (resendMinDelayMS < 1) {
             throw new InvalidValueException("Resend delay must be greater than zero");
         }
@@ -108,7 +108,7 @@ public class DragoniteSocketParameters {
         return heartbeatIntervalSec;
     }
 
-    public void setHeartbeatIntervalSec(int heartbeatIntervalSec) throws InvalidValueException {
+    public void setHeartbeatIntervalSec(final int heartbeatIntervalSec) throws InvalidValueException {
         if (heartbeatIntervalSec < 1) {
             throw new InvalidValueException("Heartbeat interval must be greater than zero");
         }
@@ -119,7 +119,7 @@ public class DragoniteSocketParameters {
         return receiveTimeoutSec;
     }
 
-    public void setReceiveTimeoutSec(int receiveTimeoutSec) throws InvalidValueException {
+    public void setReceiveTimeoutSec(final int receiveTimeoutSec) throws InvalidValueException {
         if (receiveTimeoutSec < 1) {
             throw new InvalidValueException("Receive timeout must be greater than zero");
         }
@@ -130,7 +130,7 @@ public class DragoniteSocketParameters {
         return enableWebPanel;
     }
 
-    public void setEnableWebPanel(boolean enableWebPanel) {
+    public void setEnableWebPanel(final boolean enableWebPanel) {
         this.enableWebPanel = enableWebPanel;
     }
 
@@ -138,7 +138,7 @@ public class DragoniteSocketParameters {
         return webPanelBindAddress;
     }
 
-    public void setWebPanelBindAddress(InetSocketAddress webPanelBindAddress) {
+    public void setWebPanelBindAddress(final InetSocketAddress webPanelBindAddress) {
         this.webPanelBindAddress = webPanelBindAddress;
     }
 }
