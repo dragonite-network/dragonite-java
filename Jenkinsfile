@@ -10,7 +10,7 @@ pipeline {
       steps {
         sh '''
 gradle clean
-gradle distZip
+gradle -g "`pwd`" distZip
 '''
       }
     }
