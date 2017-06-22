@@ -9,8 +9,8 @@ pipeline {
     stage('build') {
       steps {
         sh '''
-gradle -g "`pwd`/.gradle" clean
-gradle -g "`pwd`/.gradle" distZip
+gradle --no-daemon -g "`pwd`/.gradle" clean
+gradle --no-daemon -g "`pwd`/.gradle" distZip
 '''
       }
     }
