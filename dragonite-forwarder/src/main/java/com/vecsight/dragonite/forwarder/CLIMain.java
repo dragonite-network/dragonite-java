@@ -127,6 +127,7 @@ public final class CLIMain {
                 while (scanner.hasNext()) {
                     argsList.add(scanner.next());
                 }
+                scanner.close();
                 Logger.info("Arguments loaded from file \"{}\"", ARGS_FILE_NAME);
                 return argsList.toArray(new String[0]);
             } catch (final FileNotFoundException e) {
