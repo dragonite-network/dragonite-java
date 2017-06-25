@@ -3,3 +3,5 @@ rootProject.name = 'dragonite'
 include 'dragonite-sdk'
 include 'dragonite-mux'
 include 'dragonite-forwarder'
+include 'dragonite-echo'
+
