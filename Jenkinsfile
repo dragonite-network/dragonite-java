@@ -74,16 +74,16 @@ gradle --no-daemon -g "`pwd`/.gradle" distZip
         }
       }
     }
-    post {
-      failure {
-        script {
-          if (env.BRANCH_NAME == 'master') {
-            emailext to: 'w@vecsight.com,t@vecsight.com',
-              mimeType: 'text/html',
-              subject: "FAILURE: Pipeline '${env.JOB_NAME}' ${env.BUILD_DISPLAY_NAME}",
-              body: "<a href=\"${env.BUILD_URL}\">Click here for more detail</a><br><br>Or ${env.BUILD_URL}",
-              attachLog: true
-          }
+  }
+  post {
+    failure {
+      script {
+        if (env.BRANCH_NAME == 'master') {
+          emailext to: 'w@vecsight.com,t@vecsight.com',
+            mimeType: 'text/html',
+            subject: "FAILURE: Pipeline '${env.JOB_NAME}' ${env.BUILD_DISPLAY_NAME}",
+            body: "<a href=\"${env.BUILD_URL}\">Click here for more detail</a><br><br>Or ${env.BUILD_URL}",
+            attachLog: true
         }
       }
     }
