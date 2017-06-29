@@ -20,7 +20,7 @@ public final class DragoniteGlobalConstants {
 
     public static final int ACK_INTERVAL_MS = 10;
 
-    public static final int MAX_FAST_RESEND_COUNT = 5;
+    public static final int MAX_FAST_RESEND_COUNT = 3;
 
     public static final int MAX_SLOW_RESEND_MULT = 4;
 
