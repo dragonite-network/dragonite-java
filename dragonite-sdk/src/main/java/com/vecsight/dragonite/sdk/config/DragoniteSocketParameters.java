@@ -14,7 +14,7 @@ public class DragoniteSocketParameters {
 
     private int maxPacketBufferSize = 0;
 
-    private int windowMultiplier = 2;
+    private int windowMultiplier = 4;
 
     private int resendMinDelayMS = 50;
 
@@ -61,8 +61,8 @@ public class DragoniteSocketParameters {
     }
 
     public void setWindowMultiplier(final int windowMultiplier) throws InvalidValueException {
-        if (windowMultiplier < 1) {
-            throw new InvalidValueException("Multiplier must be greater than zero");
+        if (windowMultiplier < 1 || windowMultiplier > 10) {
+            throw new InvalidValueException("Multiplier must be greater than zero (and no more than 10)");
         }
         this.windowMultiplier = windowMultiplier;
     }

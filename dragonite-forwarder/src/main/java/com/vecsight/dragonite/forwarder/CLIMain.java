@@ -97,6 +97,14 @@ public final class CLIMain {
                 .build());
         options.addOption(Option
                 .builder()
+                .longOpt("aggressiveness")
+                .desc("Aggressiveness of underlying Dragonite sockets (1-10)")
+                .hasArg()
+                .argName("multiplier")
+                .type(Number.class)
+                .build());
+        options.addOption(Option
+                .builder()
                 .longOpt("debug")
                 .desc("Set the logging level to DEBUG")
                 .build());
@@ -214,6 +222,9 @@ public final class CLIMain {
                         config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
                         openWebPanel = true;
                     }
+                    if (commandLine.hasOption("aggressiveness")) {
+                        config.setAggressiveness(((Number) commandLine.getParsedOptionValue("aggressiveness")).intValue());
+                    }
 
                     final ForwarderServer forwarderServer = new ForwarderServer(config);
 
@@ -251,6 +262,9 @@ public final class CLIMain {
                         config.setWebPanelEnabled(true);
                         config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
                         openWebPanel = true;
+                    }
+                    if (commandLine.hasOption("aggressiveness")) {
+                        config.setAggressiveness(((Number) commandLine.getParsedOptionValue("aggressiveness")).intValue());
                     }
 
                     final ForwarderClient forwarderClient = new ForwarderClient(config);

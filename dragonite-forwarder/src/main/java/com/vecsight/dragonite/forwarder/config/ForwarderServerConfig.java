@@ -52,6 +52,14 @@ public class ForwarderServerConfig {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
+    public int getAggressiveness() {
+        return dragoniteSocketParameters.getWindowMultiplier();
+    }
+
+    public void setAggressiveness(final int aggressiveness) throws InvalidValueException {
+        dragoniteSocketParameters.setWindowMultiplier(aggressiveness);
+    }
+
     public boolean getWebPanelEnabled() {
         return dragoniteSocketParameters.isEnableWebPanel();
     }
