@@ -18,8 +18,6 @@ public class DragoniteSocketParameters {
 
     private int passiveWindowMultiplier = 5;
 
-    private int ackIntervalMS = 10;
-
     private int resendMinDelayMS = 50;
 
     private int heartbeatIntervalSec = 5;
@@ -80,17 +78,6 @@ public class DragoniteSocketParameters {
             throw new InvalidValueException("Passive window must be greater than zero");
         }
         this.passiveWindowMultiplier = passiveWindowMultiplier;
-    }
-
-    public int getAckIntervalMS() {
-        return ackIntervalMS;
-    }
-
-    public void setAckIntervalMS(final int ackIntervalMS) throws InvalidValueException {
-        if (ackIntervalMS < 1) {
-            throw new InvalidValueException("ACK interval must be greater than zero");
-        }
-        this.ackIntervalMS = ackIntervalMS;
     }
 
     public int getResendMinDelayMS() {

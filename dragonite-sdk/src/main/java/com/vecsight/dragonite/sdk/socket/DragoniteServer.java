@@ -24,7 +24,6 @@ public class DragoniteServer {
 
     //From parameters
     private final int packetSize, maxReceiveWindow;
-    private final int ackIntervalMS;
     private final int aggressiveWindowMultiplier, passiveWindowMultiplier;
     private final int resendMinDelayMS;
     private final int heartbeatIntervalSec, receiveTimeoutSec;
@@ -64,7 +63,6 @@ public class DragoniteServer {
         //set from parameters
         packetSize = parameters.getPacketSize();
         maxReceiveWindow = parameters.getMaxPacketBufferSize();
-        ackIntervalMS = parameters.getAckIntervalMS();
         aggressiveWindowMultiplier = parameters.getAggressiveWindowMultiplier();
         passiveWindowMultiplier = parameters.getPassiveWindowMultiplier();
         resendMinDelayMS = parameters.getResendMinDelayMS();
@@ -223,10 +221,6 @@ public class DragoniteServer {
 
     public void setDefaultSendSpeed(final long defaultSendSpeed) {
         this.defaultSendSpeed = defaultSendSpeed;
-    }
-
-    public int getAckIntervalMS() {
-        return ackIntervalMS;
     }
 
     public int getPacketSize() {

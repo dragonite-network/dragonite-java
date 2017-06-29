@@ -3,6 +3,7 @@ package com.vecsight.dragonite.sdk.socket;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
+import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.msg.Message;
 
 import java.io.IOException;
@@ -42,9 +43,9 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
         managedSendAction = new ManagedSendAction(bytes -> dragoniteServer.sendPacket(bytes, remoteAddress), sendSpeed);
 
-        ackMessageManager = new ACKMessageManager(this, managedSendAction, dragoniteServer.getAckIntervalMS(), dragoniteServer.getPacketSize());
+        ackMessageManager = new ACKMessageManager(this, managedSendAction, DragoniteGlobalConstants.ACK_INTERVAL_MS, dragoniteServer.getPacketSize());
 
-        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, dragoniteServer.getResendMinDelayMS(), dragoniteServer.getAckIntervalMS());
+        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, dragoniteServer.getResendMinDelayMS(), DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
         receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, dragoniteServer.getAggressiveWindowMultiplier(),
                 dragoniteServer.getPassiveWindowMultiplier(), resender, dragoniteServer.getPacketSize());

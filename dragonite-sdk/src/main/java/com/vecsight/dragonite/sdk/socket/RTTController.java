@@ -9,7 +9,7 @@ public class RTTController {
 
     private final ConnectionSharedData sharedData;
 
-    private long estimatedRTT = DragoniteGlobalConstants.INIT_RTT, devRTT;
+    private long estimatedRTT = DragoniteGlobalConstants.INIT_RTT_MS, devRTT;
 
     private long lastUpdate = 0;
 
@@ -55,7 +55,7 @@ public class RTTController {
 
     private void setRTT_limited(final long estimatedRTT, final long devRTT) {
         long tempDevRTT = devRTT * DragoniteGlobalConstants.DEV_RTT_MULT;
-        if (tempDevRTT > estimatedRTT && tempDevRTT > DragoniteGlobalConstants.RTT_MAX_VARIATION) {
+        if (tempDevRTT > estimatedRTT && tempDevRTT > DragoniteGlobalConstants.RTT_MAX_VARIATION_MS) {
             tempDevRTT = estimatedRTT;
         }
         tempDevRTT /= DragoniteGlobalConstants.DEV_RTT_MULT;

@@ -205,7 +205,7 @@ public class ConnectionReceiveHandler {
         final long currentRTT = sharedData.getEstimatedRTT();
         final int wnd = (int) (targetPPS * (currentRTT / 1000f) * mult);
 
-        return NumUtils.max(wnd, DragoniteGlobalConstants.MIN_SEND_WINDOW);
+        return NumUtils.max(wnd, DragoniteGlobalConstants.MIN_SEND_WINDOW_SIZE);
     }
 
     protected boolean checkWindowAvailable() {

@@ -5,6 +5,7 @@ import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
 import com.vecsight.dragonite.sdk.exception.IncorrectMessageException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
+import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.msg.Message;
 import com.vecsight.dragonite.sdk.msg.MessageParser;
 import com.vecsight.dragonite.sdk.web.DevConsoleWebServer;
@@ -19,7 +20,6 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     //From parameters
     private final int packetSize, maxPacketBufferSize;
-    private final int ackIntervalMS;
     private final int aggressiveWindowMultiplier, passiveWindowMultiplier;
     private final int resendMinDelayMS;
     private final int heartbeatIntervalSec, receiveTimeoutSec;
@@ -72,7 +72,6 @@ public class DragoniteClientSocket extends DragoniteSocket {
         //set from parameters
         packetSize = parameters.getPacketSize();
         maxPacketBufferSize = parameters.getMaxPacketBufferSize();
-        ackIntervalMS = parameters.getAckIntervalMS();
         aggressiveWindowMultiplier = parameters.getAggressiveWindowMultiplier();
         passiveWindowMultiplier = parameters.getPassiveWindowMultiplier();
         resendMinDelayMS = parameters.getResendMinDelayMS();
@@ -93,9 +92,9 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         managedSendAction = new ManagedSendAction(bytes -> sendPacket(bytes, remoteAddress), sendSpeed);
 
-        ackMessageManager = new ACKMessageManager(this, managedSendAction, ackIntervalMS, packetSize);
+        ackMessageManager = new ACKMessageManager(this, managedSendAction, DragoniteGlobalConstants.ACK_INTERVAL_MS, packetSize);
 
-        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, resendMinDelayMS, ackIntervalMS);
+        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, resendMinDelayMS, DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
         receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, aggressiveWindowMultiplier,
                 passiveWindowMultiplier, resender, packetSize);
@@ -315,10 +314,6 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     public int getMaxPacketBufferSize() {
         return maxPacketBufferSize;
-    }
-
-    public int getAckIntervalMS() {
-        return ackIntervalMS;
     }
 
     public int getAggressiveWindowMultiplier() {

@@ -14,9 +14,11 @@ public final class DragoniteGlobalConstants {
 
     //Send window shits
 
-    public static final int MIN_SEND_WINDOW = 20;
+    public static final int MIN_SEND_WINDOW_SIZE = 20;
 
     //RTT and resend shits
+
+    public static final int ACK_INTERVAL_MS = 10;
 
     public static final int MAX_FAST_RESEND_COUNT = 5;
 
@@ -25,7 +27,7 @@ public final class DragoniteGlobalConstants {
     //public static final int MIN_RESEND_WAIT_MS = 2;
     //Replaced with ackDelayCompensation
 
-    public static final int INIT_RTT = 200, RTT_MAX_VARIATION = 200, RTT_UPDATE_INTERVAL_MS = 100, RTT_RESEND_CORRECTION_INTERVAL_MS = 2000;
+    public static final int INIT_RTT_MS = 200, RTT_MAX_VARIATION_MS = 200, RTT_UPDATE_INTERVAL_MS = 100, RTT_RESEND_CORRECTION_INTERVAL_MS = 2000;
 
     public static final int DEV_RTT_MULT = 4;
 

@@ -4,7 +4,7 @@ import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 
 public class ConnectionSharedData {
 
-    private volatile long estimatedRTT = DragoniteGlobalConstants.INIT_RTT;
+    private volatile long estimatedRTT = DragoniteGlobalConstants.INIT_RTT_MS;
 
     private volatile long devRTT = 0;
 
