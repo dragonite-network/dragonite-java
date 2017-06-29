@@ -24,7 +24,7 @@ public class DragoniteServer {
 
     //From parameters
     private final int packetSize, maxReceiveWindow;
-    private final int aggressiveWindowMultiplier, passiveWindowMultiplier;
+    private final int windowMultiplier;
     private final int resendMinDelayMS;
     private final int heartbeatIntervalSec, receiveTimeoutSec;
     private final boolean autoSplit;
@@ -63,8 +63,7 @@ public class DragoniteServer {
         //set from parameters
         packetSize = parameters.getPacketSize();
         maxReceiveWindow = parameters.getMaxPacketBufferSize();
-        aggressiveWindowMultiplier = parameters.getAggressiveWindowMultiplier();
-        passiveWindowMultiplier = parameters.getPassiveWindowMultiplier();
+        windowMultiplier = parameters.getWindowMultiplier();
         resendMinDelayMS = parameters.getResendMinDelayMS();
         heartbeatIntervalSec = parameters.getHeartbeatIntervalSec();
         receiveTimeoutSec = parameters.getReceiveTimeoutSec();
@@ -227,12 +226,8 @@ public class DragoniteServer {
         return packetSize;
     }
 
-    public int getAggressiveWindowMultiplier() {
-        return aggressiveWindowMultiplier;
-    }
-
-    public int getPassiveWindowMultiplier() {
-        return passiveWindowMultiplier;
+    public int getWindowMultiplier() {
+        return windowMultiplier;
     }
 
     public int getResendMinDelayMS() {

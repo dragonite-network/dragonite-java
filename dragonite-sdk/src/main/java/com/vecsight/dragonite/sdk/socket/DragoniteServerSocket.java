@@ -47,8 +47,8 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
         resender = new ConnectionResendHandler(this, managedSendAction, sharedData, dragoniteServer.getResendMinDelayMS(), DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
-        receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, dragoniteServer.getAggressiveWindowMultiplier(),
-                dragoniteServer.getPassiveWindowMultiplier(), resender, dragoniteServer.getPacketSize());
+        receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, dragoniteServer.getWindowMultiplier(),
+                resender, dragoniteServer.getPacketSize());
 
         sender = new ConnectionSendHandler(this, managedSendAction, receiver, sharedData, resender, dragoniteServer.getPacketSize());
 

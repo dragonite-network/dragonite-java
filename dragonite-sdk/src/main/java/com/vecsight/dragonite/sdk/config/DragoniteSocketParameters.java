@@ -14,9 +14,7 @@ public class DragoniteSocketParameters {
 
     private int maxPacketBufferSize = 0;
 
-    private int aggressiveWindowMultiplier = 2;
-
-    private int passiveWindowMultiplier = 5;
+    private int windowMultiplier = 2;
 
     private int resendMinDelayMS = 50;
 
@@ -58,26 +56,15 @@ public class DragoniteSocketParameters {
         this.maxPacketBufferSize = maxPacketBufferSize;
     }
 
-    public int getAggressiveWindowMultiplier() {
-        return aggressiveWindowMultiplier;
+    public int getWindowMultiplier() {
+        return windowMultiplier;
     }
 
-    public void setAggressiveWindowMultiplier(final int aggressiveWindowMultiplier) throws InvalidValueException {
-        if (aggressiveWindowMultiplier < 1) {
-            throw new InvalidValueException("Aggressive window must be greater than zero");
+    public void setWindowMultiplier(final int windowMultiplier) throws InvalidValueException {
+        if (windowMultiplier < 1) {
+            throw new InvalidValueException("Multiplier must be greater than zero");
         }
-        this.aggressiveWindowMultiplier = aggressiveWindowMultiplier;
-    }
-
-    public int getPassiveWindowMultiplier() {
-        return passiveWindowMultiplier;
-    }
-
-    public void setPassiveWindowMultiplier(final int passiveWindowMultiplier) throws InvalidValueException {
-        if (passiveWindowMultiplier < 1) {
-            throw new InvalidValueException("Passive window must be greater than zero");
-        }
-        this.passiveWindowMultiplier = passiveWindowMultiplier;
+        this.windowMultiplier = windowMultiplier;
     }
 
     public int getResendMinDelayMS() {

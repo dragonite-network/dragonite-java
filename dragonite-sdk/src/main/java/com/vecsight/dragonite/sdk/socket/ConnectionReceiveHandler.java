@@ -27,13 +27,11 @@ public class ConnectionReceiveHandler {
 
     private final Object receiveLock = new Object();
 
-    private volatile int remoteAckedMaxSeq = 0;
-
     private volatile int remoteAckedConsecutiveSeq = 0;
 
     private final ConnectionSharedData sharedData;
 
-    private final int aggressiveWindowMultiplier, passiveWindowMultiplier;
+    private final int windowMultiplier;
 
     private final int MTU;
 
@@ -52,13 +50,11 @@ public class ConnectionReceiveHandler {
     private volatile long receivedPktCount = 0, dupPktCount = 0;
 
     protected ConnectionReceiveHandler(final DragoniteSocket socket, final ACKMessageManager ackMessageManager, final ConnectionSharedData sharedData,
-                                       final int aggressiveWindowMultiplier, final int passiveWindowMultiplier, final ConnectionResendHandler resender,
-                                       final int MTU) {
+                                       final int windowMultiplier, final ConnectionResendHandler resender, final int MTU) {
         this.socket = socket;
         this.ackMessageManager = ackMessageManager;
         this.sharedData = sharedData;
-        this.aggressiveWindowMultiplier = aggressiveWindowMultiplier;
-        this.passiveWindowMultiplier = passiveWindowMultiplier;
+        this.windowMultiplier = windowMultiplier;
         this.resender = resender;
         this.MTU = MTU;
         this.rttController = new RTTController(sharedData);
@@ -156,9 +152,6 @@ public class ConnectionReceiveHandler {
                 final int[] seqs = ackMessage.getSequenceList();
 
                 for (final int seq : seqs) {
-                    if (seq > remoteAckedMaxSeq) {
-                        remoteAckedMaxSeq = seq;
-                    }
 
                     rttController.pushInfo(resender.removeMessage(seq));
 
@@ -198,24 +191,17 @@ public class ConnectionReceiveHandler {
         }
     }
 
-    private int getProperWindow(final boolean passive) {
-        final int mult = passive ? passiveWindowMultiplier : aggressiveWindowMultiplier;
-
+    private int getProperWindow() {
         final float targetPPS = socket.getSendSpeed() / (float) MTU;
         final long currentRTT = sharedData.getEstimatedRTT();
-        final int wnd = (int) (targetPPS * (currentRTT / 1000f) * mult);
+        final int wnd = (int) (targetPPS * (currentRTT / 1000f) * windowMultiplier);
 
         return NumUtils.max(wnd, DragoniteGlobalConstants.MIN_SEND_WINDOW_SIZE);
     }
 
     protected boolean checkWindowAvailable() {
-        final int aggressiveDelta = sharedData.getSendSequence() - remoteAckedMaxSeq;
-        final int passiveDelta = sharedData.getSendSequence() - remoteAckedConsecutiveSeq;
-        final boolean agressiveOK = aggressiveDelta < getProperWindow(false);
-        final boolean passiveOK = passiveDelta < getProperWindow(true);
-        //if (!agressiveOK) System.out.println("NO AGG!");
-        //if (!passiveOK) System.out.println("NO PSV!");
-        return agressiveOK && passiveOK;
+        final int delta = sharedData.getSendSequence() - remoteAckedConsecutiveSeq;
+        return delta < getProperWindow();
     }
 
     protected long getReceivedPktCount() {

@@ -20,7 +20,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     //From parameters
     private final int packetSize, maxPacketBufferSize;
-    private final int aggressiveWindowMultiplier, passiveWindowMultiplier;
+    private final int windowMultiplier;
     private final int resendMinDelayMS;
     private final int heartbeatIntervalSec, receiveTimeoutSec;
     private final boolean autoSplit;
@@ -72,8 +72,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
         //set from parameters
         packetSize = parameters.getPacketSize();
         maxPacketBufferSize = parameters.getMaxPacketBufferSize();
-        aggressiveWindowMultiplier = parameters.getAggressiveWindowMultiplier();
-        passiveWindowMultiplier = parameters.getPassiveWindowMultiplier();
+        windowMultiplier = parameters.getWindowMultiplier();
         resendMinDelayMS = parameters.getResendMinDelayMS();
         heartbeatIntervalSec = parameters.getHeartbeatIntervalSec();
         receiveTimeoutSec = parameters.getReceiveTimeoutSec();
@@ -96,8 +95,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         resender = new ConnectionResendHandler(this, managedSendAction, sharedData, resendMinDelayMS, DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
-        receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, aggressiveWindowMultiplier,
-                passiveWindowMultiplier, resender, packetSize);
+        receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, windowMultiplier,
+                resender, packetSize);
 
         sender = new ConnectionSendHandler(this, managedSendAction, receiver, sharedData, resender, packetSize);
 
@@ -316,12 +315,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
         return maxPacketBufferSize;
     }
 
-    public int getAggressiveWindowMultiplier() {
-        return aggressiveWindowMultiplier;
-    }
-
-    public int getPassiveWindowMultiplier() {
-        return passiveWindowMultiplier;
+    public int getWindowMultiplier() {
+        return windowMultiplier;
     }
 
     public int getResendMinDelayMS() {
