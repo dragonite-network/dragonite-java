@@ -27,7 +27,7 @@ public class ConnectionReceiveHandler {
 
     private final Object receiveLock = new Object();
 
-    private volatile int remoteAckedConsecutiveSeq = 0;
+    private volatile int remoteConsumedSeq = 0;
 
     private final ConnectionSharedData sharedData;
 
@@ -145,8 +145,8 @@ public class ConnectionReceiveHandler {
             if (message instanceof ACKMessage) {
 
                 final ACKMessage ackMessage = (ACKMessage) message;
-                if (ackMessage.getReceiveSeq() > remoteAckedConsecutiveSeq) {
-                    remoteAckedConsecutiveSeq = ackMessage.getReceiveSeq();
+                if (ackMessage.getConsumedSeq() > remoteConsumedSeq) {
+                    remoteConsumedSeq = ackMessage.getConsumedSeq();
                 }
 
                 final int[] seqs = ackMessage.getSequenceList();
@@ -200,7 +200,7 @@ public class ConnectionReceiveHandler {
     }
 
     protected boolean checkWindowAvailable() {
-        final int delta = sharedData.getSendSequence() - remoteAckedConsecutiveSeq;
+        final int delta = sharedData.getSendSequence() - remoteConsumedSeq;
         return delta < getProperWindow();
     }
 

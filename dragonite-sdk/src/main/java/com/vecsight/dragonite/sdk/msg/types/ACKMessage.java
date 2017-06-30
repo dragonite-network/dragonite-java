@@ -17,11 +17,11 @@ public class ACKMessage implements Message {
 
     private int[] sequenceList;
 
-    private int receiveSeq;
+    private int consumedSeq;
 
-    public ACKMessage(final int[] sequenceList, final int receiveSeq) {
+    public ACKMessage(final int[] sequenceList, final int consumedSeq) {
         this.sequenceList = sequenceList;
-        this.receiveSeq = receiveSeq;
+        this.consumedSeq = consumedSeq;
     }
 
     public ACKMessage(final byte[] msg) throws IncorrectMessageException {
@@ -36,7 +36,7 @@ public class ACKMessage implements Message {
             throw new IncorrectMessageException("Incorrect Type Field! (" + remoteType + ", should be " + TYPE + ")");
         }
 
-        receiveSeq = buffer.getInt();
+        consumedSeq = buffer.getInt();
 
         final short seqCount = buffer.getShort();
 
@@ -61,7 +61,7 @@ public class ACKMessage implements Message {
         final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + sequenceList.length * Integer.BYTES);
         buffer.put(VERSION);
         buffer.put(TYPE);
-        buffer.putInt(receiveSeq);
+        buffer.putInt(consumedSeq);
         buffer.putShort((short) sequenceList.length);
         for (final int seq : sequenceList) {
             buffer.putInt(seq);
@@ -82,11 +82,11 @@ public class ACKMessage implements Message {
         this.sequenceList = sequenceList;
     }
 
-    public int getReceiveSeq() {
-        return receiveSeq;
+    public int getConsumedSeq() {
+        return consumedSeq;
     }
 
-    public void setReceiveSeq(final int receiveSeq) {
-        this.receiveSeq = receiveSeq;
+    public void setConsumedSeq(final int consumedSeq) {
+        this.consumedSeq = consumedSeq;
     }
 }
