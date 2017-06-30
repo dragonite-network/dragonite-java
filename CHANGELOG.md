@@ -19,6 +19,9 @@ Fix redundant retransmissions caused by delayed ACKs
 ### 0.2.1
 Enable Cross-Origin Resource Sharing (CORS) for HTTP(JSON) statistics interface
 
+### 0.2.2
+Minor bandwidth usage optimizations
+
 ## dragonite-mux
 
 ### 0.1.0
@@ -47,3 +50,8 @@ Add an option for enabling HTTP(JSON) statistics interface of underlying dragoni
 GUI Web Panel for HTTP(JSON) statistics interface
 
 --web-panel & --web-panel-public options
+
+### 0.1.5
+Minor bandwidth usage optimizations from SDK v0.2.2
+
+Adjustable send window size multiplier (option --window-size-multiplier)

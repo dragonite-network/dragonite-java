@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.vecsight.dragonite'
-version '0.1.4'
+version '0.1.5'
 
 apply plugin: 'java'
 apply plugin: 'application'
