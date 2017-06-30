@@ -97,8 +97,8 @@ public final class CLIMain {
                 .build());
         options.addOption(Option
                 .builder()
-                .longOpt("aggressiveness")
-                .desc("Aggressiveness of underlying Dragonite sockets (1-10)")
+                .longOpt("window-size-multiplier")
+                .desc("Send window size multiplier of underlying Dragonite sockets (1-10)")
                 .hasArg()
                 .argName("multiplier")
                 .type(Number.class)
@@ -222,8 +222,8 @@ public final class CLIMain {
                         config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
                         openWebPanel = true;
                     }
-                    if (commandLine.hasOption("aggressiveness")) {
-                        config.setAggressiveness(((Number) commandLine.getParsedOptionValue("aggressiveness")).intValue());
+                    if (commandLine.hasOption("window-size-multiplier")) {
+                        config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                     }
 
                     final ForwarderServer forwarderServer = new ForwarderServer(config);
@@ -263,8 +263,8 @@ public final class CLIMain {
                         config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
                         openWebPanel = true;
                     }
-                    if (commandLine.hasOption("aggressiveness")) {
-                        config.setAggressiveness(((Number) commandLine.getParsedOptionValue("aggressiveness")).intValue());
+                    if (commandLine.hasOption("window-size-multiplier")) {
+                        config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                     }
 
                     final ForwarderClient forwarderClient = new ForwarderClient(config);
