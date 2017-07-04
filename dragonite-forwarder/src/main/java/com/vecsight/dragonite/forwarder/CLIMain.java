@@ -2,13 +2,14 @@ package com.vecsight.dragonite.forwarder;
 
 import com.vecsight.dragonite.forwarder.config.ForwarderClientConfig;
 import com.vecsight.dragonite.forwarder.config.ForwarderServerConfig;
+import com.vecsight.dragonite.forwarder.exception.IncorrectHeaderException;
+import com.vecsight.dragonite.forwarder.exception.ServerRejectedException;
 import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
 import com.vecsight.dragonite.forwarder.network.client.ForwarderClient;
 import com.vecsight.dragonite.forwarder.network.server.ForwarderServer;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
-import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
+import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.InvalidValueException;
-import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
@@ -94,6 +95,14 @@ public final class CLIMain {
                 .hasArg()
                 .argName("mbps")
                 .type(Number.class)
+                .build());
+        options.addOption(Option
+                .builder("w")
+                .longOpt("welcome")
+                .desc("Welcome message of server")
+                .hasArg()
+                .argName("msg")
+                .type(String.class)
                 .build());
         options.addOption(Option
                 .builder()
@@ -211,6 +220,9 @@ public final class CLIMain {
                     if (commandLine.hasOption("l")) {
                         config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).shortValue());
                     }
+                    if (commandLine.hasOption("w")) {
+                        config.setWelcomeMessage(commandLine.getOptionValue("w"));
+                    }
 
                     boolean openWebPanel = false;
                     if (commandLine.hasOption("web-panel")) {
@@ -276,7 +288,7 @@ public final class CLIMain {
                     }
                 } catch (ParseException | InvalidValueException e) {
                     Logger.error(e, "Incorrect value");
-                } catch (InterruptedException | IncorrectSizeException | SenderClosedException | IOException e) {
+                } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
                     Logger.error(e, "Unable to initialize");
                 }
             } else {

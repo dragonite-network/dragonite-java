@@ -1,7 +1,10 @@
 package com.vecsight.dragonite.forwarder.network.client;
 
 import com.vecsight.dragonite.forwarder.config.ForwarderClientConfig;
+import com.vecsight.dragonite.forwarder.exception.IncorrectHeaderException;
+import com.vecsight.dragonite.forwarder.exception.ServerRejectedException;
 import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
+import com.vecsight.dragonite.forwarder.header.ServerResponseHeader;
 import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
 import com.vecsight.dragonite.forwarder.misc.SystemInfo;
 import com.vecsight.dragonite.forwarder.misc.UnitConverter;
@@ -12,6 +15,7 @@ import com.vecsight.dragonite.mux.exception.ConnectionAlreadyExistsException;
 import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
+import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.socket.DragoniteClientSocket;
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.BufferOverflowException;
 
 public class ForwarderClient {
 
@@ -48,7 +53,7 @@ public class ForwarderClient {
 
     private final Object reconnectLock = new Object();
 
-    public ForwarderClient(final ForwarderClientConfig config) throws IOException, InterruptedException, IncorrectSizeException, SenderClosedException {
+    public ForwarderClient(final ForwarderClientConfig config) throws IOException, InterruptedException, DragoniteException, IncorrectHeaderException, ServerRejectedException {
         this.remoteAddress = config.getRemoteAddress();
         this.localPort = config.getLocalPort();
         this.downMbps = config.getDownMbps();
@@ -73,15 +78,26 @@ public class ForwarderClient {
         acceptThread.start();
     }
 
-    private void prepareUnderlyingConnection(final DragoniteSocketParameters dragoniteSocketParameters) throws IOException, InterruptedException, IncorrectSizeException, SenderClosedException {
+    private void prepareUnderlyingConnection(final DragoniteSocketParameters dragoniteSocketParameters) throws IOException, InterruptedException, DragoniteException, IncorrectHeaderException, ServerRejectedException {
         dragoniteClientSocket = new DragoniteClientSocket(remoteAddress, UnitConverter.mbpsToSpeed(upMbps), dragoniteSocketParameters);
 
         dragoniteClientSocket.setDescription("Forwarder");
 
         try {
             dragoniteClientSocket.send(new ClientInfoHeader(downMbps, upMbps, SystemInfo.getUsername(), ForwarderGlobalConstants.APP_VERSION, SystemInfo.getOS()).toBytes());
-        } catch (InterruptedException | IncorrectSizeException | SenderClosedException | IOException e) {
-            Logger.error(e, "Unable to send client header");
+
+            final byte[] response = dragoniteClientSocket.read();
+            final ServerResponseHeader responseHeader = new ServerResponseHeader(response);
+
+            if (responseHeader.getStatus() != 0) {
+                Logger.error("The server has rejected this connection (Error code {}): {}", responseHeader.getStatus(), responseHeader.getMsg());
+                throw new ServerRejectedException(responseHeader.getMsg());
+            } else if (responseHeader.getMsg().length() > 0) {
+                Logger.info("Server welcome message: {}", responseHeader.getMsg());
+            }
+
+        } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException | BufferOverflowException e) {
+            Logger.error(e, "Unable to connect to remote server");
             try {
                 dragoniteClientSocket.closeGracefully();
             } catch (InterruptedException | SenderClosedException | IOException ignored) {
@@ -130,7 +146,7 @@ public class ForwarderClient {
                 Logger.warn("The underlying connection is no longer alive, reconnecting");
                 try {
                     prepareUnderlyingConnection(dragoniteSocketParameters);
-                } catch (IOException | InterruptedException | SenderClosedException | IncorrectSizeException e) {
+                } catch (IOException | InterruptedException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
                     Logger.error(e, "Unable to reconnect, there may be a network error or the server has been shut down");
                     return;
                 }
