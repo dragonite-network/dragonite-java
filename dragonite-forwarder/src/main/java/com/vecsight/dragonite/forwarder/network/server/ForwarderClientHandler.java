@@ -2,6 +2,7 @@ package com.vecsight.dragonite.forwarder.network.server;
 
 import com.vecsight.dragonite.forwarder.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
+import com.vecsight.dragonite.forwarder.header.ServerResponseHeader;
 import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
 import com.vecsight.dragonite.forwarder.misc.UnitConverter;
 import com.vecsight.dragonite.forwarder.network.Pipe;
@@ -9,6 +10,7 @@ import com.vecsight.dragonite.mux.conn.MultiplexedConnection;
 import com.vecsight.dragonite.mux.conn.Multiplexer;
 import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
+import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.socket.DragoniteSocket;
@@ -27,10 +29,14 @@ public class ForwarderClientHandler {
 
     private final short limitMbps;
 
-    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final short limitMbps) {
+    private final String welcomeMessage;
+
+    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final short limitMbps,
+                                  final String welcomeMessage) {
         this.forwardingPort = forwardingPort;
         this.dragoniteSocket = dragoniteSocket;
         this.limitMbps = limitMbps;
+        this.welcomeMessage = welcomeMessage;
     }
 
     public void run() {
@@ -56,7 +62,20 @@ public class ForwarderClientHandler {
                     try {
                         dragoniteSocket.closeGracefully();
                     } catch (InterruptedException | IOException | SenderClosedException ignored) {
-                        //okay
+                    }
+                    return;
+                }
+
+                //okay
+
+                try {
+                    dragoniteSocket.send(new ServerResponseHeader((byte) 0, welcomeMessage).toBytes());
+                } catch (InterruptedException | DragoniteException | IOException e) {
+                    Logger.error(e, "Cannot send response to client {}", dragoniteSocket.getRemoteSocketAddress().toString());
+
+                    try {
+                        dragoniteSocket.closeGracefully();
+                    } catch (InterruptedException | IOException | SenderClosedException ignored) {
                     }
                     return;
                 }

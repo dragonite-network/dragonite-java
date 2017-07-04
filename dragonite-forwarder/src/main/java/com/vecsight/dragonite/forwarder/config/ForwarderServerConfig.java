@@ -13,6 +13,8 @@ public class ForwarderServerConfig {
 
     private short mbpsLimit = 0;
 
+    private String welcomeMessage = "Sample welcome message";
+
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
     public ForwarderServerConfig(final InetSocketAddress bindAddress, final int forwardingPort) {
@@ -42,6 +44,14 @@ public class ForwarderServerConfig {
 
     public void setMbpsLimit(final short mbpsLimit) {
         this.mbpsLimit = mbpsLimit;
+    }
+
+    public String getWelcomeMessage() {
+        return welcomeMessage;
+    }
+
+    public void setWelcomeMessage(final String welcomeMessage) {
+        this.welcomeMessage = welcomeMessage;
     }
 
     public int getMTU() {

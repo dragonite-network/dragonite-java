@@ -17,6 +17,8 @@ public class ForwarderServer {
 
     private final short limitMbps;
 
+    private final String welcomeMessage;
+
     private final DragoniteServer dragoniteServer;
 
     private volatile boolean doAccept = true;
@@ -27,6 +29,7 @@ public class ForwarderServer {
         this.bindAddress = config.getBindAddress();
         this.forwardingPort = config.getForwardingPort();
         this.limitMbps = config.getMbpsLimit();
+        this.welcomeMessage = config.getWelcomeMessage();
 
         this.dragoniteServer = new DragoniteServer(bindAddress.getAddress(), bindAddress.getPort(),
                 ForwarderGlobalConstants.INIT_SEND_SPEED, config.getDragoniteSocketParameters());
@@ -46,7 +49,7 @@ public class ForwarderServer {
     }
 
     private void handleClient(final DragoniteSocket socket) {
-        final ForwarderClientHandler clientHandler = new ForwarderClientHandler(forwardingPort, socket, limitMbps);
+        final ForwarderClientHandler clientHandler = new ForwarderClientHandler(forwardingPort, socket, limitMbps, welcomeMessage);
         final Thread handlerThread = new Thread(clientHandler::run, "FS-Handler");
         handlerThread.start();
     }

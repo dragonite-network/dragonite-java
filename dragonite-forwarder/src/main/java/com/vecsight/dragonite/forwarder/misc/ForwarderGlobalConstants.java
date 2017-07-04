@@ -13,7 +13,7 @@ public final class ForwarderGlobalConstants {
 
     //Protocol shits
 
-    public static final byte PROTOCOL_VERSION = 1;
+    public static final byte PROTOCOL_VERSION = 2;
 
     public static final int DEFAULT_SERVER_PORT = 5233;
 
