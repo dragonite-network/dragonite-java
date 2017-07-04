@@ -55,3 +55,6 @@ GUI Web Panel for HTTP(JSON) statistics interface
 Minor bandwidth usage optimizations from SDK v0.2.2
 
 Adjustable send window size multiplier (option --window-size-multiplier)
+
+### 0.2.0
+Protocol Version 2: Added Server Response Message allowing custom server welcome message (option -w)

@@ -4,10 +4,10 @@
 
 ![powered by dragonite](https://img.shields.io/badge/powered%20by-dragonite-yellow.svg)
 
-Current status (2017-6-30):
+Current status (2017-7-4):
 - [x] **dragonite-sdk** (Protocol library) (v0.2.2 released)
 - [x] **dragonite-mux** (Connection multiplexing library) (v0.2.0 released)
-- [x] **dragonite-forwarder** (Reverse proxy) (v0.1.5 released)
+- [x] **dragonite-forwarder** (Reverse proxy) (v0.2.0 released)
 - [ ] **dragonite-proxy** (Advanced SOCKS5 proxy) (WIP)
 - [ ] **dragonite-chat** (Simple chat platform) (WIP)
 
