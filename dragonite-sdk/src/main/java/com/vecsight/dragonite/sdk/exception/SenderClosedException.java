@@ -1,6 +1,6 @@
 package com.vecsight.dragonite.sdk.exception;
 
-public class SenderClosedException extends Exception {
+public class SenderClosedException extends DragoniteException {
 
     public SenderClosedException() {
         super("Sender closed");

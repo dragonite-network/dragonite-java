@@ -1,6 +1,6 @@
 package com.vecsight.dragonite.sdk.exception;
 
-public class ConnectionNotAliveException extends Exception {
+public class ConnectionNotAliveException extends DragoniteException {
 
     public ConnectionNotAliveException() {
         super("Connection is not alive");
