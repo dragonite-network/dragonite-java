@@ -22,6 +22,7 @@ repositories {
 dependencies {
     compile project(':dragonite-sdk')
     compile project(':dragonite-mux')
+    compile project(':dragonite-utils')
     //compile 'com.github.tobyxdd:vslf-java:e7469bb8d6'
     compile group: 'org.tinylog', name: 'tinylog', version: '1.2'
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'

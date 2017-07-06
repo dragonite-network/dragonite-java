@@ -12,6 +12,8 @@
       <module name="dragonite-proxy_test" target="1.8" />
       <module name="dragonite-sdk_main" target="1.8" />
       <module name="dragonite-sdk_test" target="1.8" />
+      <module name="dragonite-utils_main" target="1.8" />
+      <module name="dragonite-utils_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

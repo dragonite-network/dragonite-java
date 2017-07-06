@@ -6,8 +6,6 @@ import com.vecsight.dragonite.forwarder.exception.ServerRejectedException;
 import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
 import com.vecsight.dragonite.forwarder.header.ServerResponseHeader;
 import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
-import com.vecsight.dragonite.forwarder.misc.SystemInfo;
-import com.vecsight.dragonite.forwarder.misc.UnitConverter;
 import com.vecsight.dragonite.forwarder.network.Pipe;
 import com.vecsight.dragonite.mux.conn.MultiplexedConnection;
 import com.vecsight.dragonite.mux.conn.Multiplexer;
@@ -19,6 +17,8 @@ import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.socket.DragoniteClientSocket;
+import com.vecsight.dragonite.utils.network.UnitConverter;
+import com.vecsight.dragonite.utils.system.SystemInfo;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;

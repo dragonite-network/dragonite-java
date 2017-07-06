@@ -1,0 +1,16 @@
+plugins {
+    id 'de.fuerstenau.buildconfig' version '1.1.8'
+}
+
+group 'com.vecsight.dragonite'
+version '0.1.0'
+
+apply plugin: 'java-library'
+apply plugin: 'java-library-distribution'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+buildConfig {
+    clsName = 'UtilsBuildConfig'
+}
