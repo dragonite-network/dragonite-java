@@ -136,8 +136,9 @@ public class DragoniteServer {
                                 //System.out.println("TIMEOUT " + socket.getRemoteSocketAddress());
                                 socket.destroy_NoRemove();
                                 it.remove();
-                            } else if (current - socket.getLastSendHeartbeat() > heartbeatIntervalSec * 1000) {
+                            } else if (current - socket.getLastSendTime() > heartbeatIntervalSec * 1000) {
                                 try {
+                                    //TODO Fix blocking
                                     socket.sendHeartbeat();
                                 } catch (IOException | SenderClosedException ignored) {
                                 }

@@ -32,6 +32,10 @@ public abstract class DragoniteSocket {
 
     public abstract long getLastReceiveTime();
 
+    protected abstract void updateLastSendTime();
+
+    public abstract long getLastSendTime();
+
     public abstract SocketAddress getRemoteSocketAddress();
 
     public abstract void setSendSpeed(long sendSpeed);

@@ -40,7 +40,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
     private volatile boolean alive = true;
 
-    private volatile long lastReceiveTime, lastSendHeartbeat;
+    private volatile long lastReceiveTime, lastSendTime;
 
     private final ConnectionSharedData sharedData = new ConnectionSharedData();
 
@@ -54,7 +54,10 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
         updateLastReceiveTime();
 
-        managedSendAction = new ManagedSendAction(bytes -> dragoniteServer.sendPacket(bytes, remoteAddress), sendSpeed);
+        managedSendAction = new ManagedSendAction(bytes -> {
+            dragoniteServer.sendPacket(bytes, remoteAddress);
+            updateLastSendTime();
+        }, sendSpeed);
 
         ackMessageManager = new ACKMessageManager(this, managedSendAction, DragoniteGlobalConstants.ACK_INTERVAL_MS, dragoniteServer.getPacketSize());
 
@@ -81,6 +84,20 @@ public class DragoniteServerSocket extends DragoniteSocket {
     @Override
     public long getLastReceiveTime() {
         return lastReceiveTime;
+    }
+
+    @Override
+    protected void updateLastSendTime() {
+        lastSendTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public long getLastSendTime() {
+        return lastSendTime;
+    }
+
+    protected void sendHeartbeat() throws InterruptedException, IOException, SenderClosedException {
+        sender.sendHeartbeatMessage();
     }
 
     @Override
@@ -135,15 +152,6 @@ public class DragoniteServerSocket extends DragoniteSocket {
     @Override
     public void setSendSpeed(final long sendSpeed) {
         managedSendAction.setSpeed(sendSpeed);
-    }
-
-    protected void sendHeartbeat() throws InterruptedException, IOException, SenderClosedException {
-        sender.sendHeartbeatMessage();
-        lastSendHeartbeat = System.currentTimeMillis();
-    }
-
-    protected long getLastSendHeartbeat() {
-        return lastSendHeartbeat;
     }
 
     @Override

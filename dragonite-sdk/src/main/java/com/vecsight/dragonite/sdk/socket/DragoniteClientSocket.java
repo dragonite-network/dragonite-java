@@ -68,7 +68,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     private volatile boolean alive = true;
 
-    private volatile long lastReceiveTime, lastSendHeartbeat;
+    private volatile long lastReceiveTime, lastSendTime;
 
     private final Object closeLock = new Object();
 
@@ -151,10 +151,11 @@ public class DragoniteClientSocket extends DragoniteSocket {
                 while (doAliveDetect) {
                     final long current = System.currentTimeMillis();
                     if (alive) {
-                        if (current - lastReceiveTime > receiveTimeoutSec * 1000) {
+                        if (current - getLastReceiveTime() > receiveTimeoutSec * 1000) {
                             destroy();
-                        } else if (current - lastSendHeartbeat > heartbeatIntervalSec * 1000) {
+                        } else if (current - getLastSendTime() > heartbeatIntervalSec * 1000) {
                             try {
+                                //TODO Fix blocking
                                 sendHeartbeat();
                             } catch (IOException | SenderClosedException ignored) {
                             }
@@ -201,14 +202,14 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     private void sendHeartbeat() throws InterruptedException, IOException, SenderClosedException {
         sender.sendHeartbeatMessage();
-        lastSendHeartbeat = System.currentTimeMillis();
     }
 
     //SEND ALL PACKETS THROUGH THIS!!
-    protected void sendPacket(final byte[] bytes, final SocketAddress socketAddress) throws IOException {
+    private void sendPacket(final byte[] bytes, final SocketAddress socketAddress) throws IOException {
         final DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
         packet.setSocketAddress(socketAddress);
         datagramSocket.send(packet);
+        updateLastSendTime();
     }
 
     @Override
@@ -303,6 +304,16 @@ public class DragoniteClientSocket extends DragoniteSocket {
     @Override
     public long getLastReceiveTime() {
         return lastReceiveTime;
+    }
+
+    @Override
+    protected void updateLastSendTime() {
+        lastSendTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public long getLastSendTime() {
+        return lastSendTime;
     }
 
     @Override

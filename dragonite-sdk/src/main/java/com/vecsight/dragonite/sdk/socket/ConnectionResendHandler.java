@@ -141,7 +141,6 @@ public class ConnectionResendHandler {
         synchronized (queueLock) {
             riQueue.add(new ResendItem(message.getSequence(), System.currentTimeMillis(), getNextSendTime(0, 0)));
             queueLock.notifyAll();
-
         }
     }
 
