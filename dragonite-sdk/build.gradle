@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
     compile 'com.github:bucket4j:1.3.0'
+    testCompile 'junit:junit:4.12'
 }
 
 buildConfig {

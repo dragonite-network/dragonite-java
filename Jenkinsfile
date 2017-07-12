@@ -15,7 +15,9 @@ gradle --no-daemon -g "`pwd`/.gradle" distZip
     }
     stage('test') {
       steps {
-        echo 'should run tests'
+        sh '''
+gradle --no-daemon -g "`pwd`/.gradle" test
+'''
       }
     }
     stage('archive') {

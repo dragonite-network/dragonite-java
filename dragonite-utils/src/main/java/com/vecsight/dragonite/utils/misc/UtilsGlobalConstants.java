@@ -15,7 +15,7 @@ package com.vecsight.dragonite.utils.misc;
 
 import com.vecsight.dragonite.UtilsBuildConfig;
 
-public class UtilsGlobalConstants {
+public final class UtilsGlobalConstants {
 
     //Version shits
 
