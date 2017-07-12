@@ -16,8 +16,13 @@ gradle --no-daemon -g "`pwd`/.gradle" distZip
     stage('test') {
       steps {
         sh '''
-gradle --no-daemon -g "`pwd`/.gradle" test
+gradle --no-daemon -g "`pwd`/.gradle" test -i
 '''
+      }
+      post {
+        always {
+          junit allowEmptyResults: true, testResults: 'build/test-results/**/*.xml'
+        }
       }
     }
     stage('archive') {
