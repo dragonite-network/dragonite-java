@@ -21,7 +21,7 @@ gradle --no-daemon -g "`pwd`/.gradle" test -i
       }
       post {
         always {
-          junit allowEmptyResults: true, testResults: 'build/test-results/**/*.xml'
+          junit allowEmptyResults: true, testResults: '**/build/test-results/**/*.xml'
         }
       }
     }
