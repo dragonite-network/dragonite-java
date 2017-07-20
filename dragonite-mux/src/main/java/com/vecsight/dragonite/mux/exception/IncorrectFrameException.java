@@ -13,7 +13,7 @@
 
 package com.vecsight.dragonite.mux.exception;
 
-public class IncorrectFrameException extends Exception {
+public class IncorrectFrameException extends MuxException {
 
     public IncorrectFrameException(final String msg) {
         super(msg);

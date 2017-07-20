@@ -13,7 +13,7 @@
 
 package com.vecsight.dragonite.mux.exception;
 
-public class DataLengthMismatchException extends Exception {
+public class DataLengthMismatchException extends MuxException {
 
     public DataLengthMismatchException(final String msg) {
         super(msg);

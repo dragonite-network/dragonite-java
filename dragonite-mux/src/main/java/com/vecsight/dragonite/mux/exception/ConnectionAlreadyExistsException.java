@@ -13,7 +13,7 @@
 
 package com.vecsight.dragonite.mux.exception;
 
-public class ConnectionAlreadyExistsException extends Exception {
+public class ConnectionAlreadyExistsException extends MuxException {
 
     public ConnectionAlreadyExistsException() {
         super("Connection already exists");

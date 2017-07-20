@@ -13,7 +13,7 @@
 
 package com.vecsight.dragonite.mux.exception;
 
-public class MultiplexerClosedException extends Exception {
+public class MultiplexerClosedException extends MuxException {
 
     public MultiplexerClosedException() {
         super("Multiplexer closed");

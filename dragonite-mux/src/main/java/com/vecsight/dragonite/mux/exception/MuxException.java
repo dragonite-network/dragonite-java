@@ -13,13 +13,13 @@
 
 package com.vecsight.dragonite.mux.exception;
 
-public class ConnectionNotAliveException extends MuxException {
+public class MuxException extends Exception {
 
-    public ConnectionNotAliveException() {
-        super("Connection is not alive");
+    public MuxException() {
+        super();
     }
 
-    public ConnectionNotAliveException(final String msg) {
+    public MuxException(final String msg) {
         super(msg);
     }
 

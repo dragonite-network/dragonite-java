@@ -13,7 +13,7 @@
 
 package com.vecsight.dragonite.mux.exception;
 
-public class SenderClosedException extends Exception {
+public class SenderClosedException extends MuxException {
 
     public SenderClosedException() {
         super("Sender closed");
