@@ -20,30 +20,21 @@ import com.vecsight.dragonite.mux.frame.types.*;
 
 public class FrameParser {
 
-    private final short maxFrameSize;
-
-    private final byte[] bytesBuffer;
-
-    private short position = 0;
+    private final FrameBuffer frameBuffer;
 
     public FrameParser(final short maxFrameSize) {
-        this.maxFrameSize = maxFrameSize;
-        bytesBuffer = new byte[maxFrameSize];
+        frameBuffer = new FrameBuffer(maxFrameSize);
     }
 
     public Frame tryParseFrame(final byte[] rawBytes) {
-        System.arraycopy(rawBytes, 0, bytesBuffer, position, rawBytes.length);
-        position += rawBytes.length;
-
-        final byte[] tmpBytes = new byte[position];
-        System.arraycopy(bytesBuffer, 0, tmpBytes, 0, position);
+        frameBuffer.add(rawBytes);
 
         Frame frame = null;
         try {
-            frame = parseFrameRaw(tmpBytes);
-            position = 0;
+            frame = parseFrameRaw(frameBuffer.get());
+            frameBuffer.reset();
         } catch (final IncorrectFrameException e) {
-            position = 0;
+            frameBuffer.reset();
         } catch (final DataLengthMismatchException ignored) {
         }
         return frame;

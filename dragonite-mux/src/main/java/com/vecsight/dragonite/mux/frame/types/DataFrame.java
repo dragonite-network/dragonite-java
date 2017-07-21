@@ -19,7 +19,6 @@ import com.vecsight.dragonite.mux.frame.Frame;
 import com.vecsight.dragonite.mux.frame.FrameType;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 /*
@@ -62,12 +61,13 @@ public class DataFrame implements Frame {
         connectionID = buffer.getShort();
 
         final short length = buffer.getShort();
-        data = new byte[length];
-        try {
-            buffer.get(data);
-        } catch (final BufferUnderflowException e) {
+
+        if (buffer.remaining() < length) {
             throw new DataLengthMismatchException("Length mismatch (" + length + ")");
         }
+
+        data = new byte[length];
+        buffer.get(data);
 
     }
 
