@@ -15,6 +15,7 @@ package com.vecsight.dragonite.forwarder.config;
 
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
 import com.vecsight.dragonite.sdk.exception.InvalidValueException;
+import com.vecsight.dragonite.utils.system.SystemInfo;
 
 import java.net.InetSocketAddress;
 
@@ -26,7 +27,7 @@ public class ForwarderServerConfig {
 
     private short mbpsLimit = 0;
 
-    private String welcomeMessage = "Sample welcome message";
+    private String welcomeMessage = "Welcome to " + SystemInfo.getHostname();
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
