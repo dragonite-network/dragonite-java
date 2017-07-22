@@ -22,22 +22,38 @@ public class FrameParser {
 
     private final FrameBuffer frameBuffer;
 
-    public FrameParser(final short maxFrameSize) {
+    private boolean needMore = false;
+
+    private int expectedLength = 0;
+
+    public FrameParser(final int maxFrameSize) {
         frameBuffer = new FrameBuffer(maxFrameSize);
     }
 
-    public Frame tryParseFrame(final byte[] rawBytes) {
+    public Frame feed(final byte[] rawBytes) {
+
         frameBuffer.add(rawBytes);
 
-        Frame frame = null;
-        try {
-            frame = parseFrameRaw(frameBuffer.get());
-            frameBuffer.reset();
-        } catch (final IncorrectFrameException e) {
-            frameBuffer.reset();
-        } catch (final DataLengthMismatchException ignored) {
+        if (!needMore || frameBuffer.getSize() >= expectedLength) {
+
+            Frame frame = null;
+            try {
+                frame = parseFrameRaw(frameBuffer.get());
+                frameBuffer.reset();
+                needMore = false;
+            } catch (final IncorrectFrameException e) {
+                frameBuffer.reset();
+                needMore = false;
+            } catch (final DataLengthMismatchException e) {
+                expectedLength = e.getExpectedLength();
+                needMore = true;
+            }
+            return frame;
+
+        } else {
+            return null;
         }
-        return frame;
+
     }
 
     private static Frame parseFrameRaw(final byte[] rawBytes) throws IncorrectFrameException, DataLengthMismatchException {

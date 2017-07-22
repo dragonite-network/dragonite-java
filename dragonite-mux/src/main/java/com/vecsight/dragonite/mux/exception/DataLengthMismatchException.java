@@ -15,8 +15,23 @@ package com.vecsight.dragonite.mux.exception;
 
 public class DataLengthMismatchException extends MuxException {
 
-    public DataLengthMismatchException(final String msg) {
-        super(msg);
+    private final int expectedLength, currentLength;
+
+    public DataLengthMismatchException(final int expectedLength, final int currentLength) {
+        this.expectedLength = expectedLength;
+        this.currentLength = currentLength;
+    }
+
+    public int getExpectedLength() {
+        return expectedLength;
+    }
+
+    public int getCurrentLength() {
+        return currentLength;
+    }
+
+    public int getDeltaLength() {
+        return expectedLength - currentLength;
     }
 
 }

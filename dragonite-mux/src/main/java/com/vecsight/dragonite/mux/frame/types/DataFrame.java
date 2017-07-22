@@ -63,7 +63,7 @@ public class DataFrame implements Frame {
         final short length = buffer.getShort();
 
         if (buffer.remaining() < length) {
-            throw new DataLengthMismatchException("Length mismatch (" + length + ")");
+            throw new DataLengthMismatchException(length, buffer.remaining());
         }
 
         data = new byte[length];

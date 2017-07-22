@@ -37,7 +37,7 @@ public class Multiplexer {
 
     private volatile boolean alive = true;
 
-    public Multiplexer(final SendAction sendAction, final short maxFrameSize) {
+    public Multiplexer(final SendAction sendAction, final int maxFrameSize) {
         this.sendAction = sendAction;
         frameParser = new FrameParser(maxFrameSize);
     }
@@ -104,7 +104,7 @@ public class Multiplexer {
     }
 
     public void onReceiveBytes(final byte[] rawBytes) {
-        final Frame frame = frameParser.tryParseFrame(rawBytes);
+        final Frame frame = frameParser.feed(rawBytes);
         if (frame != null) {
             processFrame(frame);
         }

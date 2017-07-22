@@ -17,9 +17,9 @@ public class FrameBuffer {
 
     private final byte[] bytesBuffer;
 
-    private short position = 0;
+    private int position = 0;
 
-    public FrameBuffer(final short maxSize) {
+    public FrameBuffer(final int maxSize) {
         bytesBuffer = new byte[maxSize];
     }
 
@@ -38,8 +38,12 @@ public class FrameBuffer {
         position = 0;
     }
 
-    public short getMaxSize() {
-        return (short) bytesBuffer.length;
+    public int getSize() {
+        return position;
+    }
+
+    public int getMaxSize() {
+        return bytesBuffer.length;
     }
 
 }
