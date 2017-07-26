@@ -16,7 +16,7 @@ plugins {
 }
 
 group 'com.vecsight.dragonite'
-version '0.2.0'
+version '0.1.0'
 
 apply plugin: 'java'
 apply plugin: 'application'
@@ -24,7 +24,7 @@ apply plugin: 'idea'
 
 sourceCompatibility = 1.8
 
-mainClassName = 'com.vecsight.dragonite.forwarder.CLIMain'
+mainClassName = 'com.vecsight.dragonite.proxy.CLIMain'
 
 repositories {
     mavenCentral()
@@ -40,5 +40,5 @@ dependencies {
 }
 
 buildConfig {
-    clsName = 'ForwarderBuildConfig'
+    clsName = 'ProxyBuildConfig'
 }
