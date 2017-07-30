@@ -17,8 +17,6 @@ import com.vecsight.dragonite.forwarder.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
 import com.vecsight.dragonite.forwarder.header.ServerResponseHeader;
 import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
-import com.vecsight.dragonite.forwarder.network.Pipe;
-import com.vecsight.dragonite.mux.conn.MultiplexedConnection;
 import com.vecsight.dragonite.mux.conn.Multiplexer;
 import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
@@ -30,8 +28,6 @@ import com.vecsight.dragonite.utils.network.UnitConverter;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.nio.BufferUnderflowException;
 
 public class ForwarderClientHandler {
@@ -117,56 +113,12 @@ public class ForwarderClientHandler {
                     }
                 }, ForwarderGlobalConstants.MAX_FRAME_SIZE);
 
+                final ForwarderMuxHandler muxHandler = new ForwarderMuxHandler(multiplexer, infoHeader.getName(),
+                        dragoniteSocket.getRemoteSocketAddress(), forwardingPort);
+
                 final Thread multiplexerAcceptThread = new Thread(() -> {
                     try {
-                        MultiplexedConnection multiplexedConnection;
-
-                        while ((multiplexedConnection = multiplexer.acceptConnection()) != null) {
-                            final MultiplexedConnection tmpMuxConn = multiplexedConnection;
-
-                            Logger.debug("New connection by client \"{}\" ({})",
-                                    infoHeader.getName(), dragoniteSocket.getRemoteSocketAddress().toString());
-                            try {
-                                final Socket tcpSocket = new Socket(InetAddress.getLoopbackAddress(), forwardingPort);
-
-                                final Thread pipeFromRemoteThread = new Thread(() -> {
-                                    final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
-                                    try {
-                                        pipeFromRemotePipe.pipe(tmpMuxConn, tcpSocket.getOutputStream());
-                                    } catch (final Exception e) {
-                                        Logger.debug(e, "Pipe closed");
-                                    } finally {
-                                        try {
-                                            tcpSocket.close();
-                                        } catch (final IOException ignored) {
-                                        }
-                                        tmpMuxConn.close();
-                                    }
-                                }, "FS-R2L");
-                                pipeFromRemoteThread.start();
-
-                                final Thread pipeFromLocalThread = new Thread(() -> {
-                                    final Pipe pipeFromLocalPipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
-                                    try {
-                                        pipeFromLocalPipe.pipe(tcpSocket.getInputStream(), tmpMuxConn);
-                                    } catch (final Exception e) {
-                                        Logger.debug(e, "Pipe closed");
-                                    } finally {
-                                        try {
-                                            tcpSocket.close();
-                                        } catch (final IOException ignored) {
-                                        }
-                                        tmpMuxConn.close();
-                                    }
-                                }, "FS-L2R");
-                                pipeFromLocalThread.start();
-
-                            } catch (final IOException e) {
-                                Logger.error(e, "Unable to establish local connection");
-                                tmpMuxConn.close();
-                            }
-                        }
-
+                        muxHandler.run();
                     } catch (InterruptedException | MultiplexerClosedException e) {
                         if (dragoniteSocket.isAlive()) {
                             Logger.error(e, "Cannot accept multiplexed connection");
