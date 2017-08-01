@@ -17,14 +17,16 @@ import com.vecsight.dragonite.sdk.exception.IncorrectMessageException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.msg.Message;
 import com.vecsight.dragonite.sdk.msg.MessageType;
+import com.vecsight.dragonite.utils.binary.BinaryReader;
+import com.vecsight.dragonite.utils.binary.BinaryWriter;
 
-import java.nio.ByteBuffer;
+import java.nio.BufferUnderflowException;
 
 public class ACKMessage implements Message {
 
     private static final byte VERSION = DragoniteGlobalConstants.PROTOCOL_VERSION;
 
-    private static final byte TYPE = MessageType.ACK;
+    private static final MessageType TYPE = MessageType.ACK;
 
     public static final int FIXED_LENGTH = 8;
 
@@ -38,24 +40,31 @@ public class ACKMessage implements Message {
     }
 
     public ACKMessage(final byte[] msg) throws IncorrectMessageException {
-        final ByteBuffer buffer = ByteBuffer.wrap(msg);
-        final byte remoteVersion = buffer.get();
-        final byte remoteType = buffer.get();
+        final BinaryReader reader = new BinaryReader(msg);
 
-        if (remoteVersion != VERSION) {
-            throw new IncorrectMessageException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
-        }
-        if (remoteType != TYPE) {
-            throw new IncorrectMessageException("Incorrect Type Field! (" + remoteType + ", should be " + TYPE + ")");
-        }
+        try {
 
-        consumedSeq = buffer.getInt();
+            final byte remoteVersion = reader.getSignedByte();
+            final byte remoteType = reader.getSignedByte();
 
-        final short seqCount = buffer.getShort();
+            if (remoteVersion != VERSION) {
+                throw new IncorrectMessageException("Incorrect version (" + remoteVersion + ", should be " + VERSION + ")");
+            }
+            if (remoteType != TYPE.getValue()) {
+                throw new IncorrectMessageException("Incorrect type (" + remoteType + ", should be " + TYPE + ")");
+            }
 
-        sequenceList = new int[seqCount];
-        for (int i = 0; i < seqCount; i++) {
-            sequenceList[i] = buffer.getInt();
+            consumedSeq = reader.getSignedInt();
+
+            final int seqCount = reader.getUnsignedShort();
+
+            sequenceList = new int[seqCount];
+            for (int i = 0; i < seqCount; i++) {
+                sequenceList[i] = reader.getSignedInt();
+            }
+
+        } catch (final BufferUnderflowException e) {
+            throw new IncorrectMessageException("Incorrect message length");
         }
     }
 
@@ -65,21 +74,24 @@ public class ACKMessage implements Message {
     }
 
     @Override
-    public byte getType() {
+    public MessageType getType() {
         return TYPE;
     }
 
     @Override
     public byte[] toBytes() {
-        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + sequenceList.length * Integer.BYTES);
-        buffer.put(VERSION);
-        buffer.put(TYPE);
-        buffer.putInt(consumedSeq);
-        buffer.putShort((short) sequenceList.length);
+        final BinaryWriter writer = new BinaryWriter(getFixedLength() + sequenceList.length * Integer.BYTES);
+
+        writer.putSignedByte(VERSION)
+                .putSignedByte(TYPE.getValue())
+                .putSignedInt(consumedSeq)
+                .putUnsignedShort(sequenceList.length);
+
         for (final int seq : sequenceList) {
-            buffer.putInt(seq);
+            writer.putSignedInt(seq);
         }
-        return buffer.array();
+
+        return writer.toBytes();
     }
 
     @Override

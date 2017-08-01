@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
+
 public class ManagedSendAction implements SendAction {
 
     private final SendAction sendAction;
@@ -37,6 +39,7 @@ public class ManagedSendAction implements SendAction {
     }
 
     public void setSpeed(final long speed) {
+        checkArgument(speed > 0, "Speed must be greater than zero");
         bucket = Bucket4j.builder().addLimit(Bandwidth.simple(speed, Duration.ofSeconds(1))).build();
         this.speed = speed;
     }

@@ -13,16 +13,31 @@
 
 package com.vecsight.dragonite.mux.frame;
 
-public final class FrameType {
+public enum FrameType {
+    CREATE((byte) 0),
+    DATA((byte) 1),
+    CLOSE((byte) 2),
+    PAUSE((byte) 3),
+    CONTINUE((byte) 4);
 
-    public static final byte CREATE = 0;
+    private final byte value;
 
-    public static final byte DATA = 1;
+    FrameType(final byte value) {
+        this.value = value;
+    }
 
-    public static final byte CLOSE = 2;
+    public byte getValue() {
+        return value;
+    }
 
-    public static final byte PAUSE = 3;
+    private static final FrameType[] types = FrameType.values();
 
-    public static final byte CONTINUE = 4;
+    public static FrameType fromByte(final byte type) {
+        try {
+            return types[type];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Type byte " + type + " not found");
+        }
+    }
 
 }

@@ -17,7 +17,7 @@ public interface Message {
 
     byte getVersion();
 
-    byte getType();
+    MessageType getType();
 
     byte[] toBytes();
 

@@ -14,9 +14,11 @@
 package com.vecsight.dragonite.forwarder.config;
 
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
-import com.vecsight.dragonite.sdk.exception.InvalidValueException;
 
 import java.net.InetSocketAddress;
+
+import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
+import static com.vecsight.dragonite.utils.flow.Preconditions.inPortRange;
 
 public class ForwarderClientConfig {
 
@@ -24,15 +26,15 @@ public class ForwarderClientConfig {
 
     private int localPort;
 
-    private short downMbps, upMbps;
+    private int downMbps, upMbps;
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
-    public ForwarderClientConfig(final InetSocketAddress remoteAddress, final int localPort, final short downMbps, final short upMbps) {
-        this.remoteAddress = remoteAddress;
-        this.localPort = localPort;
-        this.downMbps = downMbps;
-        this.upMbps = upMbps;
+    public ForwarderClientConfig(final InetSocketAddress remoteAddress, final int localPort, final int downMbps, final int upMbps) {
+        setRemoteAddress(remoteAddress);
+        setLocalPort(localPort);
+        setDownMbps(downMbps);
+        setUpMbps(upMbps);
     }
 
     public InetSocketAddress getRemoteAddress() {
@@ -40,6 +42,7 @@ public class ForwarderClientConfig {
     }
 
     public void setRemoteAddress(final InetSocketAddress remoteAddress) {
+        checkArgument(remoteAddress != null, "Invalid remote address");
         this.remoteAddress = remoteAddress;
     }
 
@@ -48,22 +51,25 @@ public class ForwarderClientConfig {
     }
 
     public void setLocalPort(final int localPort) {
+        checkArgument(inPortRange(localPort), "Invalid port");
         this.localPort = localPort;
     }
 
-    public short getDownMbps() {
+    public int getDownMbps() {
         return downMbps;
     }
 
-    public void setDownMbps(final short downMbps) {
+    public void setDownMbps(final int downMbps) {
+        checkArgument(downMbps > 0 && downMbps <= 65535, "Invalid Mbps");
         this.downMbps = downMbps;
     }
 
-    public short getUpMbps() {
+    public int getUpMbps() {
         return upMbps;
     }
 
-    public void setUpMbps(final short upMbps) {
+    public void setUpMbps(final int upMbps) {
+        checkArgument(upMbps > 0 && upMbps <= 65535, "Invalid Mbps");
         this.upMbps = upMbps;
     }
 
@@ -71,7 +77,7 @@ public class ForwarderClientConfig {
         return dragoniteSocketParameters.getPacketSize();
     }
 
-    public void setMTU(final int mtu) throws InvalidValueException {
+    public void setMTU(final int mtu) {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
@@ -79,7 +85,7 @@ public class ForwarderClientConfig {
         return dragoniteSocketParameters.getWindowMultiplier();
     }
 
-    public void setWindowMultiplier(final int mult) throws InvalidValueException {
+    public void setWindowMultiplier(final int mult) {
         dragoniteSocketParameters.setWindowMultiplier(mult);
     }
 

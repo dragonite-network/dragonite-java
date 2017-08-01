@@ -17,20 +17,22 @@ import com.vecsight.dragonite.mux.exception.IncorrectFrameException;
 import com.vecsight.dragonite.mux.frame.Frame;
 import com.vecsight.dragonite.mux.frame.FrameType;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
+import com.vecsight.dragonite.utils.binary.BinaryReader;
+import com.vecsight.dragonite.utils.binary.BinaryWriter;
 
-import java.nio.ByteBuffer;
+import java.nio.BufferUnderflowException;
 
 /*
- * VERSION  1B
- * TYPE     1B
- * connID   2B
+ * VERSION  1 SB
+ * TYPE     1 SB
+ * connID   2 SS
  */
 
 public class CreateConnectionFrame implements Frame {
 
     private static final byte VERSION = MuxGlobalConstants.PROTOCOL_VERSION;
 
-    private static final byte TYPE = FrameType.CREATE;
+    private static final FrameType TYPE = FrameType.CREATE;
 
     public static final int FIXED_LENGTH = 4;
 
@@ -41,19 +43,25 @@ public class CreateConnectionFrame implements Frame {
     }
 
     public CreateConnectionFrame(final byte[] frame) throws IncorrectFrameException {
-        final ByteBuffer buffer = ByteBuffer.wrap(frame);
-        final byte remoteVersion = buffer.get();
-        final byte remoteType = buffer.get();
+        final BinaryReader reader = new BinaryReader(frame);
 
-        if (remoteVersion != VERSION) {
-            throw new IncorrectFrameException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
+        try {
+
+            final byte remoteVersion = reader.getSignedByte();
+            final byte remoteType = reader.getSignedByte();
+
+            if (remoteVersion != VERSION) {
+                throw new IncorrectFrameException("Incorrect version (" + remoteVersion + ", should be " + VERSION + ")");
+            }
+            if (remoteType != TYPE.getValue()) {
+                throw new IncorrectFrameException("Incorrect type (" + remoteType + ", should be " + TYPE + ")");
+            }
+
+            connectionID = reader.getSignedShort();
+
+        } catch (final BufferUnderflowException e) {
+            throw new IncorrectFrameException("Incorrect frame length");
         }
-        if (remoteType != TYPE) {
-            throw new IncorrectFrameException("Incorrect Type Field! (" + remoteType + ", should be " + TYPE + ")");
-        }
-
-        connectionID = buffer.getShort();
-
     }
 
     public short getConnectionID() {
@@ -70,17 +78,19 @@ public class CreateConnectionFrame implements Frame {
     }
 
     @Override
-    public byte getType() {
+    public FrameType getType() {
         return TYPE;
     }
 
     @Override
     public byte[] toBytes() {
-        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength());
-        buffer.put(VERSION);
-        buffer.put(TYPE);
-        buffer.putShort(connectionID);
-        return buffer.array();
+        final BinaryWriter writer = new BinaryWriter(getFixedLength());
+
+        writer.putSignedByte(VERSION)
+                .putSignedByte(TYPE.getValue())
+                .putSignedShort(connectionID);
+
+        return writer.toBytes();
     }
 
     @Override

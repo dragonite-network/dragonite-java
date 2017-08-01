@@ -58,19 +58,23 @@ public class FrameParser {
 
     private static Frame parseFrameRaw(final byte[] rawBytes) throws IncorrectFrameException, DataLengthMismatchException {
         if (rawBytes.length >= 2) {
-            switch (rawBytes[1]) {
-                case FrameType.CREATE:
-                    return new CreateConnectionFrame(rawBytes);
-                case FrameType.CLOSE:
-                    return new CloseConnectionFrame(rawBytes);
-                case FrameType.DATA:
-                    return new DataFrame(rawBytes);
-                case FrameType.PAUSE:
-                    return new PauseConnectionFrame(rawBytes);
-                case FrameType.CONTINUE:
-                    return new ContinueConnectionFrame(rawBytes);
-                default:
-                    throw new IncorrectFrameException("Unknown Message Type");
+            try {
+                switch (FrameType.fromByte(rawBytes[1])) {
+                    case CREATE:
+                        return new CreateConnectionFrame(rawBytes);
+                    case CLOSE:
+                        return new CloseConnectionFrame(rawBytes);
+                    case DATA:
+                        return new DataFrame(rawBytes);
+                    case PAUSE:
+                        return new PauseConnectionFrame(rawBytes);
+                    case CONTINUE:
+                        return new ContinueConnectionFrame(rawBytes);
+                    default:
+                        throw new IncorrectFrameException("Unknown Frame Type");
+                }
+            } catch (IllegalArgumentException e) {
+                throw new IncorrectFrameException("Unknown Frame Type");
             }
         } else {
             throw new IncorrectFrameException("Packet is too short");

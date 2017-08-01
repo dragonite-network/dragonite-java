@@ -15,18 +15,20 @@ package com.vecsight.dragonite.proxy.header;
 
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.utils.binary.BinaryReader;
+import com.vecsight.dragonite.utils.binary.BinaryWriter;
 
-import java.nio.ByteBuffer;
+import java.nio.BufferUnderflowException;
 
 /*
- * VERSION  1B
- * downMbps 2B
- * upMbps   2B
- * nameLen  1B
+ * VERSION  1 SB
+ * downMbps 2 US
+ * upMbps   2 US
+ * nameLen  1 UB
  * nameStr  [length]
- * verLen   1B
+ * verLen   1 UB
  * verStr   [length]
- * osLen    1B
+ * osLen    1 UB
  * osStr    [length]
  */
 
@@ -36,11 +38,11 @@ public class ClientInfoHeader {
 
     public static final int FIXED_LENGTH = 8;
 
-    private short downMbps, upMbps;
+    private int downMbps, upMbps;
 
     private String name, appVer, osName;
 
-    public ClientInfoHeader(final short downMbps, final short upMbps, final String name, final String appVer, final String osName) {
+    public ClientInfoHeader(final int downMbps, final int upMbps, final String name, final String appVer, final String osName) {
         this.downMbps = downMbps;
         this.upMbps = upMbps;
         this.name = name;
@@ -49,45 +51,43 @@ public class ClientInfoHeader {
     }
 
     public ClientInfoHeader(final byte[] header) throws IncorrectHeaderException {
-        final ByteBuffer buffer = ByteBuffer.wrap(header);
-        final byte remoteVersion = buffer.get();
+        final BinaryReader reader = new BinaryReader(header);
 
-        if (remoteVersion != VERSION) {
-            throw new IncorrectHeaderException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
+        try {
+
+            final byte remoteVersion = reader.getSignedByte();
+
+            if (remoteVersion != VERSION) {
+                throw new IncorrectHeaderException("Incorrect version (" + remoteVersion + ", should be " + VERSION + ")");
+            }
+
+            downMbps = reader.getUnsignedShort();
+            upMbps = reader.getUnsignedShort();
+
+            name = new String(reader.getBytesGroupWithByteLength(), ProxyGlobalConstants.STRING_CHARSET);
+
+            appVer = new String(reader.getBytesGroupWithByteLength(), ProxyGlobalConstants.STRING_CHARSET);
+
+            osName = new String(reader.getBytesGroupWithByteLength(), ProxyGlobalConstants.STRING_CHARSET);
+
+        } catch (final BufferUnderflowException e) {
+            throw new IncorrectHeaderException("Incorrect header length");
         }
-
-        downMbps = buffer.getShort();
-        upMbps = buffer.getShort();
-
-        final byte nameLen = buffer.get();
-        final byte[] rawName = new byte[nameLen];
-        buffer.get(rawName);
-        name = new String(rawName, ProxyGlobalConstants.STRING_CHARSET);
-
-        final byte verLen = buffer.get();
-        final byte[] rawVer = new byte[verLen];
-        buffer.get(rawVer);
-        appVer = new String(rawVer, ProxyGlobalConstants.STRING_CHARSET);
-
-        final byte osLen = buffer.get();
-        final byte[] rawOs = new byte[osLen];
-        buffer.get(rawOs);
-        osName = new String(rawOs, ProxyGlobalConstants.STRING_CHARSET);
     }
 
-    public short getDownMbps() {
+    public int getDownMbps() {
         return downMbps;
     }
 
-    public void setDownMbps(final short downMbps) {
+    public void setDownMbps(final int downMbps) {
         this.downMbps = downMbps;
     }
 
-    public short getUpMbps() {
+    public int getUpMbps() {
         return upMbps;
     }
 
-    public void setUpMbps(final short upMbps) {
+    public void setUpMbps(final int upMbps) {
         this.upMbps = upMbps;
     }
 
@@ -128,16 +128,15 @@ public class ClientInfoHeader {
         final byte[] appVerBytes = appVer.getBytes(ProxyGlobalConstants.STRING_CHARSET);
         final byte[] osNameBytes = osName.getBytes(ProxyGlobalConstants.STRING_CHARSET);
 
-        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + nameBytes.length + appVerBytes.length + osNameBytes.length);
-        buffer.put(VERSION);
-        buffer.putShort(downMbps);
-        buffer.putShort(upMbps);
-        buffer.put((byte) nameBytes.length);
-        buffer.put(nameBytes);
-        buffer.put((byte) appVerBytes.length);
-        buffer.put(appVerBytes);
-        buffer.put((byte) osNameBytes.length);
-        buffer.put(osNameBytes);
-        return buffer.array();
+        final BinaryWriter writer = new BinaryWriter(getFixedLength() + nameBytes.length + appVerBytes.length + osNameBytes.length);
+
+        writer.putSignedByte(VERSION)
+                .putUnsignedShort(downMbps)
+                .putUnsignedShort(upMbps)
+                .putBytesGroupWithByteLength(nameBytes)
+                .putBytesGroupWithByteLength(appVerBytes)
+                .putBytesGroupWithByteLength(osNameBytes);
+
+        return writer.toBytes();
     }
 }

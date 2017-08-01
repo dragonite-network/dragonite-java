@@ -17,7 +17,7 @@ public interface Frame {
 
     byte getVersion();
 
-    byte getType();
+    FrameType getType();
 
     byte[] toBytes();
 

@@ -46,7 +46,7 @@ public class ForwarderMuxHandler {
         MultiplexedConnection multiplexedConnection;
 
         while ((multiplexedConnection = multiplexer.acceptConnection()) != null) {
-            final MultiplexedConnection tmpMuxConn = multiplexedConnection;
+            final MultiplexedConnection finalMuxConn = multiplexedConnection;
 
             Logger.debug("New connection by client \"{}\" ({})",
                     clientName, clientAddress.toString());
@@ -56,7 +56,7 @@ public class ForwarderMuxHandler {
                 final Thread pipeFromRemoteThread = new Thread(() -> {
                     final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
                     try {
-                        pipeFromRemotePipe.pipe(tmpMuxConn, tcpSocket.getOutputStream());
+                        pipeFromRemotePipe.pipe(finalMuxConn, tcpSocket.getOutputStream());
                     } catch (final Exception e) {
                         Logger.debug(e, "Pipe closed");
                     } finally {
@@ -64,7 +64,7 @@ public class ForwarderMuxHandler {
                             tcpSocket.close();
                         } catch (final IOException ignored) {
                         }
-                        tmpMuxConn.close();
+                        finalMuxConn.close();
                     }
                 }, "FS-R2L");
                 pipeFromRemoteThread.start();
@@ -72,7 +72,7 @@ public class ForwarderMuxHandler {
                 final Thread pipeFromLocalThread = new Thread(() -> {
                     final Pipe pipeFromLocalPipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
                     try {
-                        pipeFromLocalPipe.pipe(tcpSocket.getInputStream(), tmpMuxConn);
+                        pipeFromLocalPipe.pipe(tcpSocket.getInputStream(), finalMuxConn);
                     } catch (final Exception e) {
                         Logger.debug(e, "Pipe closed");
                     } finally {
@@ -80,14 +80,14 @@ public class ForwarderMuxHandler {
                             tcpSocket.close();
                         } catch (final IOException ignored) {
                         }
-                        tmpMuxConn.close();
+                        finalMuxConn.close();
                     }
                 }, "FS-L2R");
                 pipeFromLocalThread.start();
 
             } catch (final IOException e) {
                 Logger.error(e, "Unable to establish local connection");
-                tmpMuxConn.close();
+                finalMuxConn.close();
             }
 
         }

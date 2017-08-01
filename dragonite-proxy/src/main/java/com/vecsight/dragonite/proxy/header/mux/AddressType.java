@@ -11,26 +11,30 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.proxy.header;
+package com.vecsight.dragonite.proxy.header.mux;
 
 public enum AddressType {
-    IPv4(0),
-    IPv6(1),
-    DOMAIN(2);
+    IPv4((byte) 0),
+    IPv6((byte) 1),
+    DOMAIN((byte) 2);
 
-    private final int value;
+    private final byte value;
 
-    AddressType(final int value) {
+    AddressType(final byte value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public byte getValue() {
         return value;
     }
 
     private static final AddressType[] types = AddressType.values();
 
-    public static AddressType fromInteger(int group) {
-        return types[group];
+    public static AddressType fromByte(final byte type) {
+        try {
+            return types[type];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Type byte " + type + " not found");
+        }
     }
 }

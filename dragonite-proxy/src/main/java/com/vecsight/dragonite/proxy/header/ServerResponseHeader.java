@@ -15,13 +15,15 @@ package com.vecsight.dragonite.proxy.header;
 
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.utils.binary.BinaryReader;
+import com.vecsight.dragonite.utils.binary.BinaryWriter;
 
-import java.nio.ByteBuffer;
+import java.nio.BufferUnderflowException;
 
 /*
- * VERSION  1B
- * status   1B
- * msgLen   2B
+ * VERSION  1 SB
+ * status   1 SB
+ * msgLen   2 US
  * msg      [length]
  */
 
@@ -41,20 +43,23 @@ public class ServerResponseHeader {
     }
 
     public ServerResponseHeader(final byte[] header) throws IncorrectHeaderException {
-        final ByteBuffer buffer = ByteBuffer.wrap(header);
-        final byte remoteVersion = buffer.get();
+        final BinaryReader reader = new BinaryReader(header);
 
-        if (remoteVersion != VERSION) {
-            throw new IncorrectHeaderException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
+        try {
+
+            final byte remoteVersion = reader.getSignedByte();
+
+            if (remoteVersion != VERSION) {
+                throw new IncorrectHeaderException("Incorrect version (" + remoteVersion + ", should be " + VERSION + ")");
+            }
+
+            status = reader.getSignedByte();
+
+            msg = new String(reader.getBytesGroupWithShortLength(), ProxyGlobalConstants.STRING_CHARSET);
+
+        } catch (final BufferUnderflowException e) {
+            throw new IncorrectHeaderException("Incorrect header length");
         }
-
-        status = buffer.get();
-
-        final short msgLen = buffer.getShort();
-        final byte[] rawMsg = new byte[msgLen];
-        buffer.get(rawMsg);
-        msg = new String(rawMsg, ProxyGlobalConstants.STRING_CHARSET);
-
     }
 
     public byte getStatus() {
@@ -84,11 +89,12 @@ public class ServerResponseHeader {
     public byte[] toBytes() {
         final byte[] msgBytes = msg.getBytes(ProxyGlobalConstants.STRING_CHARSET);
 
-        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + msgBytes.length);
-        buffer.put(VERSION);
-        buffer.put(status);
-        buffer.putShort((short) msgBytes.length);
-        buffer.put(msgBytes);
-        return buffer.array();
+        final BinaryWriter writer = new BinaryWriter(getFixedLength() + msgBytes.length);
+
+        writer.putSignedByte(VERSION)
+                .putSignedByte(status)
+                .putBytesGroupWithShortLength(msgBytes);
+
+        return writer.toBytes();
     }
 }

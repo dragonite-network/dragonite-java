@@ -14,10 +14,11 @@
 package com.vecsight.dragonite.proxy.config;
 
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
-import com.vecsight.dragonite.sdk.exception.InvalidValueException;
 import com.vecsight.dragonite.utils.system.SystemInfo;
 
 import java.net.InetSocketAddress;
+
+import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
 
 public class ProxyServerConfig {
 
@@ -32,8 +33,8 @@ public class ProxyServerConfig {
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
     public ProxyServerConfig(final InetSocketAddress bindAddress, final String password) {
-        this.bindAddress = bindAddress;
-        this.password = password;
+        setBindAddress(bindAddress);
+        setPassword(password);
     }
 
     public InetSocketAddress getBindAddress() {
@@ -41,6 +42,7 @@ public class ProxyServerConfig {
     }
 
     public void setBindAddress(final InetSocketAddress bindAddress) {
+        checkArgument(bindAddress != null, "Invalid bind address");
         this.bindAddress = bindAddress;
     }
 
@@ -49,6 +51,7 @@ public class ProxyServerConfig {
     }
 
     public void setPassword(final String password) {
+        checkArgument(password != null, "Invalid password");
         this.password = password;
     }
 
@@ -57,6 +60,7 @@ public class ProxyServerConfig {
     }
 
     public void setMbpsLimit(final short mbpsLimit) {
+        checkArgument(mbpsLimit > 0, "Invalid Mbps");
         this.mbpsLimit = mbpsLimit;
     }
 
@@ -65,6 +69,7 @@ public class ProxyServerConfig {
     }
 
     public void setWelcomeMessage(final String welcomeMessage) {
+        checkArgument(welcomeMessage != null, "Null welcome message");
         this.welcomeMessage = welcomeMessage;
     }
 
@@ -72,7 +77,7 @@ public class ProxyServerConfig {
         return dragoniteSocketParameters.getPacketSize();
     }
 
-    public void setMTU(final int mtu) throws InvalidValueException {
+    public void setMTU(final int mtu) {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
@@ -80,7 +85,7 @@ public class ProxyServerConfig {
         return dragoniteSocketParameters.getWindowMultiplier();
     }
 
-    public void setWindowMultiplier(final int mult) throws InvalidValueException {
+    public void setWindowMultiplier(final int mult) {
         dragoniteSocketParameters.setWindowMultiplier(mult);
     }
 

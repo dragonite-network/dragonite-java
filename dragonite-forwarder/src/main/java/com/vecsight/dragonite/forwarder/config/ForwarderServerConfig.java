@@ -14,10 +14,12 @@
 package com.vecsight.dragonite.forwarder.config;
 
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
-import com.vecsight.dragonite.sdk.exception.InvalidValueException;
 import com.vecsight.dragonite.utils.system.SystemInfo;
 
 import java.net.InetSocketAddress;
+
+import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
+import static com.vecsight.dragonite.utils.flow.Preconditions.inPortRange;
 
 public class ForwarderServerConfig {
 
@@ -25,15 +27,15 @@ public class ForwarderServerConfig {
 
     private int forwardingPort;
 
-    private short mbpsLimit = 0;
+    private int mbpsLimit = 0;
 
     private String welcomeMessage = "Welcome to " + SystemInfo.getHostname();
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
     public ForwarderServerConfig(final InetSocketAddress bindAddress, final int forwardingPort) {
-        this.bindAddress = bindAddress;
-        this.forwardingPort = forwardingPort;
+        setBindAddress(bindAddress);
+        setForwardingPort(forwardingPort);
     }
 
     public InetSocketAddress getBindAddress() {
@@ -41,6 +43,7 @@ public class ForwarderServerConfig {
     }
 
     public void setBindAddress(final InetSocketAddress bindAddress) {
+        checkArgument(bindAddress != null, "Invalid bind address");
         this.bindAddress = bindAddress;
     }
 
@@ -49,14 +52,16 @@ public class ForwarderServerConfig {
     }
 
     public void setForwardingPort(final int forwardingPort) {
+        checkArgument(inPortRange(forwardingPort), "Invalid port");
         this.forwardingPort = forwardingPort;
     }
 
-    public short getMbpsLimit() {
+    public int getMbpsLimit() {
         return mbpsLimit;
     }
 
-    public void setMbpsLimit(final short mbpsLimit) {
+    public void setMbpsLimit(final int mbpsLimit) {
+        checkArgument(mbpsLimit > 0 && mbpsLimit <= 65535, "Invalid Mbps");
         this.mbpsLimit = mbpsLimit;
     }
 
@@ -65,6 +70,7 @@ public class ForwarderServerConfig {
     }
 
     public void setWelcomeMessage(final String welcomeMessage) {
+        checkArgument(welcomeMessage != null, "Null welcome message");
         this.welcomeMessage = welcomeMessage;
     }
 
@@ -72,7 +78,7 @@ public class ForwarderServerConfig {
         return dragoniteSocketParameters.getPacketSize();
     }
 
-    public void setMTU(final int mtu) throws InvalidValueException {
+    public void setMTU(final int mtu) {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
@@ -80,7 +86,7 @@ public class ForwarderServerConfig {
         return dragoniteSocketParameters.getWindowMultiplier();
     }
 
-    public void setWindowMultiplier(final int mult) throws InvalidValueException {
+    public void setWindowMultiplier(final int mult) {
         dragoniteSocketParameters.setWindowMultiplier(mult);
     }
 

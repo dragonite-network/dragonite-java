@@ -13,11 +13,12 @@
 
 package com.vecsight.dragonite.sdk.config;
 
-import com.vecsight.dragonite.sdk.exception.InvalidValueException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+
+import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
 
 public class DragoniteSocketParameters {
 
@@ -43,10 +44,8 @@ public class DragoniteSocketParameters {
         return packetSize;
     }
 
-    public void setPacketSize(final int packetSize) throws InvalidValueException {
-        if (packetSize < 100) {
-            throw new InvalidValueException("Packet size is too small");
-        }
+    public void setPacketSize(final int packetSize) {
+        checkArgument(packetSize >= 200, "Packet size is too small");
         this.packetSize = packetSize;
     }
 
@@ -62,10 +61,8 @@ public class DragoniteSocketParameters {
         return maxPacketBufferSize;
     }
 
-    public void setMaxPacketBufferSize(final int maxPacketBufferSize) throws InvalidValueException {
-        if (maxPacketBufferSize < 1) {
-            throw new InvalidValueException("Receive window must be greater than zero");
-        }
+    public void setMaxPacketBufferSize(final int maxPacketBufferSize) {
+        checkArgument(maxPacketBufferSize >= 1, "Receive window must be greater than zero");
         this.maxPacketBufferSize = maxPacketBufferSize;
     }
 
@@ -73,10 +70,8 @@ public class DragoniteSocketParameters {
         return windowMultiplier;
     }
 
-    public void setWindowMultiplier(final int windowMultiplier) throws InvalidValueException {
-        if (windowMultiplier < 1 || windowMultiplier > 10) {
-            throw new InvalidValueException("Multiplier must be greater than zero (and no more than 10)");
-        }
+    public void setWindowMultiplier(final int windowMultiplier) {
+        checkArgument(windowMultiplier >= 1 && windowMultiplier <= 10, "Multiplier must be greater than zero (and no more than 10)");
         this.windowMultiplier = windowMultiplier;
     }
 
@@ -84,10 +79,8 @@ public class DragoniteSocketParameters {
         return resendMinDelayMS;
     }
 
-    public void setResendMinDelayMS(final int resendMinDelayMS) throws InvalidValueException {
-        if (resendMinDelayMS < 1) {
-            throw new InvalidValueException("Resend delay must be greater than zero");
-        }
+    public void setResendMinDelayMS(final int resendMinDelayMS) {
+        checkArgument(resendMinDelayMS >= 1, "Resend delay must be greater than zero");
         this.resendMinDelayMS = resendMinDelayMS;
     }
 
@@ -95,10 +88,8 @@ public class DragoniteSocketParameters {
         return heartbeatIntervalSec;
     }
 
-    public void setHeartbeatIntervalSec(final int heartbeatIntervalSec) throws InvalidValueException {
-        if (heartbeatIntervalSec < 1) {
-            throw new InvalidValueException("Heartbeat interval must be greater than zero");
-        }
+    public void setHeartbeatIntervalSec(final int heartbeatIntervalSec) {
+        checkArgument(heartbeatIntervalSec >= 1, "Heartbeat interval must be greater than zero");
         this.heartbeatIntervalSec = heartbeatIntervalSec;
     }
 
@@ -106,10 +97,8 @@ public class DragoniteSocketParameters {
         return receiveTimeoutSec;
     }
 
-    public void setReceiveTimeoutSec(final int receiveTimeoutSec) throws InvalidValueException {
-        if (receiveTimeoutSec < 1) {
-            throw new InvalidValueException("Receive timeout must be greater than zero");
-        }
+    public void setReceiveTimeoutSec(final int receiveTimeoutSec) {
+        checkArgument(receiveTimeoutSec >= 1, "Receive timeout must be greater than zero");
         this.receiveTimeoutSec = receiveTimeoutSec;
     }
 
@@ -126,6 +115,7 @@ public class DragoniteSocketParameters {
     }
 
     public void setWebPanelBindAddress(final InetSocketAddress webPanelBindAddress) {
+        checkArgument(webPanelBindAddress != null, "Bind address cannot be null");
         this.webPanelBindAddress = webPanelBindAddress;
     }
 }

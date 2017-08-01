@@ -11,17 +11,16 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.sdk.msg;
+package com.vecsight.dragonite.proxy.header.mux;
 
-public enum MessageType {
-    DATA((byte) 0),
-    CLOSE((byte) 1),
-    ACK((byte) 2),
-    HEARTBEAT((byte) 3);
+public enum ConnectionStatus {
+    OK((byte) 0),
+    ERROR((byte) 1),
+    REJECTED((byte) 2);
 
     private final byte value;
 
-    MessageType(final byte value) {
+    ConnectionStatus(final byte value) {
         this.value = value;
     }
 
@@ -29,14 +28,13 @@ public enum MessageType {
         return value;
     }
 
-    private static final MessageType[] types = MessageType.values();
+    private static final ConnectionStatus[] types = ConnectionStatus.values();
 
-    public static MessageType fromByte(final byte type) {
+    public static ConnectionStatus fromByte(final byte type) {
         try {
             return types[type];
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Type byte " + type + " not found");
         }
     }
-
 }

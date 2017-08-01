@@ -14,9 +14,11 @@
 package com.vecsight.dragonite.proxy.config;
 
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
-import com.vecsight.dragonite.sdk.exception.InvalidValueException;
 
 import java.net.InetSocketAddress;
+
+import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
+import static com.vecsight.dragonite.utils.flow.Preconditions.inPortRange;
 
 public class ProxyClientConfig {
 
@@ -31,11 +33,11 @@ public class ProxyClientConfig {
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
     public ProxyClientConfig(final InetSocketAddress remoteAddress, final int socks5port, final String password, final short downMbps, final short upMbps) {
-        this.remoteAddress = remoteAddress;
-        this.socks5port = socks5port;
-        this.password = password;
-        this.downMbps = downMbps;
-        this.upMbps = upMbps;
+        setRemoteAddress(remoteAddress);
+        setSocks5port(socks5port);
+        setPassword(password);
+        setDownMbps(downMbps);
+        setUpMbps(upMbps);
     }
 
     public InetSocketAddress getRemoteAddress() {
@@ -43,6 +45,7 @@ public class ProxyClientConfig {
     }
 
     public void setRemoteAddress(final InetSocketAddress remoteAddress) {
+        checkArgument(remoteAddress != null, "Invalid remote address");
         this.remoteAddress = remoteAddress;
     }
 
@@ -51,6 +54,7 @@ public class ProxyClientConfig {
     }
 
     public void setSocks5port(final int socks5port) {
+        checkArgument(inPortRange(socks5port), "Invalid port");
         this.socks5port = socks5port;
     }
 
@@ -59,6 +63,7 @@ public class ProxyClientConfig {
     }
 
     public void setPassword(final String password) {
+        checkArgument(password != null, "Invalid password");
         this.password = password;
     }
 
@@ -67,6 +72,7 @@ public class ProxyClientConfig {
     }
 
     public void setDownMbps(final short downMbps) {
+        checkArgument(downMbps > 0, "Invalid Mbps");
         this.downMbps = downMbps;
     }
 
@@ -75,6 +81,7 @@ public class ProxyClientConfig {
     }
 
     public void setUpMbps(final short upMbps) {
+        checkArgument(upMbps > 0, "Invalid Mbps");
         this.upMbps = upMbps;
     }
 
@@ -82,7 +89,7 @@ public class ProxyClientConfig {
         return dragoniteSocketParameters.getPacketSize();
     }
 
-    public void setMTU(final int mtu) throws InvalidValueException {
+    public void setMTU(final int mtu) {
         dragoniteSocketParameters.setPacketSize(mtu);
     }
 
@@ -90,7 +97,7 @@ public class ProxyClientConfig {
         return dragoniteSocketParameters.getWindowMultiplier();
     }
 
-    public void setWindowMultiplier(final int mult) throws InvalidValueException {
+    public void setWindowMultiplier(final int mult) {
         dragoniteSocketParameters.setWindowMultiplier(mult);
     }
 

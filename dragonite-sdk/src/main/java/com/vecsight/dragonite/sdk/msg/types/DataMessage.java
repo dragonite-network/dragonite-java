@@ -17,14 +17,16 @@ import com.vecsight.dragonite.sdk.exception.IncorrectMessageException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.msg.MessageType;
 import com.vecsight.dragonite.sdk.msg.ReliableMessage;
+import com.vecsight.dragonite.utils.binary.BinaryReader;
+import com.vecsight.dragonite.utils.binary.BinaryWriter;
 
-import java.nio.ByteBuffer;
+import java.nio.BufferUnderflowException;
 
 public class DataMessage implements ReliableMessage {
 
     private static final byte VERSION = DragoniteGlobalConstants.PROTOCOL_VERSION;
 
-    private static final byte TYPE = MessageType.DATA;
+    private static final MessageType TYPE = MessageType.DATA;
 
     public static final int FIXED_LENGTH = 8;
 
@@ -38,22 +40,27 @@ public class DataMessage implements ReliableMessage {
     }
 
     public DataMessage(final byte[] msg) throws IncorrectMessageException {
-        final ByteBuffer buffer = ByteBuffer.wrap(msg);
-        final byte remoteVersion = buffer.get();
-        final byte remoteType = buffer.get();
+        final BinaryReader reader = new BinaryReader(msg);
 
-        if (remoteVersion != VERSION) {
-            throw new IncorrectMessageException("Incorrect Version Field! (" + remoteVersion + ", should be " + VERSION + ")");
+        try {
+
+            final byte remoteVersion = reader.getSignedByte();
+            final byte remoteType = reader.getSignedByte();
+
+            if (remoteVersion != VERSION) {
+                throw new IncorrectMessageException("Incorrect version (" + remoteVersion + ", should be " + VERSION + ")");
+            }
+            if (remoteType != TYPE.getValue()) {
+                throw new IncorrectMessageException("Incorrect type (" + remoteType + ", should be " + TYPE + ")");
+            }
+
+            sequence = reader.getSignedInt();
+
+            data = reader.getBytesGroupWithShortLength();
+
+        } catch (final BufferUnderflowException e) {
+            throw new IncorrectMessageException("Incorrect message length");
         }
-        if (remoteType != TYPE) {
-            throw new IncorrectMessageException("Incorrect Type Field! (" + remoteType + ", should be " + TYPE + ")");
-        }
-
-        sequence = buffer.getInt();
-
-        final short length = buffer.getShort();
-        data = new byte[length];
-        buffer.get(data);
     }
 
     @Override
@@ -62,7 +69,7 @@ public class DataMessage implements ReliableMessage {
     }
 
     @Override
-    public byte getType() {
+    public MessageType getType() {
         return TYPE;
     }
 
@@ -86,13 +93,14 @@ public class DataMessage implements ReliableMessage {
 
     @Override
     public byte[] toBytes() {
-        final ByteBuffer buffer = ByteBuffer.allocate(getFixedLength() + data.length);
-        buffer.put(VERSION);
-        buffer.put(TYPE);
-        buffer.putInt(sequence);
-        buffer.putShort((short) data.length);
-        buffer.put(data);
-        return buffer.array();
+        final BinaryWriter writer = new BinaryWriter(getFixedLength() + data.length);
+
+        writer.putSignedByte(VERSION)
+                .putSignedByte(TYPE.getValue())
+                .putSignedInt(sequence)
+                .putBytesGroupWithShortLength(data);
+
+        return writer.toBytes();
     }
 
     @Override

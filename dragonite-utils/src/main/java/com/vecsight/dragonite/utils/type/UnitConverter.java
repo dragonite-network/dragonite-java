@@ -11,12 +11,16 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.sdk.exception;
+package com.vecsight.dragonite.utils.type;
 
-public class InvalidValueException extends Exception {
+public final class UnitConverter {
 
-    public InvalidValueException(final String msg) {
-        super(msg);
+    public static long mbpsToSpeed(final int mbps) {
+        return mbps * 125000L;
+    }
+
+    public static int speedToMbps(final long speed) {
+        return (int) (speed / 125000);
     }
 
 }

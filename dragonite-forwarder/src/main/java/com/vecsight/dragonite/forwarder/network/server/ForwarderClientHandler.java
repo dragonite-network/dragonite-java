@@ -24,11 +24,10 @@ import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.socket.DragoniteSocket;
-import com.vecsight.dragonite.utils.network.UnitConverter;
+import com.vecsight.dragonite.utils.type.UnitConverter;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
-import java.nio.BufferUnderflowException;
 
 public class ForwarderClientHandler {
 
@@ -36,11 +35,11 @@ public class ForwarderClientHandler {
 
     private final DragoniteSocket dragoniteSocket;
 
-    private final short limitMbps;
+    private final int limitMbps;
 
     private final String welcomeMessage;
 
-    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final short limitMbps,
+    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final int limitMbps,
                                   final String welcomeMessage) {
         this.forwardingPort = forwardingPort;
         this.dragoniteSocket = dragoniteSocket;
@@ -64,7 +63,7 @@ public class ForwarderClientHandler {
 
                 try {
                     infoHeader = new ClientInfoHeader(headerBytes);
-                } catch (IncorrectHeaderException | BufferUnderflowException e) {
+                } catch (final IncorrectHeaderException e) {
 
                     Logger.error(e, "Incorrect header from client {}", dragoniteSocket.getRemoteSocketAddress().toString());
 
@@ -96,7 +95,7 @@ public class ForwarderClientHandler {
 
                 dragoniteSocket.setDescription(infoHeader.getName());
 
-                short realMbps = infoHeader.getDownMbps();
+                int realMbps = infoHeader.getDownMbps();
                 if (realMbps > limitMbps && limitMbps > 0) {
                     realMbps = limitMbps;
                     Logger.info("The DL Mbps of client \"{}\" has been limited from {} to {}",

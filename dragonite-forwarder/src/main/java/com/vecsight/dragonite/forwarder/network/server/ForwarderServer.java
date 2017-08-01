@@ -28,7 +28,7 @@ public class ForwarderServer {
 
     private final int forwardingPort;
 
-    private final short limitMbps;
+    private final int limitMbps;
 
     private final String welcomeMessage;
 

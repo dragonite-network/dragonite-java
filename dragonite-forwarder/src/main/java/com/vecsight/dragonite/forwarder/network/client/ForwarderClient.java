@@ -30,15 +30,14 @@ import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
 import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.socket.DragoniteClientSocket;
-import com.vecsight.dragonite.utils.network.UnitConverter;
 import com.vecsight.dragonite.utils.system.SystemInfo;
+import com.vecsight.dragonite.utils.type.UnitConverter;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.BufferOverflowException;
 
 public class ForwarderClient {
 
@@ -46,7 +45,7 @@ public class ForwarderClient {
 
     private final int localPort;
 
-    private final short downMbps, upMbps;
+    private final int downMbps, upMbps;
 
     private final DragoniteSocketParameters dragoniteSocketParameters;
 
@@ -109,7 +108,7 @@ public class ForwarderClient {
                 Logger.info("Server welcome message: {}", responseHeader.getMsg());
             }
 
-        } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException | BufferOverflowException e) {
+        } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
             Logger.error(e, "Unable to connect to remote server");
             try {
                 dragoniteClientSocket.closeGracefully();

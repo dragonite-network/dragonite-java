@@ -22,7 +22,6 @@ import com.vecsight.dragonite.forwarder.network.client.ForwarderClient;
 import com.vecsight.dragonite.forwarder.network.server.ForwarderServer;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
-import com.vecsight.dragonite.sdk.exception.InvalidValueException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
@@ -231,7 +230,7 @@ public final class CLIMain {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
                     }
                     if (commandLine.hasOption("l")) {
-                        config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).shortValue());
+                        config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).intValue());
                     }
                     if (commandLine.hasOption("w")) {
                         config.setWelcomeMessage(commandLine.getOptionValue("w"));
@@ -258,7 +257,7 @@ public final class CLIMain {
                             Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
                         }
                     }
-                } catch (ParseException | InvalidValueException e) {
+                } catch (ParseException | IllegalArgumentException e) {
                     Logger.error(e, "Incorrect value");
                 } catch (SocketException | UnknownHostException e) {
                     Logger.error(e, "Unable to initialize");
@@ -272,8 +271,8 @@ public final class CLIMain {
                     final ForwarderClientConfig config = new ForwarderClientConfig(new InetSocketAddress(commandLine.getOptionValue("a"),
                             commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ForwarderGlobalConstants.DEFAULT_SERVER_PORT),
                             ((Number) commandLine.getParsedOptionValue("f")).intValue(),
-                            ((Number) commandLine.getParsedOptionValue("d")).shortValue(),
-                            ((Number) commandLine.getParsedOptionValue("u")).shortValue());
+                            ((Number) commandLine.getParsedOptionValue("d")).intValue(),
+                            ((Number) commandLine.getParsedOptionValue("u")).intValue());
                     if (commandLine.hasOption("m")) {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
                     }
@@ -299,7 +298,7 @@ public final class CLIMain {
                             Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
                         }
                     }
-                } catch (ParseException | InvalidValueException e) {
+                } catch (ParseException | IllegalArgumentException e) {
                     Logger.error(e, "Incorrect value");
                 } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
                     Logger.error(e, "Unable to initialize");

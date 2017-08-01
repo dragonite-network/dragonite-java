@@ -11,16 +11,16 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.utils.network;
+package com.vecsight.dragonite.utils.flow;
 
-public final class UnitConverter {
+public final class Preconditions {
 
-    public static long mbpsToSpeed(final int mbps) {
-        return mbps * 125000;
+    public static void checkArgument(final boolean ok, final String message) {
+        if (!ok) throw new IllegalArgumentException(message);
     }
 
-    public static int speedToMbps(final long speed) {
-        return (int) (speed / 125000);
+    public static boolean inPortRange(final int port) {
+        return port > 0 && port <= 65535;
     }
 
 }
