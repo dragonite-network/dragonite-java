@@ -33,7 +33,7 @@ public enum AddressType {
     public static AddressType fromByte(final byte type) {
         try {
             return types[type];
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (final ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Type byte " + type + " not found");
         }
     }

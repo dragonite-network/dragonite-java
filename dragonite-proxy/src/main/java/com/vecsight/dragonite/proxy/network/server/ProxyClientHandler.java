@@ -11,14 +11,14 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.forwarder.network.server;
+package com.vecsight.dragonite.proxy.network.server;
 
-import com.vecsight.dragonite.forwarder.exception.IncorrectHeaderException;
-import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
-import com.vecsight.dragonite.forwarder.header.ServerResponseHeader;
-import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
 import com.vecsight.dragonite.mux.conn.Multiplexer;
 import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
+import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
+import com.vecsight.dragonite.proxy.header.ClientInfoHeader;
+import com.vecsight.dragonite.proxy.header.ServerResponseHeader;
+import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
@@ -29,9 +29,9 @@ import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
 
-public class ForwarderClientHandler {
+public class ProxyClientHandler {
 
-    private final int forwardingPort;
+    private final byte[] encryptionKey;
 
     private final DragoniteSocket dragoniteSocket;
 
@@ -39,9 +39,8 @@ public class ForwarderClientHandler {
 
     private final String welcomeMessage;
 
-    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final int limitMbps,
-                                  final String welcomeMessage) {
-        this.forwardingPort = forwardingPort;
+    public ProxyClientHandler(final byte[] encryptionKey, final DragoniteSocket dragoniteSocket, final int limitMbps, final String welcomeMessage) {
+        this.encryptionKey = encryptionKey;
         this.dragoniteSocket = dragoniteSocket;
         this.limitMbps = limitMbps;
         this.welcomeMessage = welcomeMessage;
@@ -49,23 +48,21 @@ public class ForwarderClientHandler {
 
     public void run() {
         if (dragoniteSocket.isAlive()) {
+
+            //Receive client info header
             final byte[] headerBytes;
             try {
                 headerBytes = dragoniteSocket.read();
-            } catch (InterruptedException | ConnectionNotAliveException e) {
+            } catch (final InterruptedException | ConnectionNotAliveException e) {
                 Logger.error(e, "Unable to read header from client {}", dragoniteSocket.getRemoteSocketAddress().toString());
-
                 dragoniteSocket.destroy();
                 return;
             }
             final ClientInfoHeader infoHeader;
-
             try {
                 infoHeader = new ClientInfoHeader(headerBytes);
             } catch (final IncorrectHeaderException e) {
-
                 Logger.error(e, "Incorrect header from client {}", dragoniteSocket.getRemoteSocketAddress().toString());
-
                 try {
                     dragoniteSocket.closeGracefully();
                 } catch (InterruptedException | IOException | SenderClosedException ignored) {
@@ -73,13 +70,12 @@ public class ForwarderClientHandler {
                 return;
             }
 
-            //okay
-
+            //Send response
+            final byte[] responseBytes = new ServerResponseHeader((byte) 0, welcomeMessage).toBytes();
             try {
-                dragoniteSocket.send(new ServerResponseHeader((byte) 0, welcomeMessage).toBytes());
+                dragoniteSocket.send(responseBytes);
             } catch (InterruptedException | DragoniteException | IOException e) {
                 Logger.error(e, "Cannot send response to client {}", dragoniteSocket.getRemoteSocketAddress().toString());
-
                 try {
                     dragoniteSocket.closeGracefully();
                 } catch (InterruptedException | IOException | SenderClosedException ignored) {
@@ -87,6 +83,7 @@ public class ForwarderClientHandler {
                 return;
             }
 
+            //Show info and set parameters
             Logger.info("Remote ({}) \"{}\" using client {} on {} (DL: {}, UL: {}) connected",
                     dragoniteSocket.getRemoteSocketAddress().toString(),
                     infoHeader.getName(), infoHeader.getAppVer(), infoHeader.getOsName(),
@@ -100,19 +97,19 @@ public class ForwarderClientHandler {
                 Logger.info("The DL Mbps of client \"{}\" has been limited from {} to {}",
                         infoHeader.getName(), infoHeader.getDownMbps(), realMbps);
             }
-
             dragoniteSocket.setSendSpeed(UnitConverter.mbpsToSpeed(realMbps));
 
+            //Setup mux stuff
             final Multiplexer multiplexer = new Multiplexer(bytes -> {
                 try {
                     dragoniteSocket.send(bytes);
                 } catch (InterruptedException | IncorrectSizeException | SenderClosedException | IOException e) {
                     Logger.error(e, "Multiplexer is unable to send data");
                 }
-            }, ForwarderGlobalConstants.MAX_FRAME_SIZE);
+            }, ProxyGlobalConstants.MAX_FRAME_SIZE);
 
-            final ForwarderMuxHandler muxHandler = new ForwarderMuxHandler(multiplexer, infoHeader.getName(),
-                    dragoniteSocket.getRemoteSocketAddress(), forwardingPort);
+            final ProxyMuxHandler muxHandler = new ProxyMuxHandler(multiplexer, infoHeader.getName(),
+                    dragoniteSocket.getRemoteSocketAddress(), encryptionKey);
 
             final Thread multiplexerAcceptThread = new Thread(() -> {
                 try {
@@ -122,9 +119,10 @@ public class ForwarderClientHandler {
                         Logger.error(e, "Cannot accept multiplexed connection");
                     }
                 }
-            }, "FS-MuxAcceptor");
+            }, "PS-MuxAcceptor");
             multiplexerAcceptThread.start();
 
+            //Do receive for multiplexer here
             byte[] buf;
             try {
                 while ((buf = dragoniteSocket.read()) != null) {
@@ -142,4 +140,5 @@ public class ForwarderClientHandler {
             }
         }
     }
+
 }

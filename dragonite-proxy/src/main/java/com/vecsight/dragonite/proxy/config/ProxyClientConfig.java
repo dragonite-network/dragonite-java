@@ -13,6 +13,7 @@
 
 package com.vecsight.dragonite.proxy.config;
 
+import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
 
 import java.net.InetSocketAddress;
@@ -28,11 +29,11 @@ public class ProxyClientConfig {
 
     private String password;
 
-    private short downMbps, upMbps;
+    private int downMbps, upMbps;
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
-    public ProxyClientConfig(final InetSocketAddress remoteAddress, final int socks5port, final String password, final short downMbps, final short upMbps) {
+    public ProxyClientConfig(final InetSocketAddress remoteAddress, final int socks5port, final String password, final int downMbps, final int upMbps) {
         setRemoteAddress(remoteAddress);
         setSocks5port(socks5port);
         setPassword(password);
@@ -63,25 +64,25 @@ public class ProxyClientConfig {
     }
 
     public void setPassword(final String password) {
-        checkArgument(password != null, "Invalid password");
+        checkArgument(password != null && password.length() >= ProxyGlobalConstants.PASSWORD_MIN_LENGTH, "Invalid password");
         this.password = password;
     }
 
-    public short getDownMbps() {
+    public int getDownMbps() {
         return downMbps;
     }
 
-    public void setDownMbps(final short downMbps) {
-        checkArgument(downMbps > 0, "Invalid Mbps");
+    public void setDownMbps(final int downMbps) {
+        checkArgument(downMbps > 0 && downMbps <= 65535, "Invalid Mbps");
         this.downMbps = downMbps;
     }
 
-    public short getUpMbps() {
+    public int getUpMbps() {
         return upMbps;
     }
 
-    public void setUpMbps(final short upMbps) {
-        checkArgument(upMbps > 0, "Invalid Mbps");
+    public void setUpMbps(final int upMbps) {
+        checkArgument(upMbps > 0 && upMbps <= 65535, "Invalid Mbps");
         this.upMbps = upMbps;
     }
 

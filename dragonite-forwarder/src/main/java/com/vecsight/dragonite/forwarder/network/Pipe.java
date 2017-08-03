@@ -24,8 +24,6 @@ import java.util.Arrays;
 
 public class Pipe {
 
-    private volatile long pipedBytes = 0;
-
     private final short bufferSize;
 
     public Pipe(final short bufferSize) {
@@ -36,16 +34,13 @@ public class Pipe {
         int len;
         final byte[] buf = new byte[bufferSize];
         while ((len = inputStream.read(buf)) > 0) {
-            pipedBytes += len;
             connection.send(Arrays.copyOf(buf, len));
         }
     }
 
     public void pipe(final MultiplexedConnection connection, final OutputStream outputStream) throws ConnectionNotAliveException, InterruptedException, IOException {
-        int len;
         byte[] buf;
         while ((buf = connection.read()) != null) {
-            pipedBytes += buf.length;
             outputStream.write(buf);
         }
     }

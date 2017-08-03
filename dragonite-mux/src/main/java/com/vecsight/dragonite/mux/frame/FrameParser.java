@@ -73,7 +73,7 @@ public class FrameParser {
                     default:
                         throw new IncorrectFrameException("Unknown Frame Type");
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 throw new IncorrectFrameException("Unknown Frame Type");
             }
         } else {

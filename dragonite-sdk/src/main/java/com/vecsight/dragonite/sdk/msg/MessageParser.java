@@ -36,7 +36,7 @@ public final class MessageParser {
                     default:
                         throw new IncorrectMessageException("Unknown Message Type");
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 throw new IncorrectMessageException("Unknown Message Type");
             }
         } else {

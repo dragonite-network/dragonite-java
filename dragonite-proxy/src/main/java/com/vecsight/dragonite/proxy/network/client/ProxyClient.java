@@ -11,19 +11,23 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.forwarder.network.client;
+package com.vecsight.dragonite.proxy.network.client;
 
-import com.vecsight.dragonite.forwarder.config.ForwarderClientConfig;
-import com.vecsight.dragonite.forwarder.exception.IncorrectHeaderException;
-import com.vecsight.dragonite.forwarder.exception.ServerRejectedException;
-import com.vecsight.dragonite.forwarder.header.ClientInfoHeader;
-import com.vecsight.dragonite.forwarder.header.ServerResponseHeader;
-import com.vecsight.dragonite.forwarder.misc.ForwarderGlobalConstants;
-import com.vecsight.dragonite.forwarder.network.Pipe;
 import com.vecsight.dragonite.mux.conn.MultiplexedConnection;
 import com.vecsight.dragonite.mux.conn.Multiplexer;
 import com.vecsight.dragonite.mux.exception.ConnectionAlreadyExistsException;
 import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
+import com.vecsight.dragonite.proxy.config.ProxyClientConfig;
+import com.vecsight.dragonite.proxy.exception.EncryptionException;
+import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
+import com.vecsight.dragonite.proxy.exception.SOCKS5Exception;
+import com.vecsight.dragonite.proxy.exception.ServerRejectedException;
+import com.vecsight.dragonite.proxy.header.ClientInfoHeader;
+import com.vecsight.dragonite.proxy.header.ServerResponseHeader;
+import com.vecsight.dragonite.proxy.misc.EncryptionKeyGenerator;
+import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.proxy.network.socks5.SOCKS5Header;
+import com.vecsight.dragonite.proxy.network.socks5.SOCKS5SocketHelper;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
@@ -39,11 +43,15 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ForwarderClient {
+public class ProxyClient {
 
     private final InetSocketAddress remoteAddress;
 
-    private final int localPort;
+    private final int socks5port;
+
+    private final String password;
+
+    private final byte[] encryptionKey;
 
     private final int downMbps, upMbps;
 
@@ -65,14 +73,17 @@ public class ForwarderClient {
 
     private final Object connectLock = new Object();
 
-    public ForwarderClient(final ForwarderClientConfig config) throws IOException, InterruptedException, DragoniteException, IncorrectHeaderException, ServerRejectedException {
+    public ProxyClient(final ProxyClientConfig config) throws EncryptionException, IOException, InterruptedException, DragoniteException, ServerRejectedException, IncorrectHeaderException {
         this.remoteAddress = config.getRemoteAddress();
-        this.localPort = config.getLocalPort();
+        this.socks5port = config.getSocks5port();
+        this.password = config.getPassword();
         this.downMbps = config.getDownMbps();
         this.upMbps = config.getUpMbps();
         this.dragoniteSocketParameters = config.getDragoniteSocketParameters();
 
-        serverSocket = new ServerSocket(localPort);
+        this.encryptionKey = EncryptionKeyGenerator.getKey(password);
+
+        serverSocket = new ServerSocket(socks5port);
 
         prepareUnderlyingConnection(dragoniteSocketParameters);
 
@@ -80,26 +91,31 @@ public class ForwarderClient {
             Socket socket;
             try {
                 while (doAccept && (socket = serverSocket.accept()) != null) {
-                    handleConnection(socket);
+                    final Socket finalSocket = socket;
+                    final Thread socketHandleThread = new Thread(() -> handleConnection(finalSocket), "PC-ConnHandler");
+                    socketHandleThread.start();
                 }
             } catch (final IOException e) {
                 Logger.error(e, "Unable to accept TCP connections");
             }
-        }, "FC-Accept");
+        }, "PC-Accept");
         acceptThread.start();
     }
 
-    private void prepareUnderlyingConnection(final DragoniteSocketParameters dragoniteSocketParameters) throws IOException, InterruptedException, DragoniteException, IncorrectHeaderException, ServerRejectedException {
+    private void prepareUnderlyingConnection(final DragoniteSocketParameters dragoniteSocketParameters) throws IOException, InterruptedException, DragoniteException, ServerRejectedException, IncorrectHeaderException {
         dragoniteClientSocket = new DragoniteClientSocket(remoteAddress, UnitConverter.mbpsToSpeed(upMbps), dragoniteSocketParameters);
-
-        dragoniteClientSocket.setDescription("Forwarder");
+        dragoniteClientSocket.setDescription("Proxy");
 
         try {
-            dragoniteClientSocket.send(new ClientInfoHeader(downMbps, upMbps, SystemInfo.getUsername(), ForwarderGlobalConstants.APP_VERSION, SystemInfo.getOS()).toBytes());
+            //Send info header
+            final byte[] infoHeaderBytes = new ClientInfoHeader(downMbps, upMbps, SystemInfo.getUsername(), ProxyGlobalConstants.APP_VERSION, SystemInfo.getOS()).toBytes();
+            dragoniteClientSocket.send(infoHeaderBytes);
 
+            //Receive response
             final byte[] response = dragoniteClientSocket.read();
             final ServerResponseHeader responseHeader = new ServerResponseHeader(response);
 
+            //Check response
             if (responseHeader.getStatus() != 0) {
                 Logger.error("The server has rejected this connection (Error code {}): {}", responseHeader.getStatus(), responseHeader.getMsg());
                 throw new ServerRejectedException(responseHeader.getMsg());
@@ -107,7 +123,7 @@ public class ForwarderClient {
                 Logger.info("Server welcome message: {}", responseHeader.getMsg());
             }
 
-        } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
+        } catch (final InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
             Logger.error(e, "Unable to connect to remote server");
             try {
                 dragoniteClientSocket.closeGracefully();
@@ -122,7 +138,7 @@ public class ForwarderClient {
             } catch (InterruptedException | IncorrectSizeException | IOException | SenderClosedException e) {
                 Logger.error(e, "Multiplexer is unable to send data");
             }
-        }, ForwarderGlobalConstants.MAX_FRAME_SIZE);
+        }, ProxyGlobalConstants.MAX_FRAME_SIZE);
 
         if (muxReceiveThread != null) muxReceiveThread.interrupt();
 
@@ -143,7 +159,7 @@ public class ForwarderClient {
                     multiplexer.close();
                 }
             }
-        }, "FC-MuxReceive");
+        }, "PC-MuxReceive");
         muxReceiveThread.start();
 
         Logger.info("Connection established with {}", remoteAddress.toString());
@@ -153,6 +169,24 @@ public class ForwarderClient {
 
         Logger.debug("New connection from {}", socket.getRemoteSocketAddress().toString());
 
+        //Parse header
+        final SOCKS5Header socks5Header;
+        try {
+            socks5Header = SOCKS5SocketHelper.handleHeader(socket);
+        } catch (final IOException | SOCKS5Exception e) {
+            Logger.error(e, "Failed to parse SOCKS5 request");
+            try {
+                socket.close();
+            } catch (final IOException ignored) {
+            }
+            return;
+        }
+
+        Logger.debug("Parsed SOCKS5 request: {}", socks5Header.toString());
+
+        final MultiplexedConnection multiplexedConnection;
+
+        //Check reconnect & create mux connection
         synchronized (connectLock) {
             if (!dragoniteClientSocket.isAlive()) {
                 multiplexer.close();
@@ -168,50 +202,23 @@ public class ForwarderClient {
                     return;
                 }
             }
-        }
 
-        try {
-            final MultiplexedConnection multiplexedConnection = multiplexer.createConnection(nextConnID++);
-
-            final Thread pipeFromRemoteThread = new Thread(() -> {
-                final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
-                try {
-                    pipeFromRemotePipe.pipe(multiplexedConnection, socket.getOutputStream());
-                } catch (final Exception e) {
-                    Logger.debug(e, "Pipe closed");
-                } finally {
-                    try {
-                        socket.close();
-                    } catch (final IOException ignored) {
-                    }
-                    multiplexedConnection.close();
-                }
-            }, "FC-R2L");
-            pipeFromRemoteThread.start();
-
-            final Thread pipeFromLocalThread = new Thread(() -> {
-                final Pipe pipeFromLocalPipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);
-                try {
-                    pipeFromLocalPipe.pipe(socket.getInputStream(), multiplexedConnection);
-                } catch (final Exception e) {
-                    Logger.debug(e, "Pipe closed");
-                } finally {
-                    try {
-                        socket.close();
-                    } catch (final IOException ignored) {
-                    }
-                    multiplexedConnection.close();
-                }
-            }, "FC-L2R");
-            pipeFromLocalThread.start();
-
-        } catch (ConnectionAlreadyExistsException | MultiplexerClosedException e) {
-            Logger.error(e, "Cannot create multiplexed connection");
             try {
-                socket.close();
-            } catch (final IOException ignored) {
+                multiplexedConnection = multiplexer.createConnection(nextConnID++);
+            } catch (ConnectionAlreadyExistsException | MultiplexerClosedException e) {
+                Logger.error(e, "Cannot create multiplexed connection");
+                try {
+                    socket.close();
+                } catch (final IOException ignored) {
+                }
+                return;
             }
         }
+
+        final ProxyConnectionHandler handler = new ProxyConnectionHandler(socks5Header, multiplexedConnection, socket, encryptionKey);
+
+        handler.run();
+
     }
 
     public boolean isDoAccept() {

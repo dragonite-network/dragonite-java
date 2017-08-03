@@ -13,6 +13,7 @@
 
 package com.vecsight.dragonite.proxy.config;
 
+import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
 import com.vecsight.dragonite.utils.system.SystemInfo;
 
@@ -26,7 +27,7 @@ public class ProxyServerConfig {
 
     private String password;
 
-    private short mbpsLimit = 0;
+    private int mbpsLimit = 0;
 
     private String welcomeMessage = "Welcome to " + SystemInfo.getHostname();
 
@@ -51,16 +52,16 @@ public class ProxyServerConfig {
     }
 
     public void setPassword(final String password) {
-        checkArgument(password != null, "Invalid password");
+        checkArgument(password != null && password.length() >= ProxyGlobalConstants.PASSWORD_MIN_LENGTH, "Invalid password");
         this.password = password;
     }
 
-    public short getMbpsLimit() {
+    public int getMbpsLimit() {
         return mbpsLimit;
     }
 
-    public void setMbpsLimit(final short mbpsLimit) {
-        checkArgument(mbpsLimit > 0, "Invalid Mbps");
+    public void setMbpsLimit(final int mbpsLimit) {
+        checkArgument(mbpsLimit > 0 && mbpsLimit <= 65535, "Invalid Mbps");
         this.mbpsLimit = mbpsLimit;
     }
 

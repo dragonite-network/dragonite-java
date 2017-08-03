@@ -14,6 +14,8 @@
 package com.vecsight.dragonite.proxy.network.server;
 
 import com.vecsight.dragonite.proxy.config.ProxyServerConfig;
+import com.vecsight.dragonite.proxy.exception.EncryptionException;
+import com.vecsight.dragonite.proxy.misc.EncryptionKeyGenerator;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.socket.DragoniteServer;
 import com.vecsight.dragonite.sdk.socket.DragoniteSocket;
@@ -28,7 +30,9 @@ public class ProxyServer {
 
     private final String password;
 
-    private final short limitMbps;
+    private final byte[] encryptionKey;
+
+    private final int limitMbps;
 
     private final String welcomeMessage;
 
@@ -38,11 +42,13 @@ public class ProxyServer {
 
     private final Thread acceptThread;
 
-    public ProxyServer(final ProxyServerConfig config) throws SocketException {
+    public ProxyServer(final ProxyServerConfig config) throws SocketException, EncryptionException {
         this.bindAddress = config.getBindAddress();
         this.password = config.getPassword();
         this.limitMbps = config.getMbpsLimit();
         this.welcomeMessage = config.getWelcomeMessage();
+
+        this.encryptionKey = EncryptionKeyGenerator.getKey(password);
 
         this.dragoniteServer = new DragoniteServer(bindAddress.getAddress(), bindAddress.getPort(),
                 ProxyGlobalConstants.INIT_SEND_SPEED, config.getDragoniteSocketParameters());
@@ -62,8 +68,8 @@ public class ProxyServer {
     }
 
     private void handleClient(final DragoniteSocket socket) {
-        final ForwarderClientHandler clientHandler = new ForwarderClientHandler(forwardingPort, socket, limitMbps, welcomeMessage);
-        final Thread handlerThread = new Thread(clientHandler::run, "FS-Handler");
+        final ProxyClientHandler clientHandler = new ProxyClientHandler(encryptionKey, socket, limitMbps, welcomeMessage);
+        final Thread handlerThread = new Thread(clientHandler::run, "PS-Handler");
         handlerThread.start();
     }
 
