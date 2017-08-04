@@ -32,9 +32,7 @@ import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -314,8 +312,16 @@ public final class CLIMain {
                     }
 
                     if (commandLine.hasOption("r")) {
+                        final String path = commandLine.getOptionValue("r");
+                        final String loweredPath = path.toLowerCase();
+                        final Reader reader;
                         try {
-                            config.setAcl(ACLFileParser.parse(new File(commandLine.getOptionValue("r"))));
+                            if (loweredPath.startsWith("http://") || loweredPath.startsWith("https://")) {
+                                reader = new InputStreamReader(new URL(path).openStream());
+                            } else {
+                                reader = new FileReader(path);
+                            }
+                            config.setAcl(ACLFileParser.parse(reader));
                         } catch (IOException | ACLException e) {
                             Logger.error(e, "Failed to parse ACL file");
                         }

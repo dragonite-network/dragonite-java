@@ -18,9 +18,8 @@ import com.vecsight.dragonite.proxy.exception.ACLException;
 import com.vecsight.dragonite.proxy.exception.InvalidAddressException;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -32,7 +31,7 @@ public final class ACLFileParser {
 
     private static final Pattern RULE_PATTERN = Pattern.compile("([a-zA-Z0-9\\-]+?),([a-zA-Z0-9\\-.:/]+),([a-zA-Z]+)");
 
-    public static ParsedACL parse(final File file) throws IOException, ACLException {
+    public static ParsedACL parse(final Reader reader) throws IOException, ACLException {
 
         String title = "No title", author = "Unknown";
 
@@ -40,7 +39,7 @@ public final class ACLFileParser {
 
         final List<ACLItem> aclItemList = new LinkedList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(reader)) {
             String line;
             int lineCount = 0;
             while ((line = br.readLine()) != null) {
