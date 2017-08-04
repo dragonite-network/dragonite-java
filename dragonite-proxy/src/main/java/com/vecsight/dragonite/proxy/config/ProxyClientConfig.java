@@ -13,6 +13,7 @@
 
 package com.vecsight.dragonite.proxy.config;
 
+import com.vecsight.dragonite.proxy.acl.ParsedACL;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
 
@@ -30,6 +31,8 @@ public class ProxyClientConfig {
     private String password;
 
     private int downMbps, upMbps;
+
+    private ParsedACL acl;
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
@@ -84,6 +87,14 @@ public class ProxyClientConfig {
     public void setUpMbps(final int upMbps) {
         checkArgument(upMbps > 0 && upMbps <= 65535, "Invalid Mbps");
         this.upMbps = upMbps;
+    }
+
+    public ParsedACL getAcl() {
+        return acl;
+    }
+
+    public void setAcl(final ParsedACL acl) {
+        this.acl = acl;
     }
 
     public int getMTU() {

@@ -14,8 +14,10 @@
 package com.vecsight.dragonite.proxy;
 
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
+import com.vecsight.dragonite.proxy.acl.ACLFileParser;
 import com.vecsight.dragonite.proxy.config.ProxyClientConfig;
 import com.vecsight.dragonite.proxy.config.ProxyServerConfig;
+import com.vecsight.dragonite.proxy.exception.ACLException;
 import com.vecsight.dragonite.proxy.exception.EncryptionException;
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.exception.ServerRejectedException;
@@ -83,6 +85,14 @@ public final class CLIMain {
                 .desc("Encryption password for both client and server")
                 .hasArg()
                 .argName("xxx")
+                .type(String.class)
+                .build());
+        options.addOption(Option
+                .builder("r")
+                .longOpt("acl")
+                .desc("ACL file for client")
+                .hasArg()
+                .argName("path")
                 .type(String.class)
                 .build());
         options.addOption(Option
@@ -301,6 +311,14 @@ public final class CLIMain {
                     }
                     if (commandLine.hasOption("window-size-multiplier")) {
                         config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+                    }
+
+                    if (commandLine.hasOption("r")) {
+                        try {
+                            config.setAcl(ACLFileParser.parse(new File(commandLine.getOptionValue("r"))));
+                        } catch (IOException | ACLException e) {
+                            Logger.error(e, "Failed to parse ACL file");
+                        }
                     }
 
                     final ProxyClient proxyClient = new ProxyClient(config);

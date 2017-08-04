@@ -11,10 +11,12 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.proxy.acl;
+package com.vecsight.dragonite.proxy.exception;
 
-public class ACLParser {
+public class InvalidAddressException extends Exception {
 
-
+    public InvalidAddressException(final String msg) {
+        super(msg);
+    }
 
 }
