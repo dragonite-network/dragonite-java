@@ -20,7 +20,6 @@ import com.vecsight.dragonite.proxy.exception.InvalidAddressException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 
 public class IPv6CIDRACLItem implements ACLItem {
 
@@ -29,6 +28,8 @@ public class IPv6CIDRACLItem implements ACLItem {
     private final BigInteger highest;
 
     private final ACLItemMethod method;
+
+    private static final byte[] MASK_BASE = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
     public IPv6CIDRACLItem(final String string, final ACLItemMethod method) throws InvalidAddressException {
         this.method = method;
@@ -59,11 +60,7 @@ public class IPv6CIDRACLItem implements ACLItem {
             throw new InvalidAddressException(string + " is not a valid IPv4 CIDR address");
         }
 
-        final BigInteger mask = (new BigInteger(1,
-                ByteBuffer.allocate(16)
-                        .putLong(-1L)
-                        .putLong(-1L).array()
-        )).not().shiftRight(cidrShift);
+        final BigInteger mask = (new BigInteger(1, MASK_BASE)).not().shiftRight(cidrShift);
 
         final BigInteger ipVal = new BigInteger(1, ipBytes);
 
