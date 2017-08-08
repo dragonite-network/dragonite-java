@@ -23,7 +23,7 @@ public final class DragoniteGlobalConstants {
 
     //Protocol shits
 
-    public static final byte PROTOCOL_VERSION = 1;
+    public static final byte PROTOCOL_VERSION = 2;
 
     //Send window shits
 

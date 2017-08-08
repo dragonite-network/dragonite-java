@@ -21,6 +21,7 @@ import com.vecsight.dragonite.sdk.exception.SenderClosedException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.msg.Message;
 import com.vecsight.dragonite.sdk.msg.MessageParser;
+import com.vecsight.dragonite.sdk.obfs.Obfuscator;
 import com.vecsight.dragonite.sdk.web.DevConsoleWebServer;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
     private final int heartbeatIntervalSec, receiveTimeoutSec;
     private final boolean autoSplit;
     private final boolean enableWebPanel;
+    private final Obfuscator obfuscator;
+    private final int obfsOverhead;
     //end
 
     private final Thread receiveThread; //THREAD
@@ -92,6 +95,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
         autoSplit = parameters.isAutoSplit();
         enableWebPanel = parameters.isEnableWebPanel();
         devConsoleBindAddress = parameters.getWebPanelBindAddress();
+        obfuscator = parameters.getObfuscator();
+        obfsOverhead = obfuscator != null ? obfuscator.getReceiveBufferOverhead() : 0;
         //end
 
         if (maxPacketBufferSize == 0) {
@@ -118,7 +123,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
         receiveThread = new Thread(() -> {
             try {
                 while (doReceive) {
-                    final byte[] b = new byte[packetSize];
+                    final byte[] b = new byte[packetSize + obfsOverhead];
                     final DatagramPacket packet = new DatagramPacket(b, b.length);
                     try {
                         datagramSocket.receive(packet);
@@ -190,7 +195,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         Message message = null;
         try {
-            message = MessageParser.parseMessage(packet.getData());
+            final byte[] data = obfuscator != null ? obfuscator.deobfuscate(packet.getData()) : packet.getData();
+            if (data != null) message = MessageParser.parseMessage(data);
         } catch (final IncorrectMessageException ignored) {
         }
 
@@ -206,10 +212,13 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     //SEND ALL PACKETS THROUGH THIS!!
     private void sendPacket(final byte[] bytes, final SocketAddress socketAddress) throws IOException {
-        final DatagramPacket packet = new DatagramPacket(bytes, bytes.length);
-        packet.setSocketAddress(socketAddress);
-        datagramSocket.send(packet);
-        updateLastSendTime();
+        final byte[] data = obfuscator != null ? obfuscator.obfuscate(bytes) : bytes;
+        if (data != null) {
+            final DatagramPacket packet = new DatagramPacket(data, data.length);
+            packet.setSocketAddress(socketAddress);
+            datagramSocket.send(packet);
+            updateLastSendTime();
+        }
     }
 
     @Override

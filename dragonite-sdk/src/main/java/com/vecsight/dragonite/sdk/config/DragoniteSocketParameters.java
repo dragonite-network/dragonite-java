@@ -14,6 +14,7 @@
 package com.vecsight.dragonite.sdk.config;
 
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
+import com.vecsight.dragonite.sdk.obfs.Obfuscator;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -39,6 +40,8 @@ public class DragoniteSocketParameters {
     private boolean enableWebPanel = false;
 
     private InetSocketAddress webPanelBindAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), DragoniteGlobalConstants.WEB_PANEL_PORT);
+
+    private Obfuscator obfuscator = null;
 
     public int getPacketSize() {
         return packetSize;
@@ -117,5 +120,13 @@ public class DragoniteSocketParameters {
     public void setWebPanelBindAddress(final InetSocketAddress webPanelBindAddress) {
         checkArgument(webPanelBindAddress != null, "Bind address cannot be null");
         this.webPanelBindAddress = webPanelBindAddress;
+    }
+
+    public Obfuscator getObfuscator() {
+        return obfuscator;
+    }
+
+    public void setObfuscator(final Obfuscator obfuscator) {
+        this.obfuscator = obfuscator;
     }
 }

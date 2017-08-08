@@ -22,6 +22,11 @@ Enable Cross-Origin Resource Sharing (CORS) for HTTP(JSON) statistics interface
 ### 0.2.2
 Minor bandwidth usage optimizations
 
+### 0.3.1
+Protocol Version 2: Major robustness improvement
+
+Obfuscator interface for customized packet obfuscation
+
 ## dragonite-mux
 
 ### 0.1.0
@@ -29,6 +34,9 @@ The initial release.
 
 ### 0.2.0
 New flow control mechanism (Buffer size limitations, Pause & Continue frames)
+
+### 0.3.0
+Protocol Version 2: Major robustness improvement
 
 ## dragonite-forwarder
 
@@ -58,3 +66,14 @@ Adjustable send window size multiplier (option --window-size-multiplier)
 
 ### 0.2.0
 Protocol Version 2: Added Server Response Message allowing custom server welcome message (option -w)
+
+### 0.3.0
+Protocol Version 3: Major robustness improvement
+
+## dragonite-proxy
+
+### 0.1.0
+The initial release.
+
+### 0.1.1
+Add a new obfuscation option (--obfs)

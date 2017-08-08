@@ -24,7 +24,7 @@ public final class MuxGlobalConstants {
 
     //Protocol shits
 
-    public static final byte PROTOCOL_VERSION = 1;
+    public static final byte PROTOCOL_VERSION = 2;
 
     //Buffer shits
 

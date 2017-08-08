@@ -15,6 +15,7 @@ package com.vecsight.dragonite.proxy.config;
 
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
+import com.vecsight.dragonite.sdk.obfs.Obfuscator;
 import com.vecsight.dragonite.utils.system.SystemInfo;
 
 import java.net.InetSocketAddress;
@@ -108,5 +109,13 @@ public class ProxyServerConfig {
 
     public DragoniteSocketParameters getDragoniteSocketParameters() {
         return dragoniteSocketParameters;
+    }
+
+    public void setObfuscator(final Obfuscator obfuscator) {
+        dragoniteSocketParameters.setObfuscator(obfuscator);
+    }
+
+    public Obfuscator getObfuscator() {
+        return dragoniteSocketParameters.getObfuscator();
     }
 }

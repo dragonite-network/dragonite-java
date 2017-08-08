@@ -26,6 +26,7 @@ import com.vecsight.dragonite.proxy.network.client.ProxyClient;
 import com.vecsight.dragonite.proxy.network.server.ProxyServer;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
+import com.vecsight.dragonite.sdk.obfs.XBCObfuscator;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
@@ -84,6 +85,11 @@ public final class CLIMain {
                 .hasArg()
                 .argName("xxx")
                 .type(String.class)
+                .build());
+        options.addOption(Option
+                .builder()
+                .longOpt("obfs")
+                .desc("Enable XBC Obfuscator of underlying Dragonite sockets for both client and server")
                 .build());
         options.addOption(Option
                 .builder("r")
@@ -267,6 +273,9 @@ public final class CLIMain {
                     if (commandLine.hasOption("window-size-multiplier")) {
                         config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                     }
+                    if (commandLine.hasOption("obfs")) {
+                        config.setObfuscator(new XBCObfuscator());
+                    }
 
                     final ProxyServer proxyServer = new ProxyServer(config);
 
@@ -309,6 +318,9 @@ public final class CLIMain {
                     }
                     if (commandLine.hasOption("window-size-multiplier")) {
                         config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+                    }
+                    if (commandLine.hasOption("obfs")) {
+                        config.setObfuscator(new XBCObfuscator());
                     }
 
                     if (commandLine.hasOption("r")) {
