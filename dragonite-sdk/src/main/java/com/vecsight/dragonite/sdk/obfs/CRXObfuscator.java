@@ -15,16 +15,21 @@ package com.vecsight.dragonite.sdk.obfs;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Random;
 
-public class XBCObfuscator implements Obfuscator {
+public class CRXObfuscator implements Obfuscator {
 
-    private static final int BASE_RANDOM_BYTES_LENGTH = 10;
+    private static final int BASE_RANDOM_BYTES_LENGTH = 20;
 
-    private static final int VAR_RANDOM_BYTES_LENGTH = 10;
+    private static final int VAR_RANDOM_BYTES_LENGTH = 50;
 
     private final Random random = new Random();
+
+    private final byte[] psk;
+
+    public CRXObfuscator(final byte[] psk) {
+        this.psk = psk;
+    }
 
     @Override
     public byte[] obfuscate(final byte[] rawData) {
@@ -35,7 +40,7 @@ public class XBCObfuscator implements Obfuscator {
         final ByteBuffer buffer = ByteBuffer.allocate(1 + key.length + rawData.length);
         buffer.put(lengthByte);
         buffer.put(key);
-        buffer.put(xbc(rawData, key, false));
+        buffer.put(xor(rawData, xor(key, psk)));
         return buffer.array();
     }
 
@@ -49,7 +54,7 @@ public class XBCObfuscator implements Obfuscator {
             buffer.get(key);
             final byte[] content = new byte[buffer.remaining()];
             buffer.get(content);
-            return xbc(content, key, true);
+            return xor(content, xor(key, psk));
         } catch (final BufferUnderflowException e) {
             return null;
         }
@@ -68,35 +73,4 @@ public class XBCObfuscator implements Obfuscator {
         return result;
     }
 
-    private static byte[] xbc(final byte[] input, final byte[] key, final boolean decrypt) {
-        final byte[] result = new byte[input.length];
-        final byte[][] blocks = splitBytes(input, key.length);
-        byte[] previousBlockResult = null;
-        int pos = 0;
-        for (final byte[] block : blocks) {
-            if (previousBlockResult == null) previousBlockResult = key;
-            final byte[] eb = xor(block, previousBlockResult);
-            previousBlockResult = decrypt ? block : eb;
-            System.arraycopy(eb, 0, result, pos, eb.length);
-            pos += eb.length;
-        }
-        return result;
-    }
-
-    private static byte[][] splitBytes(final byte[] data, final int chunkSize) {
-        final int length = data.length;
-        final byte[][] dest = new byte[(length + chunkSize - 1) / chunkSize][];
-        int destIndex = 0;
-        int stopIndex = 0;
-
-        for (int startIndex = 0; startIndex + chunkSize <= length; startIndex += chunkSize) {
-            stopIndex += chunkSize;
-            dest[destIndex++] = Arrays.copyOfRange(data, startIndex, stopIndex);
-        }
-
-        if (stopIndex < length)
-            dest[destIndex] = Arrays.copyOfRange(data, stopIndex, length);
-
-        return dest;
-    }
 }

@@ -27,6 +27,9 @@ Protocol Version 2: Major robustness improvement
 
 Obfuscator interface for customized packet obfuscation
 
+### 0.3.2
+Add CRXObfuscator
+
 ## dragonite-mux
 
 ### 0.1.0
@@ -77,3 +80,6 @@ The initial release.
 
 ### 0.1.1
 Add a new obfuscation option (--obfs)
+
+### 0.1.2
+Adapt to new CRXObfuscator
