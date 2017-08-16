@@ -11,7 +11,7 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.proxy.header.mux;
+package com.vecsight.dragonite.proxy.header.udp;
 
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.header.AddressType;
@@ -24,10 +24,10 @@ import java.nio.BufferUnderflowException;
  * addrType 1 SB
  * addr     [4B/16B/1+length]
  * port     2 US
- * UDP mode 1 BOOL
+ * payload  [REMAINING]
  */
 
-public class MuxConnectionRequestHeader {
+public class ProxyUDPRelayHeader {
 
     private AddressType type;
 
@@ -35,16 +35,16 @@ public class MuxConnectionRequestHeader {
 
     private int port;
 
-    private boolean udpMode;
+    private byte[] payload;
 
-    public MuxConnectionRequestHeader(final AddressType type, final byte[] addr, final int port, final boolean udpMode) {
+    public ProxyUDPRelayHeader(final AddressType type, final byte[] addr, final int port, final byte[] payload) {
         this.type = type;
         this.addr = addr;
         this.port = port;
-        this.udpMode = udpMode;
+        this.payload = payload;
     }
 
-    public MuxConnectionRequestHeader(final byte[] header) throws IncorrectHeaderException {
+    public ProxyUDPRelayHeader(final byte[] header) throws IncorrectHeaderException {
         final BinaryReader reader = new BinaryReader(header);
 
         try {
@@ -75,10 +75,11 @@ public class MuxConnectionRequestHeader {
 
             port = reader.getUnsignedShort();
 
-            udpMode = reader.getBoolean();
+            payload = new byte[reader.remaining()];
+            reader.getBytes(payload);
 
         } catch (final BufferUnderflowException e) {
-            throw new IncorrectHeaderException("Incorrect frame length");
+            throw new IncorrectHeaderException("Incorrect packet length");
         }
     }
 
@@ -106,18 +107,18 @@ public class MuxConnectionRequestHeader {
         this.port = port;
     }
 
-    public boolean isUdpMode() {
-        return udpMode;
+    public byte[] getPayload() {
+        return payload;
     }
 
-    public void setUdpMode(final boolean udpMode) {
-        this.udpMode = udpMode;
+    public void setPayload(final byte[] payload) {
+        this.payload = payload;
     }
 
     public byte[] toBytes() {
         final int addrTotalLength = (type == AddressType.IPv4 ? 4 : (type == AddressType.IPv6 ? 16 : 1 + addr.length));
 
-        final BinaryWriter writer = new BinaryWriter(4 + addrTotalLength);
+        final BinaryWriter writer = new BinaryWriter(3 + addrTotalLength + payload.length);
 
         writer.putSignedByte(type.getValue());
         if (type == AddressType.DOMAIN) {
@@ -126,8 +127,9 @@ public class MuxConnectionRequestHeader {
             writer.putBytes(addr);
         }
         writer.putUnsignedShort(port);
-        writer.putBoolean(udpMode);
+        writer.putBytes(payload);
 
         return writer.toBytes();
     }
+
 }

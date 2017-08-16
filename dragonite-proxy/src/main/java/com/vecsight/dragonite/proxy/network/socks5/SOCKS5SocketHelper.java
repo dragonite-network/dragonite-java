@@ -14,6 +14,7 @@
 package com.vecsight.dragonite.proxy.network.socks5;
 
 import com.vecsight.dragonite.proxy.exception.SOCKS5Exception;
+import com.vecsight.dragonite.utils.binary.BinaryWriter;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public final class SOCKS5SocketHelper {
 
     private static final byte[] SOCKS5_NOT_SUPPORTED = {SOCKS5_VERSION, 0x07, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    public static SOCKS5Header handleHeader(final Socket socket) throws IOException, SOCKS5Exception {
+    public static SOCKS5Header getHeader(final Socket socket) throws IOException, SOCKS5Exception {
         final DataInputStream inputStream = new DataInputStream(socket.getInputStream());
         final OutputStream outputStream = socket.getOutputStream();
         /*
@@ -87,12 +88,12 @@ public final class SOCKS5SocketHelper {
             throw new SOCKS5Exception("Unknown address type");
         }
         port = inputStream.readUnsignedShort();
-        if (cmd == 0x01) {
-            //CONNECT
+        if (cmd == 0x01 || cmd == 0x03) {
+            //CONNECT & UDP ASSOCIATE
             if (atyp == 0x03)
-                return new SOCKS5Header(true, addr, port);
+                return new SOCKS5Header(true, addr, port, cmd == 0x03);
             else
-                return new SOCKS5Header(false, addr, port);
+                return new SOCKS5Header(false, addr, port, cmd == 0x03);
             //No response frame yet
         } else {
             //Not supported, yet
@@ -103,6 +104,20 @@ public final class SOCKS5SocketHelper {
 
     public static void sendSucceed(final Socket socket) throws IOException {
         socket.getOutputStream().write(SOCKS5_SUCCEED);
+    }
+
+    public static void sendSucceedUDP(final Socket socket, final int port) throws IOException {
+        final byte[] localAddress = socket.getLocalAddress().getAddress();
+
+        final BinaryWriter writer = new BinaryWriter(6 + localAddress.length);
+        writer.putSignedByte(SOCKS5_VERSION)
+                .putSignedByte((byte) 0)
+                .putSignedByte((byte) 0)
+                .putSignedByte((byte) (localAddress.length == 4 ? 1 : 4))
+                .putBytes(localAddress)
+                .putUnsignedShort(port);
+
+        socket.getOutputStream().write(writer.toBytes());
     }
 
     public static void sendFailed(final Socket socket) throws IOException {

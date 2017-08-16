@@ -70,6 +70,11 @@ public class BinaryWriter {
         return this;
     }
 
+    public BinaryWriter putBoolean(final boolean b) {
+        byteBuffer.put((byte) (b ? 1 : 0));
+        return this;
+    }
+
     public byte[] toBytes() {
         return byteBuffer.array();
     }

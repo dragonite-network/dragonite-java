@@ -11,7 +11,7 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.proxy.header.mux;
+package com.vecsight.dragonite.proxy.header;
 
 public enum AddressType {
     IPv4((byte) 0),

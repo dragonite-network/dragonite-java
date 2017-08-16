@@ -22,6 +22,7 @@ import java.nio.BufferUnderflowException;
 
 /*
  * status   1 SB
+ * udp port 2 US
  * msgLen   1 UB
  * msg      [length]
  */
@@ -30,10 +31,13 @@ public class MuxConnectionResponseHeader {
 
     private ConnectionStatus status;
 
+    private int udpPort;
+
     private String msg;
 
-    public MuxConnectionResponseHeader(final ConnectionStatus status, final String msg) {
+    public MuxConnectionResponseHeader(final ConnectionStatus status, final int udpPort, final String msg) {
         this.status = status;
+        this.udpPort = udpPort;
         this.msg = msg;
     }
 
@@ -49,6 +53,8 @@ public class MuxConnectionResponseHeader {
             } catch (final IllegalArgumentException e) {
                 throw new IncorrectHeaderException("Invalid status type " + rawStatus);
             }
+
+            udpPort = reader.getUnsignedShort();
 
             msg = new String(reader.getBytesGroupWithByteLength(), ProxyGlobalConstants.STRING_CHARSET);
 
@@ -66,6 +72,14 @@ public class MuxConnectionResponseHeader {
         this.status = status;
     }
 
+    public int getUdpPort() {
+        return udpPort;
+    }
+
+    public void setUdpPort(final int udpPort) {
+        this.udpPort = udpPort;
+    }
+
     public String getMsg() {
         return msg;
     }
@@ -77,9 +91,10 @@ public class MuxConnectionResponseHeader {
     public byte[] toBytes() {
         final byte[] msgBytes = msg.getBytes(ProxyGlobalConstants.STRING_CHARSET);
 
-        final BinaryWriter writer = new BinaryWriter(2 + msgBytes.length);
+        final BinaryWriter writer = new BinaryWriter(4 + msgBytes.length);
 
         writer.putSignedByte(status.getValue())
+                .putUnsignedShort(udpPort)
                 .putBytesGroupWithByteLength(msgBytes);
 
         return writer.toBytes();

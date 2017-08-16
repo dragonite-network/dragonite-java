@@ -180,7 +180,7 @@ public class ProxyClient {
         //Parse header
         final SOCKS5Header socks5Header;
         try {
-            socks5Header = SOCKS5SocketHelper.handleHeader(socket);
+            socks5Header = SOCKS5SocketHelper.getHeader(socket);
         } catch (final IOException | SOCKS5Exception e) {
             Logger.error(e, "Failed to parse SOCKS5 request");
             try {
@@ -194,14 +194,19 @@ public class ProxyClient {
 
         //Check ACL
         final ACLItemMethod method;
-        if (acl != null) {
-            if (socks5Header.isDomain()) {
-                method = acl.checkDomain(new String(socks5Header.getAddr(), ProxyGlobalConstants.HEADER_ADDRESS_CHARSET));
+        if (!socks5Header.isUdp()) {
+            if (acl != null) {
+                if (socks5Header.isDomain()) {
+                    method = acl.checkDomain(new String(socks5Header.getAddr(), ProxyGlobalConstants.HEADER_ADDRESS_CHARSET));
+                } else {
+                    method = acl.checkIP(socks5Header.getAddr());
+                }
             } else {
-                method = acl.checkIP(socks5Header.getAddr());
+                method = ACLItemMethod.PROXY;
             }
         } else {
             method = ACLItemMethod.PROXY;
+            //We handle UDP rules later, inside ProxyConnectionHandler & ProxyClientUDPRelay
         }
 
         //Connect
@@ -238,7 +243,8 @@ public class ProxyClient {
                 }
             }
 
-            final ProxyConnectionHandler handler = new ProxyConnectionHandler(socks5Header, multiplexedConnection, socket, encryptionKey);
+            final ProxyConnectionHandler handler = new ProxyConnectionHandler(socks5Header, multiplexedConnection,
+                    remoteAddress.getAddress(), socket, encryptionKey, acl);
 
             handler.run();
 

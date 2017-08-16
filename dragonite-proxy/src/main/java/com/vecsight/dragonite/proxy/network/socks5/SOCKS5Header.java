@@ -25,10 +25,13 @@ public class SOCKS5Header {
 
     private int port;
 
-    public SOCKS5Header(final boolean isDomain, final byte[] addr, final int port) {
+    private boolean udp;
+
+    public SOCKS5Header(final boolean isDomain, final byte[] addr, final int port, final boolean udp) {
         this.isDomain = isDomain;
         this.addr = addr;
         this.port = port;
+        this.udp = udp;
     }
 
     public boolean isDomain() {
@@ -55,12 +58,21 @@ public class SOCKS5Header {
         this.port = port;
     }
 
+    public boolean isUdp() {
+        return udp;
+    }
+
+    public void setUdp(final boolean udp) {
+        this.udp = udp;
+    }
+
     @Override
     public String toString() {
         return "SOCKS5Header{" +
                 "isDomain=" + isDomain +
                 ", addr=" + (isDomain ? new String(addr, ProxyGlobalConstants.HEADER_ADDRESS_CHARSET) : Arrays.toString(addr)) +
                 ", port=" + port +
+                ", udp=" + udp +
                 '}';
     }
 }

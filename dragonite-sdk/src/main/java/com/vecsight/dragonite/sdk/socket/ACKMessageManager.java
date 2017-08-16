@@ -16,6 +16,7 @@ package com.vecsight.dragonite.sdk.socket;
 import com.vecsight.dragonite.sdk.msg.types.ACKMessage;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,8 +75,7 @@ public class ACKMessageManager {
                             } else {
                                 int offset = 0, nextLen = payloadIntSize;
                                 for (int i = 0; i < msgCount; i++) {
-                                    final int[] acks = new int[nextLen];
-                                    System.arraycopy(ackarray, offset, acks, 0, nextLen);
+                                    final int[] acks = Arrays.copyOfRange(ackarray, offset, offset + nextLen);
                                     sendACKArray(acks);
                                     offset += nextLen;
                                     if (offset + nextLen > ackarray.length) {

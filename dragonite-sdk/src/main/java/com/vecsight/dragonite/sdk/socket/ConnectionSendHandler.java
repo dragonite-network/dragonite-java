@@ -20,6 +20,7 @@ import com.vecsight.dragonite.sdk.msg.types.DataMessage;
 import com.vecsight.dragonite.sdk.msg.types.HeartbeatMessage;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ConnectionSendHandler {
@@ -112,8 +113,7 @@ public class ConnectionSendHandler {
             int offset = 0, nextLen = payloadSize;
             synchronized (sendLock) {
                 for (int i = 0; i < msgCount; i++) {
-                    final byte[] b = new byte[nextLen];
-                    System.arraycopy(data, offset, b, 0, nextLen);
+                    final byte[] b = Arrays.copyOfRange(data, offset, offset + nextLen);
                     sendDataMessage_noSplit(b);
                     offset += nextLen;
                     if (offset + nextLen > data.length) {

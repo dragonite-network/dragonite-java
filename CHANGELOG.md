@@ -83,3 +83,6 @@ Add a new obfuscation option (--obfs)
 
 ### 0.1.2
 Adapt to new CRXObfuscator
+
+### 0.2.0
+Protocol Version 2: Full SOCKS5 UDP relay support

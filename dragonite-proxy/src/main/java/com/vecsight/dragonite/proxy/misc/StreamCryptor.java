@@ -23,7 +23,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class Cryptor {
+public class StreamCryptor {
 
     private final byte[] encryptionKey;
 
@@ -33,7 +33,7 @@ public class Cryptor {
 
     private final Cipher encryptionCipher;
 
-    public Cryptor(final byte[] encryptionKey, final byte[] iv) throws EncryptionException {
+    public StreamCryptor(final byte[] encryptionKey, final byte[] iv) throws EncryptionException {
         this.encryptionKey = encryptionKey;
         this.iv = iv;
         final SecretKeySpec secretKeySpec = new SecretKeySpec(encryptionKey, ProxyGlobalConstants.ENCRYPTION_ALGORITHM);

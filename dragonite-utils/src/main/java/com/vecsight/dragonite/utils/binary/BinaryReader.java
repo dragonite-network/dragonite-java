@@ -65,6 +65,10 @@ public class BinaryReader {
         return bytes;
     }
 
+    public boolean getBoolean() {
+        return byteBuffer.get() != 0;
+    }
+
     public int remaining() {
         return byteBuffer.remaining();
     }

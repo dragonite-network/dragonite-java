@@ -20,12 +20,12 @@ import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
 import com.vecsight.dragonite.mux.exception.SenderClosedException;
 import com.vecsight.dragonite.proxy.exception.EncryptionException;
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
-import com.vecsight.dragonite.proxy.header.mux.AddressType;
+import com.vecsight.dragonite.proxy.header.AddressType;
 import com.vecsight.dragonite.proxy.header.mux.ConnectionStatus;
 import com.vecsight.dragonite.proxy.header.mux.MuxConnectionRequestHeader;
 import com.vecsight.dragonite.proxy.header.mux.MuxConnectionResponseHeader;
-import com.vecsight.dragonite.proxy.misc.Cryptor;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.proxy.misc.StreamCryptor;
 import com.vecsight.dragonite.proxy.network.CryptorPipe;
 import org.pmw.tinylog.Logger;
 
@@ -67,7 +67,7 @@ public class ProxyMuxHandler {
         Logger.debug("New connection by client \"{}\" ({})",
                 clientName, clientAddress.toString());
 
-        final Cryptor cryptor;
+        final StreamCryptor streamCryptor;
 
         //Read IV & encrypted request header
         final byte[] encryptedRequestHeader;
@@ -83,7 +83,7 @@ public class ProxyMuxHandler {
                 return;
             }
 
-            cryptor = new Cryptor(encryptionKey, ivBytes);
+            streamCryptor = new StreamCryptor(encryptionKey, ivBytes);
 
             encryptedRequestHeader = muxConn.read();
 
@@ -100,7 +100,7 @@ public class ProxyMuxHandler {
 
         final MuxConnectionRequestHeader requestHeader;
         try {
-            requestHeader = new MuxConnectionRequestHeader(cryptor.decrypt(encryptedRequestHeader));
+            requestHeader = new MuxConnectionRequestHeader(streamCryptor.decrypt(encryptedRequestHeader));
         } catch (final IncorrectHeaderException e) {
             Logger.error(e, "Incorrect request header from \"{}\" ({})",
                     clientName, clientAddress.toString());
@@ -121,15 +121,26 @@ public class ProxyMuxHandler {
                     clientName, clientAddress.toString());
             try {
                 //Send encrypted failed response
-                final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.ERROR, "Unknown host").toBytes();
-                muxConn.send(cryptor.encrypt(header));
+                final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.ERROR, 0, "Unknown host").toBytes();
+                muxConn.send(streamCryptor.encrypt(header));
             } catch (final SenderClosedException ignored) {
             }
             muxConn.close();
             return;
         }
-        //Let's connect then
+
         final InetSocketAddress socketAddress = new InetSocketAddress(remoteAddress, requestHeader.getPort());
+
+        //Let's do connect then
+        if (!requestHeader.isUdpMode()) {
+            handleTCP(socketAddress, muxConn, streamCryptor);
+        } else {
+            handleUDP(muxConn, streamCryptor);
+        }
+    }
+
+    private void handleTCP(final SocketAddress socketAddress, final MultiplexedConnection muxConn,
+                           final StreamCryptor streamCryptor) throws InterruptedException {
         Logger.debug("Connecting {} for client \"{}\" ({})",
                 socketAddress.toString(), clientName, clientAddress.toString());
         final Socket tcpSocket = new Socket();
@@ -139,8 +150,8 @@ public class ProxyMuxHandler {
             Logger.warn(e, "Unable to establish connection with {}", socketAddress.toString());
             try {
                 //Send encrypted failed response
-                final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.ERROR, e.getMessage()).toBytes();
-                muxConn.send(cryptor.encrypt(header));
+                final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.ERROR, 0, e.getMessage()).toBytes();
+                muxConn.send(streamCryptor.encrypt(header));
             } catch (final SenderClosedException ignored) {
             }
             muxConn.close();
@@ -148,8 +159,8 @@ public class ProxyMuxHandler {
         }
         try {
             //Send encrypted OK response
-            final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.OK, "Connected").toBytes();
-            muxConn.send(cryptor.encrypt(header));
+            final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.OK, 0, "Connected").toBytes();
+            muxConn.send(streamCryptor.encrypt(header));
         } catch (final SenderClosedException e) {
             Logger.error(e, "Unable to send response to client \"{}\" ({})",
                     clientName, clientAddress.toString());
@@ -162,13 +173,52 @@ public class ProxyMuxHandler {
         }
 
         //Alright
-        startPipe(muxConn, tcpSocket, cryptor);
-
+        startPipe(muxConn, tcpSocket, streamCryptor);
     }
 
-    private void startPipe(final MultiplexedConnection muxConn, final Socket tcpSocket, final Cryptor cryptor) {
+    private void handleUDP(final MultiplexedConnection muxConn, final StreamCryptor streamCryptor) throws InterruptedException {
+        Logger.debug("UDP relay request from client \"{}\" ({})",
+                clientName, this.clientAddress.toString());
+        final ProxyServerUDPRelay udpRelay;
+        try {
+            udpRelay = new ProxyServerUDPRelay(clientName, clientAddress, encryptionKey);
+        } catch (final SocketException | EncryptionException e) {
+            Logger.error(e, "Unable to initialize UDP relay for client \"{}\" ({})",
+                    clientName, this.clientAddress.toString());
+            try {
+                //Send encrypted failed response
+                final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.ERROR, 0, e.getMessage()).toBytes();
+                muxConn.send(streamCryptor.encrypt(header));
+            } catch (final SenderClosedException ignored) {
+            }
+            muxConn.close();
+            return;
+        }
+        try {
+            //Send encrypted OK response
+            final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.OK, udpRelay.getLocalPort(), "Relay enabled").toBytes();
+            muxConn.send(streamCryptor.encrypt(header));
+        } catch (final SenderClosedException e) {
+            Logger.error(e, "Unable to send response to client \"{}\" ({})",
+                    clientName, this.clientAddress.toString());
+            muxConn.close();
+            udpRelay.stop();
+            return;
+        }
+
+        try {
+            while (muxConn.read() != null) {
+                //We do literally nothing :(
+            }
+        } catch (final ConnectionNotAliveException e) {
+            muxConn.close();
+            udpRelay.stop();
+        }
+    }
+
+    private void startPipe(final MultiplexedConnection muxConn, final Socket tcpSocket, final StreamCryptor streamCryptor) {
         final Thread pipeFromRemoteThread = new Thread(() -> {
-            final CryptorPipe pipeFromRemotePipe = new CryptorPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE, cryptor);
+            final CryptorPipe pipeFromRemotePipe = new CryptorPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE, streamCryptor);
             try {
                 pipeFromRemotePipe.pipe(muxConn, tcpSocket.getOutputStream());
             } catch (final Exception e) {
@@ -184,7 +234,7 @@ public class ProxyMuxHandler {
         pipeFromRemoteThread.start();
 
         final Thread pipeFromLocalThread = new Thread(() -> {
-            final CryptorPipe pipeFromLocalPipe = new CryptorPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE, cryptor);
+            final CryptorPipe pipeFromLocalPipe = new CryptorPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE, streamCryptor);
             try {
                 pipeFromLocalPipe.pipe(tcpSocket.getInputStream(), muxConn);
             } catch (final Exception e) {

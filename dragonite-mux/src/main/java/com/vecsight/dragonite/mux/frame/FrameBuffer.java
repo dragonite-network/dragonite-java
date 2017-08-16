@@ -13,6 +13,8 @@
 
 package com.vecsight.dragonite.mux.frame;
 
+import java.util.Arrays;
+
 public class FrameBuffer {
 
     private final byte[] bytesBuffer;
@@ -29,9 +31,7 @@ public class FrameBuffer {
     }
 
     public byte[] get() {
-        final byte[] bytes = new byte[position];
-        System.arraycopy(bytesBuffer, 0, bytes, 0, position);
-        return bytes;
+        return Arrays.copyOf(bytesBuffer, position);
     }
 
     public void reset() {
