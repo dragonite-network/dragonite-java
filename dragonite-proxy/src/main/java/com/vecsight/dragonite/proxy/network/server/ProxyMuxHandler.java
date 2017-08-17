@@ -42,11 +42,15 @@ public class ProxyMuxHandler {
 
     private final byte[] encryptionKey;
 
-    public ProxyMuxHandler(final Multiplexer multiplexer, final String clientName, final SocketAddress clientAddress, final byte[] encryptionKey) {
+    private final boolean allowLoopback;
+
+    public ProxyMuxHandler(final Multiplexer multiplexer, final String clientName, final SocketAddress clientAddress,
+                           final byte[] encryptionKey, final boolean allowLoopback) {
         this.multiplexer = multiplexer;
         this.clientName = clientName;
         this.clientAddress = clientAddress;
         this.encryptionKey = encryptionKey;
+        this.allowLoopback = allowLoopback;
     }
 
     public void run() throws MultiplexerClosedException, InterruptedException {
@@ -139,8 +143,22 @@ public class ProxyMuxHandler {
         }
     }
 
-    private void handleTCP(final SocketAddress socketAddress, final MultiplexedConnection muxConn,
+    private void handleTCP(final InetSocketAddress socketAddress, final MultiplexedConnection muxConn,
                            final StreamCryptor streamCryptor) throws InterruptedException {
+        //Check for loopback
+        if (!allowLoopback && socketAddress.getAddress().isLoopbackAddress()) {
+            Logger.debug("Blocking client \"{}\" ({}) from accessing the loopback interface",
+                    clientName, clientAddress.toString());
+            try {
+                //Send encrypted failed response
+                final byte[] header = new MuxConnectionResponseHeader(ConnectionStatus.ERROR, 0, "Connection prohibited").toBytes();
+                muxConn.send(streamCryptor.encrypt(header));
+            } catch (final SenderClosedException ignored) {
+            }
+            muxConn.close();
+            return;
+        }
+
         Logger.debug("Connecting {} for client \"{}\" ({})",
                 socketAddress.toString(), clientName, clientAddress.toString());
         final Socket tcpSocket = new Socket();
@@ -181,7 +199,7 @@ public class ProxyMuxHandler {
                 clientName, this.clientAddress.toString());
         final ProxyServerUDPRelay udpRelay;
         try {
-            udpRelay = new ProxyServerUDPRelay(clientName, clientAddress, encryptionKey);
+            udpRelay = new ProxyServerUDPRelay(clientName, clientAddress, encryptionKey, allowLoopback);
         } catch (final SocketException | EncryptionException e) {
             Logger.error(e, "Unable to initialize UDP relay for client \"{}\" ({})",
                     clientName, this.clientAddress.toString());

@@ -35,6 +35,8 @@ public class ProxyServerUDPRelay {
 
     private final InetAddress clientAddress;
 
+    private final boolean allowLoopback;
+
     private int clientPort = -1;
 
     private final PacketCryptor packetCryptor;
@@ -47,9 +49,11 @@ public class ProxyServerUDPRelay {
 
     private final SecureRandom random = new SecureRandom();
 
-    public ProxyServerUDPRelay(final String clientName, final SocketAddress clientSocketAddress, final byte[] encryptionKey) throws SocketException, EncryptionException {
+    public ProxyServerUDPRelay(final String clientName, final SocketAddress clientSocketAddress,
+                               final byte[] encryptionKey, final boolean allowLoopback) throws SocketException, EncryptionException {
         this.clientName = clientName;
         this.clientAddress = ((InetSocketAddress) clientSocketAddress).getAddress();
+        this.allowLoopback = allowLoopback;
         this.packetCryptor = new PacketCryptor(encryptionKey);
         this.datagramSocket = new DatagramSocket();
         this.relayThread = new Thread(() -> {
@@ -100,6 +104,13 @@ public class ProxyServerUDPRelay {
             }
         } catch (final UnknownHostException e) {
             Logger.error(e, "Unknown host from UDP relay header of \"{}\" ({})",
+                    clientName, clientAddress.toString());
+            return;
+        }
+
+        //Check loopback
+        if (!allowLoopback && remoteAddress.isLoopbackAddress()) {
+            Logger.debug("Blocking client \"{}\" ({}) from accessing the loopback interface",
                     clientName, clientAddress.toString());
             return;
         }

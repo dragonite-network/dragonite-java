@@ -39,11 +39,15 @@ public class ProxyClientHandler {
 
     private final String welcomeMessage;
 
-    public ProxyClientHandler(final byte[] encryptionKey, final DragoniteSocket dragoniteSocket, final int limitMbps, final String welcomeMessage) {
+    private final boolean allowLoopback;
+
+    public ProxyClientHandler(final byte[] encryptionKey, final DragoniteSocket dragoniteSocket, final int limitMbps,
+                              final String welcomeMessage, final boolean allowLoopback) {
         this.encryptionKey = encryptionKey;
         this.dragoniteSocket = dragoniteSocket;
         this.limitMbps = limitMbps;
         this.welcomeMessage = welcomeMessage;
+        this.allowLoopback = allowLoopback;
     }
 
     public void run() {
@@ -109,7 +113,7 @@ public class ProxyClientHandler {
             }, ProxyGlobalConstants.MAX_FRAME_SIZE);
 
             final ProxyMuxHandler muxHandler = new ProxyMuxHandler(multiplexer, infoHeader.getName(),
-                    dragoniteSocket.getRemoteSocketAddress(), encryptionKey);
+                    dragoniteSocket.getRemoteSocketAddress(), encryptionKey, allowLoopback);
 
             final Thread multiplexerAcceptThread = new Thread(() -> {
                 try {

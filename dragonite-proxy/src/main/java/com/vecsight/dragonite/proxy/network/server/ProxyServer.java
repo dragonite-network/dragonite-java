@@ -36,6 +36,8 @@ public class ProxyServer {
 
     private final String welcomeMessage;
 
+    private final boolean allowLoopback;
+
     private final DragoniteServer dragoniteServer;
 
     private volatile boolean doAccept = true;
@@ -47,6 +49,7 @@ public class ProxyServer {
         this.password = config.getPassword();
         this.limitMbps = config.getMbpsLimit();
         this.welcomeMessage = config.getWelcomeMessage();
+        this.allowLoopback = config.isAllowLoopback();
 
         this.encryptionKey = EncryptionKeyGenerator.getKey(password);
 
@@ -68,7 +71,7 @@ public class ProxyServer {
     }
 
     private void handleClient(final DragoniteSocket socket) {
-        final ProxyClientHandler clientHandler = new ProxyClientHandler(encryptionKey, socket, limitMbps, welcomeMessage);
+        final ProxyClientHandler clientHandler = new ProxyClientHandler(encryptionKey, socket, limitMbps, welcomeMessage, allowLoopback);
         final Thread handlerThread = new Thread(clientHandler::run, "PS-Handler");
         handlerThread.start();
     }

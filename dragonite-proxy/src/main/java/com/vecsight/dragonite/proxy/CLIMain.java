@@ -92,6 +92,11 @@ public final class CLIMain {
                 .desc("Enable XBC Obfuscator of underlying Dragonite sockets for both client and server")
                 .build());
         options.addOption(Option
+                .builder()
+                .longOpt("allow-loopback")
+                .desc("Allow clients to access the local loopback address of server")
+                .build());
+        options.addOption(Option
                 .builder("r")
                 .longOpt("acl")
                 .desc("ACL file for client")
@@ -275,6 +280,9 @@ public final class CLIMain {
                     }
                     if (commandLine.hasOption("obfs")) {
                         config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
+                    }
+                    if (commandLine.hasOption("allow-loopback")) {
+                        config.setAllowLoopback(true);
                     }
 
                     final ProxyServer proxyServer = new ProxyServer(config);

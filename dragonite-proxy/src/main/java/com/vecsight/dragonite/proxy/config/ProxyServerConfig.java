@@ -32,6 +32,8 @@ public class ProxyServerConfig {
 
     private String welcomeMessage = "Welcome to " + SystemInfo.getHostname();
 
+    private boolean allowLoopback = false;
+
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
     public ProxyServerConfig(final InetSocketAddress bindAddress, final String password) {
@@ -73,6 +75,14 @@ public class ProxyServerConfig {
     public void setWelcomeMessage(final String welcomeMessage) {
         checkArgument(welcomeMessage != null, "Null welcome message");
         this.welcomeMessage = welcomeMessage;
+    }
+
+    public boolean isAllowLoopback() {
+        return allowLoopback;
+    }
+
+    public void setAllowLoopback(final boolean allowLoopback) {
+        this.allowLoopback = allowLoopback;
     }
 
     public int getMTU() {
