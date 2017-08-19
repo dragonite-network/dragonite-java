@@ -27,6 +27,7 @@ import com.vecsight.dragonite.sdk.web.DevConsoleWebServer;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -122,8 +123,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         receiveThread = new Thread(() -> {
             try {
+                final byte[] b = new byte[packetSize + obfsOverhead];
                 while (doReceive) {
-                    final byte[] b = new byte[packetSize + obfsOverhead];
                     final DatagramPacket packet = new DatagramPacket(b, b.length);
                     try {
                         datagramSocket.receive(packet);
@@ -195,7 +196,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         Message message = null;
         try {
-            final byte[] data = obfuscator != null ? obfuscator.deobfuscate(packet.getData()) : packet.getData();
+            final byte[] packetData = Arrays.copyOf(packet.getData(), packet.getLength());
+            final byte[] data = obfuscator != null ? obfuscator.deobfuscate(packetData) : packetData;
             if (data != null) message = MessageParser.parseMessage(data);
         } catch (final IncorrectMessageException ignored) {
         }
