@@ -101,8 +101,8 @@ public class DragoniteServer {
 
         receiveThread = new Thread(() -> {
             try {
-                final byte[] b = new byte[packetSize + obfsOverhead];
                 while (doReceive) {
+                    final byte[] b = new byte[packetSize + obfsOverhead];
                     final DatagramPacket packet = new DatagramPacket(b, b.length);
                     try {
                         datagramSocket.receive(packet);
