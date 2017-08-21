@@ -1,4 +1,4 @@
-# ![logo](/assets/Dragonite-64.png) dragonite-java
+# ![dragonite-java](/assets/TextLogo.png)
 
     MAKE INTERNET GREAT AGAIN
 
