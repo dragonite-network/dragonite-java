@@ -54,13 +54,13 @@ For clients,
 
 will connect to **example.com:27000**, telling the server our maximum download speed is 100 Mbps, upload speed is 20 Mbps, using encryption key `uMadBro`, with traffic obfuscation turned on, and using `acl.txt` as the access control rules.
 
-**The client will bind to local TCP port 1080 by default, providing a SOCKS5 proxy that supports CONNECT & UDP ASSOCIATE.**
-
 [How to write an ACL file](ACL.md)
 
-## Some technical details
+**The client will bind to local TCP port 1080 by default, providing a SOCKS5 proxy that supports CONNECT & UDP ASSOCIATE.**
 
-All proxy traffic is encrypted with `AES-128-CFB8-NoPadding` using key derived from `PBKDF2WithHmacSHA1`. The Dragonite socket protocol itself is not encrypted by default, but if you want to avoid any potential DPI detection, the `--obfs` option can be used to enable the CRXObfuscator.
+## About encryption
+
+All proxy traffic is encrypted with `AES-128-CFB8` using key derived from `PBKDF2WithHmacSHA1`. The Dragonite socket protocol itself is not encrypted by default, but if you want to avoid any potential DPI detection, the `--obfs` option can be used to enable the CRXObfuscator.
 
 ## Precautions
 
