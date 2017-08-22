@@ -56,7 +56,7 @@ will connect to **example.com:27000**, telling the server our maximum download s
 
 **The client will bind to local TCP port 1080 by default, providing a SOCKS5 proxy that supports CONNECT & UDP ASSOCIATE.**
 
-[How to write an ACL file](../Proxy%20ACL/HOWTO.md)
+[How to write an ACL file](ACL.md)
 
 ## Some technical details
 
