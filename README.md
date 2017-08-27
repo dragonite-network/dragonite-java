@@ -1,4 +1,4 @@
-# ![dragonite-java](/assets/TextLogo.png)
+# ![dragonite-java](assets/TextLogo.png)
 
     MAKE INTERNET GREAT AGAIN
 
@@ -12,7 +12,7 @@ It is designed to be fast over lossy & unstable networks, highly customizable, p
 
 ## Usage Scenarios
 
-- Transfer data between countries with lossy network connections
+- Transfer data between countries over lossy network connections
 
 - Your application needs a persistent connection to your servers, without interference from NAT gateways
 
