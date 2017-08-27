@@ -86,3 +86,6 @@ Adapt to new CRXObfuscator
 
 ### 0.2.0
 Protocol Version 2: Full SOCKS5 UDP relay support
+
+### 0.2.1
+Block loopback address by default, add --allow-loopback option
