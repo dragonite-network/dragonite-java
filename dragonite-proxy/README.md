@@ -11,6 +11,7 @@ Advanced SOCKS5 proxy featuring encryption, traffic obfuscation and a powerful A
         --allow-loopback                        Allow clients to access the
                                                 local loopback address of
                                                 server
+     -c,--config <path>                         JSON config file
      -d,--download-mbps <mbps>                  Download Mbps for client
         --debug                                 Set the logging level to DEBUG
      -h,--help                                  Help message
@@ -58,6 +59,51 @@ will connect to **example.com:27000**, telling the server our maximum download s
 
 **The client will bind to local TCP port 1080 by default, providing a SOCKS5 proxy that supports CONNECT & UDP ASSOCIATE.**
 
+## JSON configuration
+
+You can also save the configuration as JSON files and use them like
+
+    ./dragonite-proxy -c Japan1.json
+
+Many fields are optional, just like the arguments above.
+
+### Server JSON configuration
+
+    {
+      "server": true,
+      "addr": "example.com",
+      "port": 9299,                               //OPTIONAL
+      "password": "blahblah",
+      "limit": 100,                               //OPTIONAL
+      "welcome": "GTFO of my server!",            //OPTIONAL
+      "loopback": false,                          //OPTIONAL
+      "mtu": 1300,                                //OPTIONAL
+      "multiplier": 4,                            //OPTIONAL
+      "webpanel": true,                           //OPTIONAL
+      "paneladdr": "127.0.0.1",                   //OPTIONAL
+      "panelport": 8088,                          //OPTIONAL
+      "obfs": true                                //OPTIONAL
+    }
+
+### Client JSON configuration
+
+    {
+      "server": false,                            //OPTIONAL
+      "addr": "example.com",
+      "port": 9299,                               //OPTIONAL
+      "socks5port": 1081,                         //OPTIONAL
+      "password": "blahblah",
+      "up": 20,
+      "down": 100,
+      "acl": "chn.txt",                           //OPTIONAL
+      "mtu": 1300,                                //OPTIONAL
+      "multiplier": 4,                            //OPTIONAL
+      "webpanel": true,                           //OPTIONAL
+      "paneladdr": "127.0.0.1",                   //OPTIONAL
+      "panelport": 8088,                          //OPTIONAL
+      "obfs": true                                //OPTIONAL
+    }
+
 ## About encryption
 
 All proxy traffic is encrypted with `AES-128-CFB8` using key derived from `PBKDF2WithHmacSHA1`. The Dragonite socket protocol itself is not encrypted by default, but if you want to avoid any potential DPI detection, the `--obfs` option can be used to enable the CRXObfuscator.
@@ -67,5 +113,3 @@ All proxy traffic is encrypted with `AES-128-CFB8` using key derived from `PBKDF
 Dragonite Proxy has a default MTU (maximum transmission unit, sets an upper bound on the size of UDP packets) of 1300. The receiver's buffer size is also based on the value of this option. If you need to modify this value, make sure that the clients and servers have the same MTU value.
 
 The window size multiplier option is like the "aggressiveness" of the sender. If Dragonite Proxy is not fully utilizing the bandwidth, try to increase this value step by step.
-
-

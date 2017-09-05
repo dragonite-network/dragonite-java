@@ -16,24 +16,25 @@ package com.vecsight.dragonite.proxy;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
 import com.vecsight.dragonite.proxy.acl.ACLFileParser;
 import com.vecsight.dragonite.proxy.config.ProxyClientConfig;
+import com.vecsight.dragonite.proxy.config.ProxyJSONConfigParser;
 import com.vecsight.dragonite.proxy.config.ProxyServerConfig;
-import com.vecsight.dragonite.proxy.exception.ACLException;
-import com.vecsight.dragonite.proxy.exception.EncryptionException;
-import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
-import com.vecsight.dragonite.proxy.exception.ServerRejectedException;
+import com.vecsight.dragonite.proxy.exception.*;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.proxy.network.client.ProxyClient;
 import com.vecsight.dragonite.proxy.network.server.ProxyServer;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.obfs.CRXObfuscator;
+import com.vecsight.dragonite.utils.network.FileUtils;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -168,6 +169,14 @@ public final class CLIMain {
                 .desc("Enable Web Panel of underlying Dragonite sockets (Bind to all interfaces)")
                 .build());
         options.addOption(Option
+                .builder("c")
+                .longOpt("config")
+                .desc("JSON config file")
+                .hasArg()
+                .argName("path")
+                .type(String.class)
+                .build());
+        options.addOption(Option
                 .builder("h")
                 .longOpt("help")
                 .desc("Help message")
@@ -246,123 +255,181 @@ public final class CLIMain {
             Logger.debug("Debug mode enabled");
         }
 
-        final boolean isServer = commandLine.hasOption("s");
+        final boolean useConfigFile = commandLine.hasOption("c");
+        final boolean isServer;
+        final ProxyJSONConfigParser configParser;
+        if (useConfigFile) {
+            try {
+                configParser = new ProxyJSONConfigParser(commandLine.getOptionValue("c"));
+                isServer = configParser.isServerConfig();
+            } catch (IOException | JSONConfigException e) {
+                Logger.error(e, "Failed to parse config");
+                return;
+            }
+        } else {
+            configParser = null;
+            isServer = commandLine.hasOption("s");
+        }
 
         if (isServer) {
-            if (commandLine.hasOption("k")) {
+
+            final ProxyServerConfig config;
+            if (useConfigFile) {
+                config = serverConfigFromConfigParser(configParser);
+            } else {
+                config = serverConfigFromCommandline(commandLine);
+            }
+
+            if (config != null) {
                 try {
-                    final InetSocketAddress bindAddress = new InetSocketAddress(commandLine.hasOption("a") ? InetAddress.getByName(commandLine.getOptionValue("a")) : null,
-                            commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ProxyGlobalConstants.DEFAULT_SERVER_PORT);
-                    final ProxyServerConfig config = new ProxyServerConfig(bindAddress, commandLine.getOptionValue("k"));
-
-                    if (commandLine.hasOption("m")) {
-                        config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
-                    }
-                    if (commandLine.hasOption("l")) {
-                        config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).intValue());
-                    }
-                    if (commandLine.hasOption("w")) {
-                        config.setWelcomeMessage(commandLine.getOptionValue("w"));
-                    }
-
-                    boolean openWebPanel = false;
-                    if (commandLine.hasOption("web-panel")) {
-                        config.setWebPanelEnabled(true);
-                        openWebPanel = true;
-                    }
-                    if (commandLine.hasOption("web-panel-public")) {
-                        config.setWebPanelEnabled(true);
-                        config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
-                        openWebPanel = true;
-                    }
-                    if (commandLine.hasOption("window-size-multiplier")) {
-                        config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
-                    }
-                    if (commandLine.hasOption("obfs")) {
-                        config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
-                    }
-                    if (commandLine.hasOption("allow-loopback")) {
-                        config.setAllowLoopback(true);
-                    }
-
                     final ProxyServer proxyServer = new ProxyServer(config);
-
-                    if (openWebPanel) {
-                        if (!openWebPanel()) {
-                            Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
-                        }
-                    }
-                } catch (ParseException | IllegalArgumentException e) {
-                    Logger.error(e, "Incorrect value");
-                } catch (SocketException | EncryptionException | UnknownHostException e) {
+                } catch (final SocketException | EncryptionException e) {
                     Logger.error(e, "Unable to initialize");
+                    return;
                 }
+
+                if (config.getWebPanelEnabled()) {
+                    if (!openWebPanel()) {
+                        Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
+                    }
+                }
+            }
+
+        } else {
+
+            final ProxyClientConfig config;
+            if (useConfigFile) {
+                config = clientConfigFromConfigParser(configParser);
+            } else {
+                config = clientConfigFromCommandline(commandLine);
+            }
+
+            if (config != null) {
+                try {
+                    final ProxyClient proxyClient = new ProxyClient(config);
+                } catch (final EncryptionException | IOException | InterruptedException | DragoniteException | ServerRejectedException | IncorrectHeaderException e) {
+                    Logger.error(e, "Unable to initialize");
+                    return;
+                }
+
+                if (config.getWebPanelEnabled()) {
+                    if (!openWebPanel()) {
+                        Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
+                    }
+                }
+            }
+
+        }
+    }
+
+    private static ProxyServerConfig serverConfigFromConfigParser(final ProxyJSONConfigParser configParser) {
+        try {
+            return configParser.getServerConfig();
+        } catch (final JSONConfigException e) {
+            Logger.error(e, "Failed to parse config");
+            return null;
+        }
+    }
+
+    private static ProxyClientConfig clientConfigFromConfigParser(final ProxyJSONConfigParser configParser) {
+        try {
+            return configParser.getClientConfig();
+        } catch (final JSONConfigException e) {
+            Logger.error(e, "Failed to parse config");
+            return null;
+        }
+    }
+
+    private static ProxyServerConfig serverConfigFromCommandline(final CommandLine commandLine) {
+        try {
+            if (commandLine.hasOption("k")) {
+                final InetSocketAddress bindAddress = new InetSocketAddress(commandLine.hasOption("a") ? InetAddress.getByName(commandLine.getOptionValue("a")) : null,
+                        commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ProxyGlobalConstants.DEFAULT_SERVER_PORT);
+                final ProxyServerConfig config = new ProxyServerConfig(bindAddress, commandLine.getOptionValue("k"));
+
+                if (commandLine.hasOption("m")) {
+                    config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
+                }
+                if (commandLine.hasOption("l")) {
+                    config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).intValue());
+                }
+                if (commandLine.hasOption("w")) {
+                    config.setWelcomeMessage(commandLine.getOptionValue("w"));
+                }
+
+                if (commandLine.hasOption("web-panel")) {
+                    config.setWebPanelEnabled(true);
+                }
+                if (commandLine.hasOption("web-panel-public")) {
+                    config.setWebPanelEnabled(true);
+                    config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
+                }
+                if (commandLine.hasOption("window-size-multiplier")) {
+                    config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+                }
+                if (commandLine.hasOption("obfs")) {
+                    config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
+                }
+                if (commandLine.hasOption("allow-loopback")) {
+                    config.setAllowLoopback(true);
+                }
+                return config;
             } else {
                 Logger.error("Missing required argument(s): -k");
             }
-        } else {
+        } catch (final ParseException | IllegalArgumentException e) {
+            Logger.error(e, "Incorrect value");
+        } catch (final UnknownHostException e) {
+            Logger.error(e, "Unknown host");
+        }
+        return null;
+    }
+
+    private static ProxyClientConfig clientConfigFromCommandline(final CommandLine commandLine) {
+        try {
             if (commandLine.hasOption("a") && commandLine.hasOption("d") && commandLine.hasOption("u") && commandLine.hasOption("k")) {
-                try {
-                    final ProxyClientConfig config = new ProxyClientConfig(new InetSocketAddress(commandLine.getOptionValue("a"),
-                            commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ProxyGlobalConstants.DEFAULT_SERVER_PORT),
-                            (commandLine.hasOption("x") ? ((Number) commandLine.getParsedOptionValue("x")).intValue() : ProxyGlobalConstants.SOCKS5_PORT),
-                            commandLine.getOptionValue("k"),
-                            ((Number) commandLine.getParsedOptionValue("d")).intValue(),
-                            ((Number) commandLine.getParsedOptionValue("u")).intValue()
-                    );
-                    if (commandLine.hasOption("m")) {
-                        config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
-                    }
-
-                    boolean openWebPanel = false;
-                    if (commandLine.hasOption("web-panel")) {
-                        config.setWebPanelEnabled(true);
-                        openWebPanel = true;
-                    }
-                    if (commandLine.hasOption("web-panel-public")) {
-                        config.setWebPanelEnabled(true);
-                        config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
-                        openWebPanel = true;
-                    }
-                    if (commandLine.hasOption("window-size-multiplier")) {
-                        config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
-                    }
-                    if (commandLine.hasOption("obfs")) {
-                        config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
-                    }
-
-                    if (commandLine.hasOption("r")) {
-                        final String path = commandLine.getOptionValue("r");
-                        final String loweredPath = path.toLowerCase();
-                        final Reader reader;
-                        try {
-                            if (loweredPath.startsWith("http://") || loweredPath.startsWith("https://")) {
-                                reader = new InputStreamReader(new URL(path).openStream());
-                            } else {
-                                reader = new FileReader(path);
-                            }
-                            config.setAcl(ACLFileParser.parse(reader));
-                        } catch (IOException | ACLException e) {
-                            Logger.error(e, "Failed to parse ACL file");
-                        }
-                    }
-
-                    final ProxyClient proxyClient = new ProxyClient(config);
-
-                    if (openWebPanel) {
-                        if (!openWebPanel()) {
-                            Logger.info("Unable to start the web browser on current platform, URL: {}", WEB_PANEL_URL);
-                        }
-                    }
-                } catch (ParseException | IllegalArgumentException e) {
-                    Logger.error(e, "Incorrect value");
-                } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException | EncryptionException e) {
-                    Logger.error(e, "Unable to initialize");
+                final ProxyClientConfig config = new ProxyClientConfig(new InetSocketAddress(InetAddress.getByName(commandLine.getOptionValue("a")),
+                        commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ProxyGlobalConstants.DEFAULT_SERVER_PORT),
+                        (commandLine.hasOption("x") ? ((Number) commandLine.getParsedOptionValue("x")).intValue() : ProxyGlobalConstants.SOCKS5_PORT),
+                        commandLine.getOptionValue("k"),
+                        ((Number) commandLine.getParsedOptionValue("d")).intValue(),
+                        ((Number) commandLine.getParsedOptionValue("u")).intValue()
+                );
+                if (commandLine.hasOption("m")) {
+                    config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
                 }
+
+                if (commandLine.hasOption("web-panel")) {
+                    config.setWebPanelEnabled(true);
+                }
+                if (commandLine.hasOption("web-panel-public")) {
+                    config.setWebPanelEnabled(true);
+                    config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
+                }
+                if (commandLine.hasOption("window-size-multiplier")) {
+                    config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+                }
+                if (commandLine.hasOption("obfs")) {
+                    config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
+                }
+
+                if (commandLine.hasOption("r")) {
+                    try {
+                        config.setAcl(ACLFileParser.parse(FileUtils.pathToReader(commandLine.getOptionValue("r"))));
+                    } catch (IOException | ACLException e) {
+                        Logger.error(e, "Failed to parse ACL file");
+                    }
+                }
+                return config;
             } else {
                 Logger.error("Missing required argument(s): -a / -k / -d / -u");
             }
+        } catch (final ParseException | IllegalArgumentException e) {
+            Logger.error(e, "Incorrect value");
+        } catch (final UnknownHostException e) {
+            Logger.error(e, "Unknown host");
         }
+        return null;
     }
 
 }

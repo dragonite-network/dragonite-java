@@ -89,3 +89,6 @@ Protocol Version 2: Full SOCKS5 UDP relay support
 
 ### 0.2.1
 Block loopback address by default, add --allow-loopback option
+
+### 0.2.2
+JSON configuration support

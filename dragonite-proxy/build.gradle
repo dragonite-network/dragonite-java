@@ -16,7 +16,7 @@ plugins {
 }
 
 group 'com.vecsight.dragonite'
-version '0.2.1'
+version '0.2.2'
 
 apply plugin: 'java'
 apply plugin: 'application'
@@ -37,6 +37,7 @@ dependencies {
     compile project(':dragonite-utils')
     compile group: 'org.tinylog', name: 'tinylog', version: '1.2'
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    compile 'com.eclipsesource.minimal-json:minimal-json:0.9.4'
 }
 
 buildConfig {
