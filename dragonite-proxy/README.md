@@ -71,7 +71,7 @@ Many fields are optional, just like the arguments above.
 
     {
       "server": true,
-      "addr": "example.com",
+      "addr": "example.com",                      //OPTIONAL
       "port": 9299,                               //OPTIONAL
       "password": "blahblah",
       "limit": 100,                               //OPTIONAL
