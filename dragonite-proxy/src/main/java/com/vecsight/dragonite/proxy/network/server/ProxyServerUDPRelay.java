@@ -13,18 +13,15 @@
 
 package com.vecsight.dragonite.proxy.network.server;
 
-import com.vecsight.dragonite.proxy.exception.EncryptionException;
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.header.AddressType;
 import com.vecsight.dragonite.proxy.header.udp.ProxyUDPRelayHeader;
-import com.vecsight.dragonite.proxy.misc.PacketCryptor;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.sdk.cryptor.PacketCryptor;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 public class ProxyServerUDPRelay {
@@ -47,14 +44,12 @@ public class ProxyServerUDPRelay {
 
     private final Thread relayThread;
 
-    private final SecureRandom random = new SecureRandom();
-
     public ProxyServerUDPRelay(final String clientName, final SocketAddress clientSocketAddress,
-                               final byte[] encryptionKey, final boolean allowLoopback) throws SocketException, EncryptionException {
+                               final PacketCryptor packetCryptor, final boolean allowLoopback) throws SocketException {
         this.clientName = clientName;
         this.clientAddress = ((InetSocketAddress) clientSocketAddress).getAddress();
         this.allowLoopback = allowLoopback;
-        this.packetCryptor = new PacketCryptor(encryptionKey);
+        this.packetCryptor = packetCryptor;
         this.datagramSocket = new DatagramSocket();
         this.relayThread = new Thread(() -> {
             while (running) {
@@ -75,11 +70,8 @@ public class ProxyServerUDPRelay {
     }
 
     private void handleClientPacket(final DatagramPacket packet) {
-        if (packet.getLength() < ProxyGlobalConstants.IV_LENGTH) return;
 
-        final byte[] iv = Arrays.copyOf(packet.getData(), ProxyGlobalConstants.IV_LENGTH);
-        final byte[] content = Arrays.copyOfRange(packet.getData(), ProxyGlobalConstants.IV_LENGTH, packet.getLength());
-        final byte[] decrypted = packetCryptor.decrypt(content, iv);
+        final byte[] decrypted = packetCryptor.decrypt(packet.getData());
 
         if (decrypted == null) return;
 
@@ -138,15 +130,7 @@ public class ProxyServerUDPRelay {
                 Arrays.copyOf(packet.getData(), packet.getLength()));
         final byte[] relayHeaderBytes = relayHeader.toBytes();
 
-        final ByteBuffer buffer = ByteBuffer.allocate(16 + relayHeaderBytes.length);
-
-        final byte[] iv = new byte[ProxyGlobalConstants.IV_LENGTH];
-        random.nextBytes(iv);
-
-        buffer.put(iv)
-                .put(packetCryptor.encrypt(relayHeaderBytes, iv));
-
-        final byte[] sendBytes = buffer.array();
+        final byte[] sendBytes = packetCryptor.encrypt(relayHeaderBytes);
 
         final DatagramPacket localPacket = new DatagramPacket(sendBytes, sendBytes.length,
                 new InetSocketAddress(clientAddress, clientPort));

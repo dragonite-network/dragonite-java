@@ -18,13 +18,16 @@ import com.vecsight.dragonite.proxy.acl.ACLFileParser;
 import com.vecsight.dragonite.proxy.config.ProxyClientConfig;
 import com.vecsight.dragonite.proxy.config.ProxyJSONConfigParser;
 import com.vecsight.dragonite.proxy.config.ProxyServerConfig;
-import com.vecsight.dragonite.proxy.exception.*;
+import com.vecsight.dragonite.proxy.exception.ACLException;
+import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
+import com.vecsight.dragonite.proxy.exception.JSONConfigException;
+import com.vecsight.dragonite.proxy.exception.ServerRejectedException;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.proxy.network.client.ProxyClient;
 import com.vecsight.dragonite.proxy.network.server.ProxyServer;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
+import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
-import com.vecsight.dragonite.sdk.obfs.CRXObfuscator;
 import com.vecsight.dragonite.utils.network.FileUtils;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
@@ -86,11 +89,6 @@ public final class CLIMain {
                 .hasArg()
                 .argName("xxx")
                 .type(String.class)
-                .build());
-        options.addOption(Option
-                .builder()
-                .longOpt("obfs")
-                .desc("Enable XBC Obfuscator of underlying Dragonite sockets for both client and server")
                 .build());
         options.addOption(Option
                 .builder()
@@ -283,7 +281,7 @@ public final class CLIMain {
             if (config != null) {
                 try {
                     final ProxyServer proxyServer = new ProxyServer(config);
-                } catch (final SocketException | EncryptionException e) {
+                } catch (final SocketException e) {
                     Logger.error(e, "Unable to initialize");
                     return;
                 }
@@ -307,7 +305,7 @@ public final class CLIMain {
             if (config != null) {
                 try {
                     final ProxyClient proxyClient = new ProxyClient(config);
-                } catch (final EncryptionException | IOException | InterruptedException | DragoniteException | ServerRejectedException | IncorrectHeaderException e) {
+                } catch (final IOException | InterruptedException | DragoniteException | ServerRejectedException | IncorrectHeaderException e) {
                     Logger.error(e, "Unable to initialize");
                     return;
                 }
@@ -367,9 +365,6 @@ public final class CLIMain {
                 if (commandLine.hasOption("window-size-multiplier")) {
                     config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                 }
-                if (commandLine.hasOption("obfs")) {
-                    config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
-                }
                 if (commandLine.hasOption("allow-loopback")) {
                     config.setAllowLoopback(true);
                 }
@@ -381,6 +376,8 @@ public final class CLIMain {
             Logger.error(e, "Incorrect value");
         } catch (final UnknownHostException e) {
             Logger.error(e, "Unknown host");
+        } catch (final EncryptionException e) {
+            Logger.error(e, "Encryption error");
         }
         return null;
     }
@@ -409,9 +406,6 @@ public final class CLIMain {
                 if (commandLine.hasOption("window-size-multiplier")) {
                     config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                 }
-                if (commandLine.hasOption("obfs")) {
-                    config.setObfuscator(new CRXObfuscator(commandLine.getOptionValue("k").getBytes(ProxyGlobalConstants.STRING_CHARSET)));
-                }
 
                 if (commandLine.hasOption("r")) {
                     try {
@@ -428,6 +422,8 @@ public final class CLIMain {
             Logger.error(e, "Incorrect value");
         } catch (final UnknownHostException e) {
             Logger.error(e, "Unknown host");
+        } catch (final EncryptionException e) {
+            Logger.error(e, "Encryption error");
         }
         return null;
     }

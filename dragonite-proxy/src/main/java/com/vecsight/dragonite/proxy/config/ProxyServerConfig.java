@@ -15,7 +15,8 @@ package com.vecsight.dragonite.proxy.config;
 
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.config.DragoniteSocketParameters;
-import com.vecsight.dragonite.sdk.obfs.Obfuscator;
+import com.vecsight.dragonite.sdk.cryptor.AESEncryptionCryptor;
+import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.utils.system.SystemInfo;
 
 import java.net.InetSocketAddress;
@@ -36,7 +37,7 @@ public class ProxyServerConfig {
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
-    public ProxyServerConfig(final InetSocketAddress bindAddress, final String password) {
+    public ProxyServerConfig(final InetSocketAddress bindAddress, final String password) throws EncryptionException {
         setBindAddress(bindAddress);
         setPassword(password);
     }
@@ -54,8 +55,9 @@ public class ProxyServerConfig {
         return password;
     }
 
-    public void setPassword(final String password) {
+    public void setPassword(final String password) throws EncryptionException {
         checkArgument(password != null && password.length() >= ProxyGlobalConstants.PASSWORD_MIN_LENGTH, "Invalid password");
+        dragoniteSocketParameters.setPacketCryptor(new AESEncryptionCryptor(password));
         this.password = password;
     }
 
@@ -121,11 +123,4 @@ public class ProxyServerConfig {
         return dragoniteSocketParameters;
     }
 
-    public void setObfuscator(final Obfuscator obfuscator) {
-        dragoniteSocketParameters.setObfuscator(obfuscator);
-    }
-
-    public Obfuscator getObfuscator() {
-        return dragoniteSocketParameters.getObfuscator();
-    }
 }

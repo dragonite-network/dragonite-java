@@ -19,6 +19,7 @@ import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.header.ClientInfoHeader;
 import com.vecsight.dragonite.proxy.header.ServerResponseHeader;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.sdk.cryptor.PacketCryptor;
 import com.vecsight.dragonite.sdk.exception.ConnectionNotAliveException;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.IncorrectSizeException;
@@ -31,8 +32,6 @@ import java.io.IOException;
 
 public class ProxyClientHandler {
 
-    private final byte[] encryptionKey;
-
     private final DragoniteSocket dragoniteSocket;
 
     private final int limitMbps;
@@ -41,13 +40,15 @@ public class ProxyClientHandler {
 
     private final boolean allowLoopback;
 
-    public ProxyClientHandler(final byte[] encryptionKey, final DragoniteSocket dragoniteSocket, final int limitMbps,
-                              final String welcomeMessage, final boolean allowLoopback) {
-        this.encryptionKey = encryptionKey;
+    private final PacketCryptor packetCryptor;
+
+    public ProxyClientHandler(final DragoniteSocket dragoniteSocket, final int limitMbps, final String welcomeMessage,
+                              final boolean allowLoopback, final PacketCryptor packetCryptor) {
         this.dragoniteSocket = dragoniteSocket;
         this.limitMbps = limitMbps;
         this.welcomeMessage = welcomeMessage;
         this.allowLoopback = allowLoopback;
+        this.packetCryptor = packetCryptor;
     }
 
     public void run() {
@@ -113,7 +114,7 @@ public class ProxyClientHandler {
             }, ProxyGlobalConstants.MAX_FRAME_SIZE);
 
             final ProxyMuxHandler muxHandler = new ProxyMuxHandler(multiplexer, infoHeader.getName(),
-                    dragoniteSocket.getRemoteSocketAddress(), encryptionKey, allowLoopback);
+                    dragoniteSocket.getRemoteSocketAddress(), allowLoopback, packetCryptor);
 
             final Thread multiplexerAcceptThread = new Thread(() -> {
                 try {

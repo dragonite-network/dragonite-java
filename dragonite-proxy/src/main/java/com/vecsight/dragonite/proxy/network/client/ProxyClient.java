@@ -20,13 +20,11 @@ import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
 import com.vecsight.dragonite.proxy.acl.ACLItemMethod;
 import com.vecsight.dragonite.proxy.acl.ParsedACL;
 import com.vecsight.dragonite.proxy.config.ProxyClientConfig;
-import com.vecsight.dragonite.proxy.exception.EncryptionException;
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.exception.SOCKS5Exception;
 import com.vecsight.dragonite.proxy.exception.ServerRejectedException;
 import com.vecsight.dragonite.proxy.header.ClientInfoHeader;
 import com.vecsight.dragonite.proxy.header.ServerResponseHeader;
-import com.vecsight.dragonite.proxy.misc.EncryptionKeyGenerator;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.proxy.network.StreamPipe;
 import com.vecsight.dragonite.proxy.network.socks5.SOCKS5Header;
@@ -50,10 +48,6 @@ public class ProxyClient {
 
     private final int socks5port;
 
-    private final String password;
-
-    private final byte[] encryptionKey;
-
     private final int downMbps, upMbps;
 
     private final DragoniteSocketParameters dragoniteSocketParameters;
@@ -76,10 +70,9 @@ public class ProxyClient {
 
     private final ParsedACL acl;
 
-    public ProxyClient(final ProxyClientConfig config) throws EncryptionException, IOException, InterruptedException, DragoniteException, ServerRejectedException, IncorrectHeaderException {
+    public ProxyClient(final ProxyClientConfig config) throws IOException, InterruptedException, DragoniteException, ServerRejectedException, IncorrectHeaderException {
         this.remoteAddress = config.getRemoteAddress();
         this.socks5port = config.getSocks5port();
-        this.password = config.getPassword();
         this.downMbps = config.getDownMbps();
         this.upMbps = config.getUpMbps();
         this.acl = config.getAcl();
@@ -88,8 +81,6 @@ public class ProxyClient {
         if (acl != null) {
             Logger.info("ACL loaded: {} by {}", acl.getTitle(), acl.getAuthor());
         }
-
-        this.encryptionKey = EncryptionKeyGenerator.getKey(password);
 
         serverSocket = new ServerSocket(socks5port);
 
@@ -244,7 +235,7 @@ public class ProxyClient {
             }
 
             final ProxyConnectionHandler handler = new ProxyConnectionHandler(socks5Header, multiplexedConnection,
-                    remoteAddress.getAddress(), socket, encryptionKey, acl);
+                    remoteAddress.getAddress(), socket, acl, dragoniteSocketParameters.getPacketCryptor());
 
             handler.run();
 

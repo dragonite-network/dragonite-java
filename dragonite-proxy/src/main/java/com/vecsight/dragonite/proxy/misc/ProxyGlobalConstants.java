@@ -46,20 +46,6 @@ public final class ProxyGlobalConstants {
 
     public static final int PASSWORD_MIN_LENGTH = 4;
 
-    public static final String PASSWORD_HASH_ALGORITHM = "PBKDF2WithHmacSHA1";
-
-    public static final byte[] PASSWORD_HASH_SALT = "*1w@UTcZLS@6fS713x80".getBytes(STRING_CHARSET);
-
-    public static final int PASSWORD_HASH_ITERATION_COUNT = 12450;
-
-    public static final int PASSWORD_HASH_LENGTH_BITS = 128;
-
-    public static final int IV_LENGTH = 16;
-
-    public static final String ENCRYPTION_ALGORITHM = "AES";
-
-    public static final String ENCRYPTION_ALGORITHM_WITH_MODE = "AES/CFB8/NoPadding";
-
     //Proxy connection shits
 
     public static final int SOCKS5_PORT = 1080;

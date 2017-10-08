@@ -13,8 +13,8 @@
 
 package com.vecsight.dragonite.sdk.config;
 
+import com.vecsight.dragonite.sdk.cryptor.PacketCryptor;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
-import com.vecsight.dragonite.sdk.obfs.Obfuscator;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -41,7 +41,7 @@ public class DragoniteSocketParameters {
 
     private InetSocketAddress webPanelBindAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), DragoniteGlobalConstants.WEB_PANEL_PORT);
 
-    private Obfuscator obfuscator = null;
+    private PacketCryptor packetCryptor = null;
 
     public int getPacketSize() {
         return packetSize;
@@ -122,11 +122,11 @@ public class DragoniteSocketParameters {
         this.webPanelBindAddress = webPanelBindAddress;
     }
 
-    public Obfuscator getObfuscator() {
-        return obfuscator;
+    public PacketCryptor getPacketCryptor() {
+        return packetCryptor;
     }
 
-    public void setObfuscator(final Obfuscator obfuscator) {
-        this.obfuscator = obfuscator;
+    public void setPacketCryptor(final PacketCryptor packetCryptor) {
+        this.packetCryptor = packetCryptor;
     }
 }

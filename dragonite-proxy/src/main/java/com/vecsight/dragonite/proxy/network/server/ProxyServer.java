@@ -14,9 +14,8 @@
 package com.vecsight.dragonite.proxy.network.server;
 
 import com.vecsight.dragonite.proxy.config.ProxyServerConfig;
-import com.vecsight.dragonite.proxy.exception.EncryptionException;
-import com.vecsight.dragonite.proxy.misc.EncryptionKeyGenerator;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.sdk.cryptor.PacketCryptor;
 import com.vecsight.dragonite.sdk.socket.DragoniteServer;
 import com.vecsight.dragonite.sdk.socket.DragoniteSocket;
 import org.pmw.tinylog.Logger;
@@ -28,15 +27,13 @@ public class ProxyServer {
 
     private final InetSocketAddress bindAddress;
 
-    private final String password;
-
-    private final byte[] encryptionKey;
-
     private final int limitMbps;
 
     private final String welcomeMessage;
 
     private final boolean allowLoopback;
+
+    private final PacketCryptor packetCryptor;
 
     private final DragoniteServer dragoniteServer;
 
@@ -44,14 +41,12 @@ public class ProxyServer {
 
     private final Thread acceptThread;
 
-    public ProxyServer(final ProxyServerConfig config) throws SocketException, EncryptionException {
+    public ProxyServer(final ProxyServerConfig config) throws SocketException {
         this.bindAddress = config.getBindAddress();
-        this.password = config.getPassword();
         this.limitMbps = config.getMbpsLimit();
         this.welcomeMessage = config.getWelcomeMessage();
         this.allowLoopback = config.isAllowLoopback();
-
-        this.encryptionKey = EncryptionKeyGenerator.getKey(password);
+        this.packetCryptor = config.getDragoniteSocketParameters().getPacketCryptor();
 
         this.dragoniteServer = new DragoniteServer(bindAddress.getAddress(), bindAddress.getPort(),
                 ProxyGlobalConstants.INIT_SEND_SPEED, config.getDragoniteSocketParameters());
@@ -71,7 +66,8 @@ public class ProxyServer {
     }
 
     private void handleClient(final DragoniteSocket socket) {
-        final ProxyClientHandler clientHandler = new ProxyClientHandler(encryptionKey, socket, limitMbps, welcomeMessage, allowLoopback);
+        final ProxyClientHandler clientHandler = new ProxyClientHandler(socket, limitMbps, welcomeMessage,
+                allowLoopback, packetCryptor);
         final Thread handlerThread = new Thread(clientHandler::run, "PS-Handler");
         handlerThread.start();
     }

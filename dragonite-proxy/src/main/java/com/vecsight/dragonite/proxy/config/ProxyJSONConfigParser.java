@@ -21,8 +21,8 @@ import com.vecsight.dragonite.proxy.acl.ParsedACL;
 import com.vecsight.dragonite.proxy.exception.ACLException;
 import com.vecsight.dragonite.proxy.exception.JSONConfigException;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
+import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
-import com.vecsight.dragonite.sdk.obfs.CRXObfuscator;
 import com.vecsight.dragonite.utils.network.FileUtils;
 
 import java.io.IOException;
@@ -91,15 +91,10 @@ public class ProxyJSONConfigParser {
                 }
             }
 
-            final boolean obfs = jsonObject.getBoolean("obfs", false);
-            if (obfs) {
-                config.setObfuscator(new CRXObfuscator(password.getBytes(ProxyGlobalConstants.STRING_CHARSET)));
-            }
-
             return config;
 
-        } catch (final IllegalArgumentException | UnknownHostException e) {
-            throw new JSONConfigException("Illegal argument from JSON: " + e.getMessage());
+        } catch (final IllegalArgumentException | UnknownHostException | EncryptionException e) {
+            throw new JSONConfigException("Failed to create configuration: " + e.getMessage());
         }
     }
 
@@ -148,15 +143,10 @@ public class ProxyJSONConfigParser {
                 }
             }
 
-            final boolean obfs = jsonObject.getBoolean("obfs", false);
-            if (obfs) {
-                config.setObfuscator(new CRXObfuscator(password.getBytes(ProxyGlobalConstants.STRING_CHARSET)));
-            }
-
             return config;
 
-        } catch (final IllegalArgumentException | UnknownHostException e) {
-            throw new JSONConfigException("Illegal argument from JSON: " + e.getMessage());
+        } catch (final IllegalArgumentException | UnknownHostException | EncryptionException e) {
+            throw new JSONConfigException("Failed to create configuration: " + e.getMessage());
         }
     }
 

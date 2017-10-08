@@ -11,13 +11,13 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.sdk.obfs;
+package com.vecsight.dragonite.sdk.cryptor;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-public class CRXObfuscator implements Obfuscator {
+public class SimpleXORCryptor implements PacketCryptor {
 
     private static final int BASE_RANDOM_BYTES_LENGTH = 20;
 
@@ -27,12 +27,12 @@ public class CRXObfuscator implements Obfuscator {
 
     private final byte[] psk;
 
-    public CRXObfuscator(final byte[] psk) {
+    public SimpleXORCryptor(final byte[] psk) {
         this.psk = psk;
     }
 
     @Override
-    public byte[] obfuscate(final byte[] rawData) {
+    public byte[] encrypt(final byte[] rawData) {
         final byte lengthByte = (byte) random.nextInt();
         final int realLength = BASE_RANDOM_BYTES_LENGTH + Math.abs(lengthByte) % VAR_RANDOM_BYTES_LENGTH;
         final byte[] key = new byte[realLength];
@@ -45,8 +45,8 @@ public class CRXObfuscator implements Obfuscator {
     }
 
     @Override
-    public byte[] deobfuscate(final byte[] obfsData) {
-        final ByteBuffer buffer = ByteBuffer.wrap(obfsData);
+    public byte[] decrypt(final byte[] encryptedData) {
+        final ByteBuffer buffer = ByteBuffer.wrap(encryptedData);
         try {
             final byte lengthByte = buffer.get();
             final int realLength = BASE_RANDOM_BYTES_LENGTH + Math.abs(lengthByte) % VAR_RANDOM_BYTES_LENGTH;

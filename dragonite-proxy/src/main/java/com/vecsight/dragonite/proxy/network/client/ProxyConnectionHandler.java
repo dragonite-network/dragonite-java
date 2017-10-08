@@ -15,17 +15,16 @@ package com.vecsight.dragonite.proxy.network.client;
 
 import com.vecsight.dragonite.mux.conn.MultiplexedConnection;
 import com.vecsight.dragonite.proxy.acl.ParsedACL;
-import com.vecsight.dragonite.proxy.exception.EncryptionException;
 import com.vecsight.dragonite.proxy.exception.IncorrectHeaderException;
 import com.vecsight.dragonite.proxy.header.AddressType;
 import com.vecsight.dragonite.proxy.header.mux.ConnectionStatus;
 import com.vecsight.dragonite.proxy.header.mux.MuxConnectionRequestHeader;
 import com.vecsight.dragonite.proxy.header.mux.MuxConnectionResponseHeader;
 import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
-import com.vecsight.dragonite.proxy.misc.StreamCryptor;
-import com.vecsight.dragonite.proxy.network.CryptorPipe;
+import com.vecsight.dragonite.proxy.network.MuxPipe;
 import com.vecsight.dragonite.proxy.network.socks5.SOCKS5Header;
 import com.vecsight.dragonite.proxy.network.socks5.SOCKS5SocketHelper;
+import com.vecsight.dragonite.sdk.cryptor.PacketCryptor;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.security.SecureRandom;
 
 public class ProxyConnectionHandler {
 
@@ -45,19 +43,19 @@ public class ProxyConnectionHandler {
 
     private final Socket socket;
 
-    private final byte[] encryptionKey;
-
     private final ParsedACL acl;
 
+    private final PacketCryptor packetCryptor;
+
     public ProxyConnectionHandler(final SOCKS5Header socks5Header, final MultiplexedConnection multiplexedConnection,
-                                  final InetAddress serverAddress, final Socket socket, final byte[] encryptionKey,
-                                  final ParsedACL acl) {
+                                  final InetAddress serverAddress, final Socket socket, final ParsedACL acl,
+                                  final PacketCryptor packetCryptor) {
         this.socks5Header = socks5Header;
         this.multiplexedConnection = multiplexedConnection;
         this.serverAddress = serverAddress;
         this.socket = socket;
-        this.encryptionKey = encryptionKey;
         this.acl = acl;
+        this.packetCryptor = packetCryptor;
     }
 
     public void run() {
@@ -71,19 +69,11 @@ public class ProxyConnectionHandler {
             type = AddressType.IPv6;
         }
 
-        final StreamCryptor streamCryptor;
-
         try {
-            //Send IV & encrypted request header
-            final byte[] ivBytes = new byte[ProxyGlobalConstants.IV_LENGTH];
-            new SecureRandom().nextBytes(ivBytes);
-            multiplexedConnection.send(ivBytes);
-
-            streamCryptor = new StreamCryptor(encryptionKey, ivBytes);
-
+            //Send request header
             final byte[] headerRaw = new MuxConnectionRequestHeader(type, socks5Header.getAddr(), socks5Header.getPort(),
                     socks5Header.isUdp()).toBytes();
-            multiplexedConnection.send(streamCryptor.encrypt(headerRaw));
+            multiplexedConnection.send(headerRaw);
 
         } catch (final com.vecsight.dragonite.mux.exception.SenderClosedException | InterruptedException e) {
             Logger.error(e, "Cannot send request header");
@@ -93,20 +83,12 @@ public class ProxyConnectionHandler {
             }
             multiplexedConnection.close();
             return;
-        } catch (final EncryptionException e) {
-            Logger.error(e, "Cryptor initialization failed");
-            try {
-                socket.close();
-            } catch (final IOException ignored) {
-            }
-            multiplexedConnection.close();
-            return;
         }
 
-        //Read encrypted response
-        final byte[] encryptedResponseBytes;
+        //Read response
+        final byte[] responseBytes;
         try {
-            encryptedResponseBytes = multiplexedConnection.read();
+            responseBytes = multiplexedConnection.read();
         } catch (com.vecsight.dragonite.mux.exception.ConnectionNotAliveException | InterruptedException e) {
             Logger.error(e, "Unable to read response header");
             try {
@@ -119,7 +101,7 @@ public class ProxyConnectionHandler {
 
         final MuxConnectionResponseHeader responseHeader;
         try {
-            responseHeader = new MuxConnectionResponseHeader(streamCryptor.decrypt(encryptedResponseBytes));
+            responseHeader = new MuxConnectionResponseHeader(responseBytes);
         } catch (final IncorrectHeaderException e) {
             Logger.error(e, "Incorrect response header from server");
             try {
@@ -139,8 +121,8 @@ public class ProxyConnectionHandler {
                 if (socks5Header.isUdp()) {
                     try {
                         clientUDPRelay = new ProxyClientUDPRelay(socket.getRemoteSocketAddress(),
-                                new InetSocketAddress(serverAddress, responseHeader.getUdpPort()), encryptionKey, acl);
-                    } catch (final SocketException | EncryptionException e) {
+                                new InetSocketAddress(serverAddress, responseHeader.getUdpPort()), packetCryptor, acl);
+                    } catch (final SocketException e) {
                         Logger.error(e, "Failed to initialize local UDP relay");
                         SOCKS5SocketHelper.sendFailed(socket);
                         try {
@@ -206,14 +188,14 @@ public class ProxyConnectionHandler {
                 }
             }
         } else {
-            startPipe(multiplexedConnection, socket, streamCryptor);
+            startPipe(multiplexedConnection, socket);
         }
 
     }
 
-    private void startPipe(final MultiplexedConnection multiplexedConnection, final Socket socket, final StreamCryptor streamCryptor) {
+    private void startPipe(final MultiplexedConnection multiplexedConnection, final Socket socket) {
         final Thread pipeFromRemoteThread = new Thread(() -> {
-            final CryptorPipe pipeFromRemotePipe = new CryptorPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE, streamCryptor);
+            final MuxPipe pipeFromRemotePipe = new MuxPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE);
             try {
                 pipeFromRemotePipe.pipe(multiplexedConnection, socket.getOutputStream());
             } catch (final Exception e) {
@@ -229,7 +211,7 @@ public class ProxyConnectionHandler {
         pipeFromRemoteThread.start();
 
         final Thread pipeFromLocalThread = new Thread(() -> {
-            final CryptorPipe pipeFromLocalPipe = new CryptorPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE, streamCryptor);
+            final MuxPipe pipeFromLocalPipe = new MuxPipe(ProxyGlobalConstants.PIPE_BUFFER_SIZE);
             try {
                 pipeFromLocalPipe.pipe(socket.getInputStream(), multiplexedConnection);
             } catch (final Exception e) {

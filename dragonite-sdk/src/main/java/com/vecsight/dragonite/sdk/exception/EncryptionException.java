@@ -11,14 +11,12 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.sdk.obfs;
+package com.vecsight.dragonite.sdk.exception;
 
-public interface Obfuscator {
+public class EncryptionException extends Exception {
 
-    byte[] obfuscate(final byte[] rawData);
-
-    byte[] deobfuscate(final byte[] obfsData);
-
-    int getReceiveBufferOverhead();
+    public EncryptionException(final String msg) {
+        super(msg);
+    }
 
 }

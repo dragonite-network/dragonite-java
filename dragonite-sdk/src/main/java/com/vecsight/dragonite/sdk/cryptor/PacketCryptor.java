@@ -11,12 +11,14 @@
  * Written by Toby Huang <t@vecsight.com>, June 2017
  */
 
-package com.vecsight.dragonite.proxy.exception;
+package com.vecsight.dragonite.sdk.cryptor;
 
-public class EncryptionException extends Exception {
+public interface PacketCryptor {
 
-    public EncryptionException(final String msg) {
-        super(msg);
-    }
+    byte[] encrypt(final byte[] rawData);
+
+    byte[] decrypt(final byte[] encryptedData);
+
+    int getReceiveBufferOverhead();
 
 }
