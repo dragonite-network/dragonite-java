@@ -69,27 +69,29 @@ public class AESEncryptionCryptor implements PacketCryptor {
         }
     }
 
-    private synchronized byte[] decryptImpl(final byte[] bytes) {
+    private byte[] decryptImpl(final byte[] bytes) {
         final ByteBuffer buffer = ByteBuffer.wrap(bytes);
         try {
 
             final byte[] iv = new byte[IV_LENGTH];
             buffer.get(iv);
 
-            final IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-            decryptionCipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
-
             final byte[] content = new byte[buffer.remaining()];
             buffer.get(content);
 
-            return decryptionCipher.update(content);
+            final IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+            synchronized (decryptionCipher) {
+                decryptionCipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
+                return decryptionCipher.update(content);
+            }
 
         } catch (final BufferUnderflowException | InvalidAlgorithmParameterException | InvalidKeyException e) {
             return null;
         }
     }
 
-    private synchronized byte[] encryptImpl(final byte[] bytes) {
+    private byte[] encryptImpl(final byte[] bytes) {
         final ByteBuffer buffer = ByteBuffer.allocate(IV_LENGTH + bytes.length);
         try {
 
@@ -98,9 +100,11 @@ public class AESEncryptionCryptor implements PacketCryptor {
             buffer.put(iv);
 
             final IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-            encryptionCipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec);
 
-            buffer.put(encryptionCipher.update(bytes));
+            synchronized (encryptionCipher) {
+                encryptionCipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec);
+                buffer.put(encryptionCipher.update(bytes));
+            }
 
             return buffer.array();
 
