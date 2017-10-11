@@ -151,7 +151,7 @@ public class ProxyClientUDPRelay {
             return;
         }
 
-        final byte[] decrypted = packetCryptor.decrypt(packet.getData());
+        final byte[] decrypted = packetCryptor.decrypt(Arrays.copyOf(packet.getData(), packet.getLength()));
 
         if (decrypted == null) return;
 

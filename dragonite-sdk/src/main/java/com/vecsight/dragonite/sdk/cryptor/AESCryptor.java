@@ -31,7 +31,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
-public class AESEncryptionCryptor implements PacketCryptor {
+public class AESCryptor implements PacketCryptor {
 
     private static final int IV_LENGTH = 16;
 
@@ -55,11 +55,11 @@ public class AESEncryptionCryptor implements PacketCryptor {
 
     private final SecureRandom random = new SecureRandom();
 
-    public AESEncryptionCryptor(final String password) throws EncryptionException {
+    public AESCryptor(final String password) throws EncryptionException {
         this(getKey(password));
     }
 
-    public AESEncryptionCryptor(final byte[] encryptionKey) throws EncryptionException {
+    public AESCryptor(final byte[] encryptionKey) throws EncryptionException {
         this.keySpec = new SecretKeySpec(encryptionKey, ENCRYPTION_ALGORITHM);
         try {
             decryptionCipher = Cipher.getInstance(ENCRYPTION_ALGORITHM_WITH_MODE);
