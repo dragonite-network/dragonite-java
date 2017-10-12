@@ -15,9 +15,7 @@ package com.vecsight.dragonite.sdk.cryptor;
 
 import com.vecsight.dragonite.sdk.exception.EncryptionException;
 
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKeyFactory;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -35,9 +33,11 @@ public class AESCryptor implements PacketCryptor {
 
     private static final int IV_LENGTH = 16;
 
+    private static final int PADDING_LENGTH = 16;
+
     private static final String ENCRYPTION_ALGORITHM = "AES";
 
-    private static final String ENCRYPTION_ALGORITHM_WITH_MODE = "AES/CFB8/NoPadding";
+    private static final String ENCRYPTION_ALGORITHM_WITH_MODE = "AES/CBC/PKCS5Padding";
 
     private static final String PASSWORD_HASH_ALGORITHM = "PBKDF2WithHmacSHA1";
 
@@ -83,32 +83,39 @@ public class AESCryptor implements PacketCryptor {
 
             synchronized (decryptionCipher) {
                 decryptionCipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec);
-                return decryptionCipher.update(content);
+                return decryptionCipher.doFinal(content);
             }
 
-        } catch (final BufferUnderflowException | InvalidAlgorithmParameterException | InvalidKeyException e) {
+        } catch (final BufferUnderflowException | InvalidAlgorithmParameterException | InvalidKeyException |
+                IllegalBlockSizeException | BadPaddingException e) {
             return null;
         }
     }
 
     private byte[] encryptImpl(final byte[] bytes) {
-        final ByteBuffer buffer = ByteBuffer.allocate(IV_LENGTH + bytes.length);
         try {
 
             final byte[] iv = new byte[IV_LENGTH];
             random.nextBytes(iv);
-            buffer.put(iv);
 
             final IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
 
+            final byte[] result;
+
             synchronized (encryptionCipher) {
                 encryptionCipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec);
-                buffer.put(encryptionCipher.update(bytes));
+                result = encryptionCipher.doFinal(bytes);
             }
+
+            final ByteBuffer buffer = ByteBuffer.allocate(iv.length + result.length);
+
+            buffer.put(iv);
+            buffer.put(result);
 
             return buffer.array();
 
-        } catch (final BufferUnderflowException | InvalidAlgorithmParameterException | InvalidKeyException e) {
+        } catch (final BufferUnderflowException | InvalidAlgorithmParameterException | InvalidKeyException |
+                IllegalBlockSizeException | BadPaddingException e) {
             return null;
         }
     }
@@ -125,7 +132,7 @@ public class AESCryptor implements PacketCryptor {
 
     @Override
     public int getReceiveBufferOverhead() {
-        return IV_LENGTH;
+        return IV_LENGTH + PADDING_LENGTH;
     }
 
     private static SecretKeyFactory getFactory() throws NoSuchAlgorithmException {
