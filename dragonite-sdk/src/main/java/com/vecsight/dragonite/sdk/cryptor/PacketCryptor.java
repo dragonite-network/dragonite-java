@@ -39,6 +39,6 @@ public interface PacketCryptor {
      *
      * @return Length of additional bytes
      */
-    int getReceiveBufferOverhead();
+    int getMaxAdditionalBytesLength();
 
 }

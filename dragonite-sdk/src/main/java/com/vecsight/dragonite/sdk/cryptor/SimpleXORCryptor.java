@@ -61,7 +61,7 @@ public class SimpleXORCryptor implements PacketCryptor {
     }
 
     @Override
-    public int getReceiveBufferOverhead() {
+    public int getMaxAdditionalBytesLength() {
         return BASE_RANDOM_BYTES_LENGTH + VAR_RANDOM_BYTES_LENGTH;
     }
 

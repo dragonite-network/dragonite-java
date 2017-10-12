@@ -97,7 +97,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
         enableWebPanel = parameters.isEnableWebPanel();
         devConsoleBindAddress = parameters.getWebPanelBindAddress();
         packetCryptor = parameters.getPacketCryptor();
-        cryptorOverhead = packetCryptor != null ? packetCryptor.getReceiveBufferOverhead() : 0;
+        cryptorOverhead = packetCryptor != null ? packetCryptor.getMaxAdditionalBytesLength() : 0;
         //end
 
         if (maxPacketBufferSize == 0) {

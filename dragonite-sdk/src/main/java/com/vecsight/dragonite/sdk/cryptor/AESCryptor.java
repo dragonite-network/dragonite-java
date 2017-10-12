@@ -131,7 +131,7 @@ public class AESCryptor implements PacketCryptor {
     }
 
     @Override
-    public int getReceiveBufferOverhead() {
+    public int getMaxAdditionalBytesLength() {
         return IV_LENGTH + PADDING_LENGTH;
     }
 
