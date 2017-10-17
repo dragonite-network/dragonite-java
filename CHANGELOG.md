@@ -30,6 +30,9 @@ Obfuscator interface for customized packet obfuscation
 ### 0.3.2
 Add CRXObfuscator
 
+### 0.3.3
+Obfuscators are now Cryptors, shipped with a new AESCryptor
+
 ## dragonite-mux
 
 ### 0.1.0
@@ -92,3 +95,8 @@ Block loopback address by default, add --allow-loopback option
 
 ### 0.2.2
 JSON configuration support
+
+### 0.3.0
+Adapt to the new protocol layer encryption, remove obsolete encryption system.
+
+Fix a buffer length bug in UDP relay

@@ -20,9 +20,6 @@ Advanced SOCKS5 proxy featuring encryption, traffic obfuscation and a powerful A
      -l,--limit-mbps <mbps>                     Max Mbps per client for server
      -m,--mtu <size>                            MTU of underlying Dragonite
                                                 sockets
-        --obfs                                  Enable XBC Obfuscator of
-                                                underlying Dragonite sockets
-                                                for both client and server
      -p,--port <port>                           Remote server port for client
                                                 / Bind port for server
      -r,--acl <path>                            ACL file for client
@@ -45,15 +42,15 @@ Advanced SOCKS5 proxy featuring encryption, traffic obfuscation and a powerful A
 
 Assume that we have a server **example.com**, we could use command
 
-    ./dragonite-proxy -s -k uMadBro -p 27000 -l 100 --obfs
+    ./dragonite-proxy -s -k uMadBro -p 27000 -l 100
 
-to have it listening on UDP port 27000, limiting the maximum speed of each client to 100 Mbps, using encryption key `uMadBro`, with traffic obfuscation turned on.
+to have it listening on UDP port 27000, limiting the maximum speed of each client to 100 Mbps, using encryption key `uMadBro`.
 
 For clients,
 
-    ./dragonite-proxy -a example.com -p 27000 -k uMadBro -d 100 -u 20 --obfs -r acl.txt
+    ./dragonite-proxy -a example.com -p 27000 -k uMadBro -d 100 -u 20 -r acl.txt
 
-will connect to **example.com:27000**, telling the server our maximum download speed is 100 Mbps, upload speed is 20 Mbps, using encryption key `uMadBro`, with traffic obfuscation turned on, and using `acl.txt` as the access control rules.
+will connect to **example.com:27000**, telling the server our maximum download speed is 100 Mbps, upload speed is 20 Mbps, using encryption key `uMadBro`, and `acl.txt` as the access control rules.
 
 [How to write an ACL file](ACL.md)
 
@@ -81,8 +78,7 @@ Many fields are optional, just like the arguments above.
       "multiplier": 4,                            //OPTIONAL
       "webpanel": true,                           //OPTIONAL
       "paneladdr": "127.0.0.1",                   //OPTIONAL
-      "panelport": 8088,                          //OPTIONAL
-      "obfs": true                                //OPTIONAL
+      "panelport": 8088                           //OPTIONAL
     }
 
 ### Client JSON configuration
@@ -100,13 +96,12 @@ Many fields are optional, just like the arguments above.
       "multiplier": 4,                            //OPTIONAL
       "webpanel": true,                           //OPTIONAL
       "paneladdr": "127.0.0.1",                   //OPTIONAL
-      "panelport": 8088,                          //OPTIONAL
-      "obfs": true                                //OPTIONAL
+      "panelport": 8088                           //OPTIONAL
     }
 
 ## About encryption
 
-All proxy traffic is encrypted with `AES-128-CFB8` using key derived from `PBKDF2WithHmacSHA1`. The Dragonite socket protocol itself is not encrypted by default, but if you want to avoid any potential DPI detection, the `--obfs` option can be used to enable the CRXObfuscator.
+All proxy traffic is encrypted with `AES-128-CBC` using key derived from `PBKDF2WithHmacSHA1`. The underlying Dragonite socket protocol itself is also encrypted, wrong passwords will generate invalid packets that can't be decrypted. Invalid packets will be silently discarded, with no error info other than "connection failed".
 
 ## Precautions
 
