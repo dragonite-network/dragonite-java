@@ -1,8 +1,12 @@
 # ![dragonite-java](assets/TextLogo.png)
 
-    MAKE INTERNET GREAT AGAIN
+    INTERNET UNLEASHED.
 
 ![powered by dragonite](https://img.shields.io/badge/powered%20by-dragonite-yellow.svg)
+
+![https://t.me/DragoniteProject](https://img.shields.io/badge/Telegram%20Group-https%3A%2F%2Ft.me%2FDragoniteProject-blue.svg)
+
+中文用户可加入 [Telegram 群组](https://t.me/DragoniteProject)
 
 Dragonite is a reliable application level data transport protocol based on UDP.
 
