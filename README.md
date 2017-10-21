@@ -4,15 +4,15 @@
 
 ![powered by dragonite](https://img.shields.io/badge/powered%20by-dragonite-yellow.svg)
 
-[![https://t.me/DragoniteProject](https://img.shields.io/badge/Telegram%20Group-https%3A%2F%2Ft.me%2FDragoniteProject-blue.svg)](https://t.me/DragoniteProject)
+[![https://t.me/DragoniteProject](https://img.shields.io/badge/Telegram%20Group%20CN-https%3A%2F%2Ft.me%2FDragoniteProject-blue.svg)](https://t.me/DragoniteProject)
 
-中文用户可加入 [Telegram 群组](https://t.me/DragoniteProject)
+中文用户请加入 [Telegram 群组](https://t.me/DragoniteProject)
 
 Dragonite is a reliable application level data transport protocol based on UDP.
 
-It started as a small private utility to transfer data faster over lossy networks, which turns out to be a fairly complete project of a new reliable UDP protocol. (I guess dealing with lossy internet connections and the GFW of China really helps with your computer network knowledge :wink:)
+It started as a small private utility to transfer data faster over lossy networks, which turns out to be a fairly complete project of a new reliable UDP protocol. I guess dealing with lossy internet connections and the GFW of China really helps with your computer network knowledge. :wink:
 
-It is designed to be fast over lossy & unstable networks, highly customizable, provides an easy-to-use socket-like API.
+It is designed to be fast over lossy & unstable networks, highly customizable with an easy-to-use socket-like API.
 
 ## Usage Scenarios
 
@@ -45,3 +45,15 @@ Advanced SOCKS5 proxy featuring encryption, traffic obfuscation and a powerful A
 ## Notice
 
 - Dragonite is TCP-unfriendly and is intentionally designed to be so. Use with caution if TCP-friendliness is important in your network.
+
+## The Road Ahead
+
+The release of our project is just a beginning. Our plans are as follows, **anyone is welcome to help**!
+
+- We are building a project website to provide download links and user manuals. https://github.com/dragonite-network/dragonite-site (https://dragonite.network/)
+
+- We are translating our documents into multiple languages (Especially Chinese, Russian and Persian)
+
+- A Go port of dragonite-sdk and dragonite-mux is currently under development. Feel free to port this project in any other language you like.
+
+- The ultimate goal is to build a uncensorable, decentralized peer-to-peer proxy network. Developers with experience of these are more than welcome to be our contributors!
