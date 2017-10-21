@@ -54,7 +54,7 @@ For clients,
 
 will connect to **example.com:27000**, telling the server our maximum download speed is 100 Mbps, upload speed is 20 Mbps, using encryption key `uMadBro`, and `acl.txt` as the access control rules.
 
-**[How to write an ACL file](ACL.md)**
+**[How to write an ACL file](https://github.com/dragonite-network/dragonite-proxy-ACLs)**
 
 **The client will bind to local TCP port 1080 by default, providing a SOCKS5 proxy that supports CONNECT & UDP ASSOCIATE.**
 
