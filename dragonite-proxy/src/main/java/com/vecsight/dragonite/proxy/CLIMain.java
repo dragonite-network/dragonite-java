@@ -22,6 +22,7 @@ import com.vecsight.dragonite.proxy.network.server.ProxyServer;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
+import com.vecsight.dragonite.utils.misc.UpdateChecker;
 import com.vecsight.dragonite.utils.network.FileUtils;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
@@ -221,6 +222,17 @@ public final class CLIMain {
         Logger.info("{} Version: v{}", PRODUCT_NAME, ProxyGlobalConstants.APP_VERSION);
         Logger.info("SDK Version: v{}", DragoniteGlobalConstants.LIBRARY_VERSION);
         Logger.info("Mux Version: v{}", MuxGlobalConstants.LIBRARY_VERSION);
+
+        final UpdateChecker updateChecker = new UpdateChecker(ProxyGlobalConstants.UPDATE_API_URL);
+
+        Logger.info("Checking for updates...");
+
+        final String remoteVersion = updateChecker.getVersionString(ProxyGlobalConstants.UPDATE_API_PRODUCT_NAME);
+        if (remoteVersion != null && remoteVersion.equals(ProxyGlobalConstants.APP_VERSION)) {
+            Logger.info("You are already using the latest version.");
+        } else if (remoteVersion != null && remoteVersion.length() > 0) {
+            Logger.info("** New version available! v{} **", remoteVersion);
+        }
 
         final Options options = getOptions();
         final CommandLineParser parser = new DefaultParser();

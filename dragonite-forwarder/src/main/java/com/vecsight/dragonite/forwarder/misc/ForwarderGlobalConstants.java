@@ -34,4 +34,10 @@ public final class ForwarderGlobalConstants {
 
     public static final short MAX_FRAME_SIZE = 20480;
 
+    //Update shits
+
+    public static final String UPDATE_API_URL = "https://github.com/dragonite-network/dragonite-java/raw/master/VERSIONS";
+
+    public static final String UPDATE_API_PRODUCT_NAME = "forwarder";
+
 }

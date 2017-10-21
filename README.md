@@ -28,11 +28,11 @@ It is designed to be fast over lossy & unstable networks, highly customizable wi
 
 Dragonite is not only a reliable UDP library but also a series of actively developed network applications. You can use these applications, or take them as code samples to learn how to integrate Dragonite into your own projects.
 
-### Current status (2017-10-16):
+### Current status (2017-10-21):
 - [x] **dragonite-sdk** (Protocol library) (v0.3.3 released)
 - [x] **dragonite-mux** (Connection multiplexing library) (v0.3.0 released)
-- [x] **dragonite-forwarder** (TCP over Dragonite relay) (v0.3.0 released)
-- [x] **dragonite-proxy** (Advanced encrypted SOCKS5 proxy) (v0.3.0 released)
+- [x] **dragonite-forwarder** (TCP over Dragonite relay) (v0.3.1 released)
+- [x] **dragonite-proxy** (Advanced encrypted SOCKS5 proxy) (v0.3.1 released)
 
 ### [More about: dragonite-forwarder](dragonite-forwarder/README.md)
 

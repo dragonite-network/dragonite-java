@@ -46,4 +46,10 @@ public final class ProxyGlobalConstants {
 
     public static final int TCP_CONNECT_TIMEOUT_MS = 4000;
 
+    //Update shits
+
+    public static final String UPDATE_API_URL = "https://github.com/dragonite-network/dragonite-java/raw/master/VERSIONS";
+
+    public static final String UPDATE_API_PRODUCT_NAME = "proxy";
+
 }

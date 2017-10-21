@@ -33,7 +33,7 @@ public final class ACLFileParser {
 
         final List<ACLItem> aclItemList = new LinkedList<>();
 
-        try (BufferedReader br = new BufferedReader(reader)) {
+        try (final BufferedReader br = new BufferedReader(reader)) {
             String line;
             int lineCount = 0;
             while ((line = br.readLine()) != null) {

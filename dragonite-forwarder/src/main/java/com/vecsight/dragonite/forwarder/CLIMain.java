@@ -17,6 +17,7 @@ import com.vecsight.dragonite.forwarder.network.server.ForwarderServer;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
+import com.vecsight.dragonite.utils.misc.UpdateChecker;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
@@ -187,6 +188,17 @@ public final class CLIMain {
         Logger.info("{} Version: v{}", PRODUCT_NAME, ForwarderGlobalConstants.APP_VERSION);
         Logger.info("SDK Version: v{}", DragoniteGlobalConstants.LIBRARY_VERSION);
         Logger.info("Mux Version: v{}", MuxGlobalConstants.LIBRARY_VERSION);
+
+        final UpdateChecker updateChecker = new UpdateChecker(ForwarderGlobalConstants.UPDATE_API_URL);
+
+        Logger.info("Checking for updates...");
+
+        final String remoteVersion = updateChecker.getVersionString(ForwarderGlobalConstants.UPDATE_API_PRODUCT_NAME);
+        if (remoteVersion != null && remoteVersion.equals(ForwarderGlobalConstants.APP_VERSION)) {
+            Logger.info("You are already using the latest version.");
+        } else if (remoteVersion != null && remoteVersion.length() > 0) {
+            Logger.info("** New version available! v{} **", remoteVersion);
+        }
 
         final Options options = getOptions();
         final CommandLineParser parser = new DefaultParser();

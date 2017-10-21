@@ -76,6 +76,9 @@ Protocol Version 2: Added Server Response Message allowing custom server welcome
 ### 0.3.0
 Protocol Version 3: Major robustness improvement
 
+### 0.3.1
+Update checking system
+
 ## dragonite-proxy
 
 ### 0.1.0
@@ -100,3 +103,6 @@ JSON configuration support
 Adapt to the new protocol layer encryption, remove obsolete encryption system.
 
 Fix a buffer length bug in UDP relay
+
+### 0.3.1
+Update checking system
