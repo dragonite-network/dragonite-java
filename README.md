@@ -42,6 +42,10 @@ A TCP (over Dragonite) relay program that can be used to accelerate any TCP conn
 
 Advanced SOCKS5 proxy featuring encryption, traffic obfuscation and a powerful ACL system.
 
+## Benchmarks
+
+![TCP vs Dragonite](benchmarks/TCPvsDragonite.png)
+
 ## Notice
 
 - Dragonite is TCP-unfriendly and is intentionally designed to be so. Use with caution if TCP-friendliness is important in your network.
