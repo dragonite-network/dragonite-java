@@ -38,6 +38,9 @@
      -x,--socks5-port <port>                    Local SOCKS5 proxy port for
                                                 client
 
+
+[**从Relese页下载**](https://github.com/dragonite-network/dragonite-java/releases)
+
 ## 配置样例
 
 **注意: 不推荐使用命令行参数作为配置，不方便保存与分享！请查看 [JSON 方式](#json)**

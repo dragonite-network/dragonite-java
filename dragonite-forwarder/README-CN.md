@@ -33,6 +33,9 @@
                                                 underlying Dragonite sockets
                                                 (1-10)
 
+
+[**从Relese页下载**](https://github.com/dragonite-network/dragonite-java/releases)
+
 ## 配置样例
 
 假如你已经有一个 **开在8080端口的服务器**，使用命令

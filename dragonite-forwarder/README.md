@@ -33,6 +33,9 @@ A TCP (over Dragonite) relay program that can be used to accelerate any TCP conn
                                                 underlying Dragonite sockets
                                                 (1-10)
 
+
+[**Download from Release**](https://github.com/dragonite-network/dragonite-java/releases)
+
 ## Sample configuration
 
 Assume that we have **a proxy server running on TCP port 8080**, we could use command

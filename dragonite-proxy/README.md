@@ -38,6 +38,9 @@ Advanced SOCKS5 proxy featuring encryption, traffic obfuscation and a powerful A
      -x,--socks5-port <port>                    Local SOCKS5 proxy port for
                                                 client
 
+
+[**Download from Release**](https://github.com/dragonite-network/dragonite-java/releases)
+
 ## Sample configuration
 
 **NOTICE: Using command line arguments for configurations is deprecated and inconvenient to save and share them! we recommend using JSON files, please see [JSON section](#json-configuration) below!**
