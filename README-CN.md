@@ -42,7 +42,7 @@ Dragonite 有基于本协议的一系列网络应用，目前状态如下
 
 一个可以用来加速任何TCP连接的转发器。
 
-### [查看详情: dragonite-proxy](dragonite-proxy/README.md)
+### [查看详情: dragonite-proxy](dragonite-proxy/README-CN.md)
 
 一个带有强大规则系统的加密SOCKS5代理。
 
