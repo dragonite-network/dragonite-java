@@ -38,7 +38,7 @@ Dragonite 有基于本协议的一系列网络应用，目前状态如下
 
 [更新日志](CHANGELOG.md)
 
-### [查看详情: dragonite-forwarder](dragonite-forwarder/README.md)
+### [查看详情: dragonite-forwarder](dragonite-forwarder/README-CN.md)
 
 一个可以用来加速任何TCP连接的转发器。
 
