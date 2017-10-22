@@ -8,6 +8,8 @@
 
 中文用户请加入 [Telegram 群组](https://t.me/DragoniteProject)
 
+[中文 README](README-CN.md)
+
 Dragonite is a reliable application level data transport protocol based on UDP.
 
 It started as a small private utility to transfer data faster over lossy networks, which turns out to be a fairly complete project of a new reliable UDP protocol. I guess dealing with lossy internet connections and the GFW of China really helps with your computer network knowledge. :wink:
@@ -33,6 +35,8 @@ Dragonite is not only a reliable UDP library but also a series of actively devel
 - [x] **dragonite-mux** (Connection multiplexing library) (v0.3.0 released)
 - [x] **dragonite-forwarder** (TCP over Dragonite relay) (v0.3.1 released)
 - [x] **dragonite-proxy** (Advanced encrypted SOCKS5 proxy) (v0.3.1 released)
+
+[Changelog](CHANGELOG.md)
 
 ### [More about: dragonite-forwarder](dragonite-forwarder/README.md)
 
