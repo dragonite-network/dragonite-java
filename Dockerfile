@@ -1,5 +1,7 @@
 FROM openjdk:latest
 
+EXPOSE 5233 5234 1080
+
 WORKDIR /code
 
 ADD docker-entrypoint.sh ./
