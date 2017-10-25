@@ -15,7 +15,7 @@ import com.vecsight.dragonite.mux.exception.MultiplexerClosedException;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
@@ -27,13 +27,13 @@ public class ForwarderMuxHandler {
 
     private final SocketAddress clientAddress;
 
-    private final int port;
+    private final InetSocketAddress forwardingAddress;
 
-    public ForwarderMuxHandler(final Multiplexer multiplexer, final String clientName, final SocketAddress clientAddress, final int port) {
+    public ForwarderMuxHandler(final Multiplexer multiplexer, final String clientName, final SocketAddress clientAddress, final InetSocketAddress forwardingAddress) {
         this.multiplexer = multiplexer;
         this.clientName = clientName;
         this.clientAddress = clientAddress;
-        this.port = port;
+        this.forwardingAddress = forwardingAddress;
     }
 
     public void run() throws MultiplexerClosedException, InterruptedException {
@@ -45,7 +45,7 @@ public class ForwarderMuxHandler {
             Logger.debug("New connection by client \"{}\" ({})",
                     clientName, clientAddress.toString());
             try {
-                final Socket tcpSocket = new Socket(InetAddress.getLoopbackAddress(), port);
+                final Socket tcpSocket = new Socket(forwardingAddress.getAddress(), forwardingAddress.getPort());
 
                 final Thread pipeFromRemoteThread = new Thread(() -> {
                     final Pipe pipeFromRemotePipe = new Pipe(ForwarderGlobalConstants.PIPE_BUFFER_SIZE);

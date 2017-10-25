@@ -72,6 +72,14 @@ public final class CLIMain {
                 .type(Number.class)
                 .build());
         options.addOption(Option
+                .builder("r")
+                .longOpt("forwarding-address")
+                .desc("Forwarding address for server")
+                .hasArg()
+                .argName("address")
+                .type(String.class)
+                .build());
+        options.addOption(Option
                 .builder("m")
                 .longOpt("mtu")
                 .desc("MTU of underlying Dragonite sockets")
@@ -231,7 +239,10 @@ public final class CLIMain {
                 try {
                     final InetSocketAddress bindAddress = new InetSocketAddress(commandLine.hasOption("a") ? InetAddress.getByName(commandLine.getOptionValue("a")) : null,
                             commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ForwarderGlobalConstants.DEFAULT_SERVER_PORT);
-                    final ForwarderServerConfig config = new ForwarderServerConfig(bindAddress, ((Number) commandLine.getParsedOptionValue("f")).intValue());
+                    final ForwarderServerConfig config = new ForwarderServerConfig(bindAddress,
+                            new InetSocketAddress(commandLine.hasOption("r") ?
+                                    InetAddress.getByName(commandLine.getOptionValue("r")) : InetAddress.getLoopbackAddress(),
+                                    ((Number) commandLine.getParsedOptionValue("f")).intValue()));
                     if (commandLine.hasOption("m")) {
                         config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
                     }

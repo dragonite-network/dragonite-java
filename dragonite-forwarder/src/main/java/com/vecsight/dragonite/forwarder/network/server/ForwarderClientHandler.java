@@ -22,10 +22,11 @@ import com.vecsight.dragonite.utils.type.UnitConverter;
 import org.pmw.tinylog.Logger;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 public class ForwarderClientHandler {
 
-    private final int forwardingPort;
+    private final InetSocketAddress forwardingAddress;
 
     private final DragoniteSocket dragoniteSocket;
 
@@ -33,9 +34,9 @@ public class ForwarderClientHandler {
 
     private final String welcomeMessage;
 
-    public ForwarderClientHandler(final int forwardingPort, final DragoniteSocket dragoniteSocket, final int limitMbps,
+    public ForwarderClientHandler(final InetSocketAddress forwardingAddress, final DragoniteSocket dragoniteSocket, final int limitMbps,
                                   final String welcomeMessage) {
-        this.forwardingPort = forwardingPort;
+        this.forwardingAddress = forwardingAddress;
         this.dragoniteSocket = dragoniteSocket;
         this.limitMbps = limitMbps;
         this.welcomeMessage = welcomeMessage;
@@ -106,7 +107,7 @@ public class ForwarderClientHandler {
             }, ForwarderGlobalConstants.MAX_FRAME_SIZE);
 
             final ForwarderMuxHandler muxHandler = new ForwarderMuxHandler(multiplexer, infoHeader.getName(),
-                    dragoniteSocket.getRemoteSocketAddress(), forwardingPort);
+                    dragoniteSocket.getRemoteSocketAddress(), forwardingAddress);
 
             final Thread multiplexerAcceptThread = new Thread(() -> {
                 try {

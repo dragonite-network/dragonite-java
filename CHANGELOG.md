@@ -79,6 +79,9 @@ Protocol Version 3: Major robustness improvement
 ### 0.3.1
 Update checking system
 
+### 0.3.2
+Add an option (-r) for forwarding connections to remote servers
+
 ## dragonite-proxy
 
 ### 0.1.0

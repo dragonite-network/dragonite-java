@@ -13,13 +13,12 @@ import com.vecsight.dragonite.utils.system.SystemInfo;
 import java.net.InetSocketAddress;
 
 import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
-import static com.vecsight.dragonite.utils.flow.Preconditions.inPortRange;
 
 public class ForwarderServerConfig {
 
     private InetSocketAddress bindAddress;
 
-    private int forwardingPort;
+    private InetSocketAddress forwardingAddress;
 
     private int mbpsLimit = 0;
 
@@ -27,9 +26,9 @@ public class ForwarderServerConfig {
 
     private final DragoniteSocketParameters dragoniteSocketParameters = new DragoniteSocketParameters();
 
-    public ForwarderServerConfig(final InetSocketAddress bindAddress, final int forwardingPort) {
+    public ForwarderServerConfig(final InetSocketAddress bindAddress, final InetSocketAddress forwardingAddress) {
         setBindAddress(bindAddress);
-        setForwardingPort(forwardingPort);
+        setForwardingAddress(forwardingAddress);
     }
 
     public InetSocketAddress getBindAddress() {
@@ -41,13 +40,12 @@ public class ForwarderServerConfig {
         this.bindAddress = bindAddress;
     }
 
-    public int getForwardingPort() {
-        return forwardingPort;
+    public InetSocketAddress getForwardingAddress() {
+        return forwardingAddress;
     }
 
-    public void setForwardingPort(final int forwardingPort) {
-        checkArgument(inPortRange(forwardingPort), "Invalid port");
-        this.forwardingPort = forwardingPort;
+    public void setForwardingAddress(final InetSocketAddress forwardingAddress) {
+        this.forwardingAddress = forwardingAddress;
     }
 
     public int getMbpsLimit() {
