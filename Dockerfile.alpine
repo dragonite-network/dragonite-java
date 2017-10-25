@@ -1,6 +1,6 @@
 FROM openjdk:alpine
 
-EXPOSE 5233 5234 1080
+EXPOSE 5233/udp 5234/udp 1080/tcp
 
 WORKDIR /code
 

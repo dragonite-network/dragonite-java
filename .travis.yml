@@ -1,7 +1,39 @@
+sudo: required
+
+services:
+- docker
+
 language: java
+
 install:
-  - gradle clean
-  - gradle assemble
+- gradle clean
+- gradle assemble
+
 script:
-  - gradle check
-  - gradle distZip
+- gradle check
+- gradle distZip
+- gradle distTar
+
+deploy:
+- provider: releases
+  api_key:
+    secure: sfRsmy+ERytUMTj5IX8lIltu5C+hK1XjyEE4pNqLAtMpZhKUJDDoaJuiqLe1dTKs+hwFuViGHFgGUw5RGA+J57GTZCkkSvhe2e8ECMwBkmgXMX5PgFTtBpIkaqjppqy/qoyFkMIsyzzuxS76UnA7oG4cz4y0xgo4Wsuh75txGBHgpn718VwFUoTAR8cLfhsILbgyOau7YeDdTB13K+Pe2d+kOu02IeOCIUDpBMCVmAtj7FjWQmHWqoddZWxFOKxI4gDi2/DUx+3H9AHT+bzoe3fwE0oEiX/54fVK7HWMt8HjSdM43SYBokw3vn9Wn5A+ywMHOP2JCkKFIe6GIj8Fk2t/3MAeivh2WdBx4Hf/U6GiDzG2xPthO8js0/2chFjG7q1uRetnJtlx64kaMHnd45ZoPeESXIs1zRNVL/k9S4yc/Lfdj++Q/o7Q+5gJx39M1b8Gk1QCb6ZreflsH7fuCXtEIE8JLeEmEmyKnkuOq8ynWs+bMH7Go/qhD53ic9s+0sJxE21XOBkc4r4NQMljfcJSQQLgAtC8NyitfGSOcZiXvY3vxmINEkWpEufh1cKHe6ii9LV9vF/E8206Q/xfT2C4CfxsHgNApZzWQMf+Bm2cZplx5ooZNuO6Eg5m4Br5x2Quty/4U7dz/F6jAChsY8Mac6Bizx3XaqwBuqdabnA=
+  file_glob: true
+  file:
+  - dragonite-*/build/distributions/*.tar
+  - dragonite-*/build/distributions/*.zip
+  skip_cleanup: true
+  on:
+    branch: master
+    tags: true
+- provider: script
+  script: "sh docker-build.sh"
+  skip_cleanup: true
+  on:
+    branch: master
+    tags: true
+
+env:
+  global:
+  - secure: TZHUNeZcWY1EksRm/dHPqH46cWrgQN3um6pfGF1pvIfBwgmmwfKh8jyvV/GA6hlMqHLZB8qsWIHXimOoR8S4W3cTSmWIhZ0hun4LUrkgkzPoI1VWl11cbksF0kpa+PCOfe/ftZKu8lFJP6Q4Ng/0YMQtl2HM6EmrX+jpnn+I6xt0u8kcanQ/1zA1MAwVWYb8Yz3BKrC5LM1Hd0zIJTMnz+RXZNRlewk/xwaajOqjghqDKa6rRXImN82wINuX6KoF8HzuJZvwQOa7s/S3uYkO8xszvmYyVib0U9LIEoKuAPVnhAZgAw3XZ8bMTfCiA2wBg1I5dKk9cBydVWucWMGWvp26CdX8+GwWWF9xwIfqb1wNOCouxr40RVG2unX2gDUGE8d+VIWkhO9rBq52uaN3eThtPy9vU15u/DlGCWjuFmPJ2QJqxp3EYVEnCbpRGwln5RDtvayjBTujqd6rjBj6H/AmdDUuFWAA9/0B5qk17uwQGXd2lZyGZ5sFHhGCjKtYuwD4mmSosebkC0Qqicw00aJ19ArWGxx0lSt1HImZ0R8UjB8gY40895WgKnC62eJ5Us0/bgk4lDW6zsMpCbw+bk7mIFZWxff2x/9xaHfTrRWdHn8JQXNhRsiLZSWh6Uy7x9MagaZ1N/DGzoQ59hcnUotO9F03h4nvILuY0uvysnI=
+  - secure: b1AJhJYOsXvCvqeCzRQBwbAnZm0BvjUuKN+qNjn3XnvwoMjA3L0KGeIDn3zIV/j4o0jvRIY8c58uyXsF8msNHxZDJWCeJ7LCwcCzfMM0kALJETvuvSSXXItgyRttRPsdKkY6LoNvE/noOXy6EDJwG/X9QKNmEVg64U7KcJ2Bjlui80yB43i4u/uxgpK8a5XqgN8tzDPUafvMoBBf92VGV8TNs/1ZQnfk4/snwY24uReMTK02q/+3UeSNcBcS5e270OU4DdjXcJc802pxCV74ZiROI9082RI3w/WFAZ12QCPrOv21+RUwrCb5ge2JNvR6qm+CqiUQrXzvaVvV+GICWTdizwvHeFsapdCgi2HNpgDVxy1bU4v+qW1a/jya20+SSQ3pLiRLIzlHndDql/ZzDHBA71MLu6fL92Oa+ctqJ4iEvldJydODTmJZKmAmsIHNreX2+DG8kFezIf36iqYW2AsstpgFQbTm/iQf7tTn/cVRYswcoJ665xmJMpBERVh8mbaRMyRWNjaHdCRS+w/BdbzkHFRDk5fy8P3UgBF2EKD1Fw/YMtsrUOUMZ06WWrmVBjTJ8zGom9mgj1fILzI/jZrreYyYWm69aiJek+D6OkJShqrPoWFIOkcx9hsv67Vp1+6pmMwC9xf6uWPqOdx3Gj+ippYblUMqngQ/KYlvrzk=
