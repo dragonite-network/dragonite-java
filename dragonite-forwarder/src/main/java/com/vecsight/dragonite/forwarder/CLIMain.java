@@ -16,6 +16,7 @@ import com.vecsight.dragonite.forwarder.network.client.ForwarderClient;
 import com.vecsight.dragonite.forwarder.network.server.ForwarderServer;
 import com.vecsight.dragonite.mux.misc.MuxGlobalConstants;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
+import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.utils.misc.UpdateChecker;
 import org.apache.commons.cli.*;
@@ -42,6 +43,14 @@ public final class CLIMain {
 
     private static Options getOptions() {
         final Options options = new Options();
+        options.addOption(Option
+                .builder("k")
+                .longOpt("password")
+                .desc("Encryption password for both client and server")
+                .hasArg()
+                .argName("xxx")
+                .type(String.class)
+                .build());
         options.addOption(Option
                 .builder("s")
                 .longOpt("server-mode")
@@ -266,6 +275,9 @@ public final class CLIMain {
                     if (commandLine.hasOption("window-size-multiplier")) {
                         config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                     }
+                    if (commandLine.hasOption("k")) {
+                        config.setPassword(commandLine.getOptionValue("k"));
+                    }
 
                     final ForwarderServer forwarderServer = new ForwarderServer(config);
 
@@ -278,6 +290,8 @@ public final class CLIMain {
                     Logger.error(e, "Incorrect value");
                 } catch (SocketException | UnknownHostException e) {
                     Logger.error(e, "Unable to initialize");
+                } catch (EncryptionException e) {
+                    Logger.error(e, "Encryption error");
                 }
             } else {
                 Logger.error("Missing required argument(s): -f");
@@ -307,6 +321,9 @@ public final class CLIMain {
                     if (commandLine.hasOption("window-size-multiplier")) {
                         config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                     }
+                    if (commandLine.hasOption("k")) {
+                        config.setPassword(commandLine.getOptionValue("k"));
+                    }
 
                     final ForwarderClient forwarderClient = new ForwarderClient(config);
 
@@ -319,6 +336,8 @@ public final class CLIMain {
                     Logger.error(e, "Incorrect value");
                 } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
                     Logger.error(e, "Unable to initialize");
+                } catch (EncryptionException e) {
+                    Logger.error(e, "Encryption error");
                 }
             } else {
                 Logger.error("Missing required argument(s): -a / -f / -d / -u");
