@@ -82,6 +82,9 @@ Update checking system
 ### 0.3.2
 Add an option (-r) for forwarding connections to remote servers
 
+### 0.3.3
+Add the same encryption system as dragonite-proxy, use option (-k) to set passwords
+
 ## dragonite-proxy
 
 ### 0.1.0
