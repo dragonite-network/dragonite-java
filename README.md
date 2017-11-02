@@ -21,3 +21,5 @@ Dragonite 是一个基于 UDP 的可靠传输协议，能针对高丢包与不�
 **中文用户请加入 [Telegram 群组](https://t.me/DragoniteProject)**
 
 [**中文 Wiki 页面**](https://github.com/dragonite-network/dragonite-java/wiki/%E4%B8%BB%E9%A1%B5)
+
+![TCP vs Dragonite](https://github.com/dragonite-network/dragonite-java/raw/master/benchmarks/TCPvsDragonite.png)
