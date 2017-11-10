@@ -1,0 +1,15 @@
+{
+  "server": false,
+  "addr": "example.com",
+  "port": 9225,
+  "socks5port": 1080,
+  "password": "blahblah",
+  "up": 5,
+  "down": 5,
+  "acl": "chn.txt",
+  "mtu": 1300,
+  "multiplier": 4,
+  "webpanel": true,
+  "paneladdr": "127.0.0.1",
+  "panelport": 8088
+}

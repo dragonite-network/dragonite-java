@@ -26,6 +26,10 @@ repositories {
     jcenter()
 }
 
+applicationDistribution.from("samples") {
+    into "samples"
+}
+
 dependencies {
     compile project(':dragonite-sdk')
     compile project(':dragonite-mux')
