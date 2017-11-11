@@ -170,6 +170,11 @@ public final class CLIMain {
                 .type(String.class)
                 .build());
         options.addOption(Option
+                .builder()
+                .longOpt("skip-update")
+                .desc("Skip the update check")
+                .build());
+        options.addOption(Option
                 .builder("h")
                 .longOpt("help")
                 .desc("Help message")
@@ -212,17 +217,7 @@ public final class CLIMain {
         }
     }
 
-    public static void main(final String[] args) {
-        Configurator.currentConfig()
-                .level(Level.INFO)
-                .formatPattern("{date:HH:mm:ss(X)} [{level}] {message}")
-                .maxStackTraceElements(0)
-                .activate();
-
-        Logger.info("{} Version: v{}", PRODUCT_NAME, ProxyGlobalConstants.APP_VERSION);
-        Logger.info("SDK Version: v{}", DragoniteGlobalConstants.LIBRARY_VERSION);
-        Logger.info("Mux Version: v{}", MuxGlobalConstants.LIBRARY_VERSION);
-
+    private static void checkUpdate() {
         final UpdateChecker updateChecker = new UpdateChecker(ProxyGlobalConstants.UPDATE_API_URL);
 
         Logger.info("Checking for updates...");
@@ -233,6 +228,18 @@ public final class CLIMain {
         } else if (remoteVersion != null && remoteVersion.length() > 0) {
             Logger.info("** New version available! v{} **", remoteVersion);
         }
+    }
+
+    public static void main(final String[] args) {
+        Configurator.currentConfig()
+                .level(Level.INFO)
+                .formatPattern("{date:HH:mm:ss(X)} [{level}] {message}")
+                .maxStackTraceElements(0)
+                .activate();
+
+        Logger.info("{} Version: v{}", PRODUCT_NAME, ProxyGlobalConstants.APP_VERSION);
+        Logger.info("SDK Version: v{}", DragoniteGlobalConstants.LIBRARY_VERSION);
+        Logger.info("Mux Version: v{}", MuxGlobalConstants.LIBRARY_VERSION);
 
         final Options options = getOptions();
         final CommandLineParser parser = new DefaultParser();
@@ -257,6 +264,10 @@ public final class CLIMain {
                     .level(Level.DEBUG)
                     .activate();
             Logger.debug("Debug mode enabled");
+        }
+
+        if (!commandLine.hasOption("skip-update")) {
+            checkUpdate();
         }
 
         final boolean useConfigFile = commandLine.hasOption("c");

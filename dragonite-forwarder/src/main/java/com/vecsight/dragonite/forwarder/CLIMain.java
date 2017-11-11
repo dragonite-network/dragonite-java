@@ -152,6 +152,11 @@ public final class CLIMain {
                 .desc("Enable Web Panel of underlying Dragonite sockets (Bind to all interfaces)")
                 .build());
         options.addOption(Option
+                .builder()
+                .longOpt("skip-update")
+                .desc("Skip the update check")
+                .build());
+        options.addOption(Option
                 .builder("h")
                 .longOpt("help")
                 .desc("Help message")
@@ -194,6 +199,19 @@ public final class CLIMain {
         }
     }
 
+    private static void checkUpdate() {
+        final UpdateChecker updateChecker = new UpdateChecker(ForwarderGlobalConstants.UPDATE_API_URL);
+
+        Logger.info("Checking for updates...");
+
+        final String remoteVersion = updateChecker.getVersionString(ForwarderGlobalConstants.UPDATE_API_PRODUCT_NAME);
+        if (remoteVersion != null && remoteVersion.equals(ForwarderGlobalConstants.APP_VERSION)) {
+            Logger.info("You are already using the latest version.");
+        } else if (remoteVersion != null && remoteVersion.length() > 0) {
+            Logger.info("** New version available! v{} **", remoteVersion);
+        }
+    }
+
     public static void main(final String[] args) {
 
         Configurator.currentConfig()
@@ -206,21 +224,9 @@ public final class CLIMain {
         Logger.info("SDK Version: v{}", DragoniteGlobalConstants.LIBRARY_VERSION);
         Logger.info("Mux Version: v{}", MuxGlobalConstants.LIBRARY_VERSION);
 
-        final UpdateChecker updateChecker = new UpdateChecker(ForwarderGlobalConstants.UPDATE_API_URL);
-
-        Logger.info("Checking for updates...");
-
-        final String remoteVersion = updateChecker.getVersionString(ForwarderGlobalConstants.UPDATE_API_PRODUCT_NAME);
-        if (remoteVersion != null && remoteVersion.equals(ForwarderGlobalConstants.APP_VERSION)) {
-            Logger.info("You are already using the latest version.");
-        } else if (remoteVersion != null && remoteVersion.length() > 0) {
-            Logger.info("** New version available! v{} **", remoteVersion);
-        }
-
         final Options options = getOptions();
         final CommandLineParser parser = new DefaultParser();
         final CommandLine commandLine;
-
 
         try {
             commandLine = parser.parse(options, getArgs(args));
@@ -240,6 +246,10 @@ public final class CLIMain {
                     .level(Level.DEBUG)
                     .activate();
             Logger.debug("Debug mode enabled");
+        }
+
+        if (!commandLine.hasOption("skip-update")) {
+            checkUpdate();
         }
 
         final boolean isServer = commandLine.hasOption("s");
@@ -290,7 +300,7 @@ public final class CLIMain {
                     Logger.error(e, "Incorrect value");
                 } catch (SocketException | UnknownHostException e) {
                     Logger.error(e, "Unable to initialize");
-                } catch (EncryptionException e) {
+                } catch (final EncryptionException e) {
                     Logger.error(e, "Encryption error");
                 }
             } else {
@@ -336,7 +346,7 @@ public final class CLIMain {
                     Logger.error(e, "Incorrect value");
                 } catch (InterruptedException | IOException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
                     Logger.error(e, "Unable to initialize");
-                } catch (EncryptionException e) {
+                } catch (final EncryptionException e) {
                     Logger.error(e, "Encryption error");
                 }
             } else {
