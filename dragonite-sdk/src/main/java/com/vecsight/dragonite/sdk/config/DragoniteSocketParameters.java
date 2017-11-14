@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
+import static com.vecsight.dragonite.utils.flow.Preconditions.inTrafficClassRange;
 
 public class DragoniteSocketParameters {
 
@@ -36,6 +37,8 @@ public class DragoniteSocketParameters {
     private InetSocketAddress webPanelBindAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), DragoniteGlobalConstants.WEB_PANEL_PORT);
 
     private PacketCryptor packetCryptor = null;
+
+    private int trafficClass = 0;
 
     public int getPacketSize() {
         return packetSize;
@@ -122,5 +125,14 @@ public class DragoniteSocketParameters {
 
     public void setPacketCryptor(final PacketCryptor packetCryptor) {
         this.packetCryptor = packetCryptor;
+    }
+
+    public int getTrafficClass() {
+        return trafficClass;
+    }
+
+    public void setTrafficClass(final int trafficClass) {
+        checkArgument(inTrafficClassRange(trafficClass), "TC must be in the range 0 <= tc <= 255");
+        this.trafficClass = trafficClass;
     }
 }

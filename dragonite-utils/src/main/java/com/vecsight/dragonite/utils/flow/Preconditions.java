@@ -17,4 +17,8 @@ public final class Preconditions {
         return port > 0 && port <= 65535;
     }
 
+    public static boolean inTrafficClassRange(final int trafficClass) {
+        return trafficClass >= 0 && trafficClass <= 255;
+    }
+
 }

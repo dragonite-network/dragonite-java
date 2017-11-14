@@ -92,6 +92,8 @@ public class DragoniteClientSocket extends DragoniteSocket {
         devConsoleBindAddress = parameters.getWebPanelBindAddress();
         packetCryptor = parameters.getPacketCryptor();
         cryptorOverhead = packetCryptor != null ? packetCryptor.getMaxAdditionalBytesLength() : 0;
+
+        datagramSocket.setTrafficClass(parameters.getTrafficClass());
         //end
 
         if (maxPacketBufferSize == 0) {
