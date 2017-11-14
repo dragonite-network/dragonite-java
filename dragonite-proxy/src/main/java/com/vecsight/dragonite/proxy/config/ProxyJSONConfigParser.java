@@ -115,7 +115,7 @@ public class ProxyJSONConfigParser {
                     parsedACL = ACLFileParser.parse(FileUtils.pathToReader(aclPath));
                     config.setAcl(parsedACL);
                 } catch (final IOException | ACLException e) {
-                    throw new JSONConfigException("Failed to parse ACL file");
+                    throw new JSONConfigException(e.getMessage());
                 }
             }
 
