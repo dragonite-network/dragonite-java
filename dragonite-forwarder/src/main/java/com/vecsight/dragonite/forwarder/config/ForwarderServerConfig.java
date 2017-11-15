@@ -97,6 +97,14 @@ public class ForwarderServerConfig {
         dragoniteSocketParameters.setWindowMultiplier(mult);
     }
 
+    public int getTrafficClass() {
+        return dragoniteSocketParameters.getTrafficClass();
+    }
+
+    public void setTrafficClass(final int tc) {
+        dragoniteSocketParameters.setTrafficClass(tc);
+    }
+
     public boolean getWebPanelEnabled() {
         return dragoniteSocketParameters.isEnableWebPanel();
     }

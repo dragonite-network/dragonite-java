@@ -17,4 +17,8 @@ public final class UnitConverter {
         return (int) (speed / 125000);
     }
 
+    public static int DSCPtoTrafficClass(final int dscp) {
+        return dscp << 2;
+    }
+
 }

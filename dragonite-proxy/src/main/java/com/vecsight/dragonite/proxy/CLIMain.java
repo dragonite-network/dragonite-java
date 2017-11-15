@@ -24,6 +24,7 @@ import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.utils.misc.UpdateChecker;
 import com.vecsight.dragonite.utils.network.FileUtils;
+import com.vecsight.dragonite.utils.type.UnitConverter;
 import org.apache.commons.cli.*;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
@@ -144,6 +145,14 @@ public final class CLIMain {
                 .desc("Send window size multiplier of underlying Dragonite sockets (1-10)")
                 .hasArg()
                 .argName("multiplier")
+                .type(Number.class)
+                .build());
+        options.addOption(Option
+                .builder()
+                .longOpt("dscp")
+                .desc("Set DSCP value in the IP headers")
+                .hasArg()
+                .argName("value")
                 .type(Number.class)
                 .build());
         options.addOption(Option
@@ -382,6 +391,9 @@ public final class CLIMain {
                 if (commandLine.hasOption("window-size-multiplier")) {
                     config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
                 }
+                if (commandLine.hasOption("dscp")) {
+                    config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(((Number) commandLine.getParsedOptionValue("dscp")).intValue()));
+                }
                 if (commandLine.hasOption("allow-loopback")) {
                     config.setAllowLoopback(true);
                 }
@@ -422,6 +434,9 @@ public final class CLIMain {
                 }
                 if (commandLine.hasOption("window-size-multiplier")) {
                     config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+                }
+                if (commandLine.hasOption("dscp")) {
+                    config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(((Number) commandLine.getParsedOptionValue("dscp")).intValue()));
                 }
 
                 if (commandLine.hasOption("r")) {

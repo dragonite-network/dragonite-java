@@ -18,6 +18,7 @@ import com.vecsight.dragonite.proxy.misc.ProxyGlobalConstants;
 import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.utils.network.FileUtils;
+import com.vecsight.dragonite.utils.type.UnitConverter;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -73,6 +74,9 @@ public class ProxyJSONConfigParser {
             final int wndmlt = jsonObject.getInt("multiplier", 0);
             if (wndmlt != 0) config.setWindowMultiplier(wndmlt);
 
+            final int dscp = jsonObject.getInt("dscp", 0);
+            if (dscp != 0) config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(dscp));
+
             final boolean enablePanel = jsonObject.getBoolean("webpanel", false);
             if (enablePanel) {
                 config.setWebPanelEnabled(true);
@@ -124,6 +128,9 @@ public class ProxyJSONConfigParser {
 
             final int wndmlt = jsonObject.getInt("multiplier", 0);
             if (wndmlt != 0) config.setWindowMultiplier(wndmlt);
+
+            final int dscp = jsonObject.getInt("dscp", 0);
+            if (dscp != 0) config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(dscp));
 
             final boolean enablePanel = jsonObject.getBoolean("webpanel", false);
             if (enablePanel) {
