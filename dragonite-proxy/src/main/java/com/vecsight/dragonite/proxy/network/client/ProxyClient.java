@@ -64,6 +64,8 @@ public class ProxyClient {
 
     private final ParsedACL acl;
 
+    private volatile boolean closed = false;
+
     public ProxyClient(final ProxyClientConfig config) throws IOException, InterruptedException, DragoniteException, ServerRejectedException, IncorrectHeaderException {
         this.remoteAddress = config.getRemoteAddress();
         this.socks5port = config.getSocks5port();
@@ -201,19 +203,29 @@ public class ProxyClient {
 
             //Check reconnect & create mux connection
             synchronized (connectLock) {
-                if (!dragoniteClientSocket.isAlive()) {
-                    multiplexer.close();
-                    Logger.warn("The underlying connection is no longer alive, reconnecting");
-                    try {
-                        prepareUnderlyingConnection(dragoniteSocketParameters);
-                    } catch (IOException | InterruptedException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
-                        Logger.error(e, "Unable to reconnect, there may be a network error or the server has been shut down");
+                if (!closed) {
+                    if (!dragoniteClientSocket.isAlive()) {
+                        multiplexer.close();
+                        Logger.warn("The underlying connection is no longer alive, reconnecting");
                         try {
-                            socket.close();
-                        } catch (final IOException ignored) {
+                            prepareUnderlyingConnection(dragoniteSocketParameters);
+                        } catch (IOException | InterruptedException | DragoniteException | IncorrectHeaderException | ServerRejectedException e) {
+                            Logger.error(e, "Unable to reconnect, there may be a network error or the server has been shut down");
+                            try {
+                                socket.close();
+                            } catch (final IOException ignored) {
+                            }
+                            return;
                         }
-                        return;
                     }
+                } else {
+                    //ProxyClient already closed
+                    Logger.error("ProxyClient is already closed");
+                    try {
+                        socket.close();
+                    } catch (final IOException ignored) {
+                    }
+                    return;
                 }
 
                 try {
@@ -341,13 +353,24 @@ public class ProxyClient {
         pipeFromLocalThread.start();
     }
 
-    public boolean isDoAccept() {
-        return doAccept;
-    }
-
-    public void stopAccept() {
-        acceptThread.interrupt();
-        doAccept = false;
+    public void close() {
+        synchronized (connectLock) {
+            if (!closed) {
+                closed = true;
+                acceptThread.interrupt();
+                doAccept = false;
+                try {
+                    serverSocket.close();
+                } catch (final IOException ignored) {
+                }
+                muxReceiveThread.interrupt();
+                multiplexer.close();
+                try {
+                    dragoniteClientSocket.closeGracefully();
+                } catch (final InterruptedException | IOException | SenderClosedException ignored) {
+                }
+            }
+        }
     }
 
 }
