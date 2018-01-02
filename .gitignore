@@ -241,3 +241,5 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 # End of https://www.gitignore.io/api/java,macos,linux,gradle,windows,intellij,jetbrains,intellij+iml
+/dragonite-proxy-gui/out/
+/dragonite-proxy-gui.json

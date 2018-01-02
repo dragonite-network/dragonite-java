@@ -91,7 +91,7 @@ public class ProxyClient {
                     socketHandleThread.start();
                 }
             } catch (final IOException e) {
-                Logger.error(e, "Unable to accept TCP connections");
+                if (!closed) Logger.error(e, "Unable to accept TCP connections");
             }
         }, "PC-Accept");
         acceptThread.start();
@@ -144,7 +144,7 @@ public class ProxyClient {
                     multiplexer.onReceiveBytes(buf);
                 }
             } catch (InterruptedException | ConnectionNotAliveException e) {
-                Logger.error(e, "Cannot receive data from underlying socket");
+                if (!closed) Logger.error(e, "Cannot receive data from underlying socket");
             } finally {
                 synchronized (connectLock) {
                     try {

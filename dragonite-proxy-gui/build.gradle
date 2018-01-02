@@ -1,0 +1,89 @@
+/*
+ * The Dragonite Project
+ * -------------------------
+ * See the LICENSE file in the root directory for license information.
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath "gradle.plugin.edu.sc.seis:macAppBundle:2.1.9"
+        classpath 'edu.sc.seis.gradle:launch4j:2.4.2'
+    }
+}
+
+plugins {
+    id 'idea'
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'de.fuerstenau.buildconfig' version '1.1.8'
+    id 'edu.sc.seis.macAppBundle' version '2.1.9'
+    id 'edu.sc.seis.launch4j' version '2.4.2'
+}
+
+group = 'com.vecsight.dragonite'
+version = '0.3.1'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+buildConfig {
+    clsName = 'ProxyBuildConfig'
+}
+
+dependencies {
+    compile project(':dragonite-sdk')
+    compile project(':dragonite-mux')
+    compile project(':dragonite-utils')
+    compile project(':dragonite-proxy')
+
+    compile 'org.projectlombok:lombok:1.16.18'
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'io.datafx:datafx:8.0.1'
+    compile 'io.datafx:flow:8.0.1'
+    compile 'com.jfoenix:jfoenix:1.11.1'
+    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-5'
+    compile 'com.squareup.okhttp3:okhttp:3.9.1'
+
+}
+
+shadowJar {
+    baseName = 'dragonite-proxy-gui'
+    classifier = null
+    configurations = [project.configurations.compile]
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.vecsight.dragonite.proxy.gui.Main'
+    }
+}
+
+macAppBundle {
+    mainClassName = "com.vecsight.dragonite.proxy.gui.Main"
+    icon = 'src/main/resources/Dragonite-Proxy-X.icns'
+    appName= 'Dragonite Proxy X'
+    bundleJRE = true
+    runtimeConfigurationName = 'shadow'
+    jarTask = 'shadowJar'
+    javaExtras = ["-Xmx256m":null,"-Xms128m":null]
+}
+
+launch4j {
+    outfile = 'Dragonite Proxy X.exe'
+    initialHeapSize = 128
+    maxHeapSize = 256
+    supportUrl = 'https://github.com/dragonite-network/dragonite-java/issues'
+    copyConfigurable = project.tasks.shadowJar.outputs.files
+    icon = new File("").getAbsolutePath()+'/src/main/resources/Dragonite-Proxy-X.ico'
+}

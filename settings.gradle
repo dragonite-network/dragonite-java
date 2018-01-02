@@ -14,4 +14,5 @@ include 'dragonite-forwarder'
 include 'dragonite-echo'
 include 'dragonite-utils'
 include 'dragonite-proxy'
+include 'dragonite-proxy-gui'
 
