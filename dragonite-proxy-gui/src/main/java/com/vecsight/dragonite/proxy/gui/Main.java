@@ -1,5 +1,6 @@
 package com.vecsight.dragonite.proxy.gui;
 
+import com.vecsight.dragonite.ProxyGUIBuildConfig;
 import com.vecsight.dragonite.proxy.gui.controller.DragoniteController;
 import com.vecsight.dragonite.proxy.gui.utils.BareBonesBrowserLaunch;
 import javafx.application.Platform;
@@ -28,7 +29,7 @@ public class Main extends javafx.application.Application {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource("/DragoniteController.fxml"));
         AnchorPane anchorPane = fxmlLoader.load();
-        primaryStage.setTitle("Dragonite Proxy X");
+        primaryStage.setTitle("Dragonite Proxy X v" + ProxyGUIBuildConfig.VERSION);
         primaryStage.setScene(new Scene(anchorPane, 1000, 680));
         primaryStage.setResizable(false);
         dragoniteController = fxmlLoader.getController();

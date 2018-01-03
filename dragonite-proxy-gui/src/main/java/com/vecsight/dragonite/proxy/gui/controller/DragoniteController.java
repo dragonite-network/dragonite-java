@@ -246,7 +246,7 @@ public class DragoniteController {
                     try {
                         Thread.sleep(1000);
                         List<XYChart.Data<String, Object>> data = new ArrayList<>(2);
-                        // Windows 下返回 -1，具体参见  http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6336608
+                        //always -1 on Windows: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6336608
                         double systemLoad = ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
                         long memoryUse = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024;
                         data.add(new XYChart.Data<>(new SimpleDateFormat("ss").format(new Date()), systemLoad));
