@@ -8,6 +8,8 @@
       <module name="dragonite-forwarder_test" target="1.8" />
       <module name="dragonite-mux_main" target="1.8" />
       <module name="dragonite-mux_test" target="1.8" />
+      <module name="dragonite-proxy-gui_main" target="1.8" />
+      <module name="dragonite-proxy-gui_test" target="1.8" />
       <module name="dragonite-proxy_main" target="1.8" />
       <module name="dragonite-proxy_test" target="1.8" />
       <module name="dragonite-sdk_main" target="1.8" />

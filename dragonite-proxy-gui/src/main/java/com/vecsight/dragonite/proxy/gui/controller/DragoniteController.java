@@ -15,7 +15,6 @@ import com.vecsight.dragonite.proxy.network.client.ProxyClient;
 import com.vecsight.dragonite.sdk.exception.DragoniteException;
 import com.vecsight.dragonite.sdk.exception.EncryptionException;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import io.datafx.controller.ViewController;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -149,10 +148,10 @@ public class DragoniteController {
 
 
         proxyTask.valueProperty().addListener((observableValue, oldData, newData) -> {
-            if(newData){
+            if (newData) {
                 faiStarted.setGlyphName("PLAY_CIRCLE");
                 lbStarted.setText("Proxy Started ...");
-            }else {
+            } else {
                 faiStarted.setGlyphName("STOP_CIRCLE");
                 lbStarted.setText("Proxy Stopped ...");
             }

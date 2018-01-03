@@ -72,11 +72,11 @@ jar {
 macAppBundle {
     mainClassName = "com.vecsight.dragonite.proxy.gui.Main"
     icon = 'src/main/resources/Dragonite-Proxy-X.icns'
-    appName= 'Dragonite Proxy X'
+    appName = 'Dragonite Proxy X'
     bundleJRE = true
     runtimeConfigurationName = 'shadow'
     jarTask = 'shadowJar'
-    javaExtras = ["-Xmx256m":null,"-Xms128m":null]
+    javaExtras = ["-Xmx256m": null, "-Xms128m": null]
 }
 
 launch4j {
@@ -85,5 +85,5 @@ launch4j {
     maxHeapSize = 256
     supportUrl = 'https://github.com/dragonite-network/dragonite-java/issues'
     copyConfigurable = project.tasks.shadowJar.outputs.files
-    icon = new File("").getAbsolutePath()+'/src/main/resources/Dragonite-Proxy-X.ico'
+    icon = new File("").getAbsolutePath() + '/src/main/resources/Dragonite-Proxy-X.ico'
 }

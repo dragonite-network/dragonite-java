@@ -1,8 +1,8 @@
-.button-raised{
+.button-raised {
     -fx-padding: 0.7em 0.57em;
     -fx-font-size: 14px;
     -jfx-button-type: RAISED;
-    -fx-background-color: rgb(77,102,204);
+    -fx-background-color: rgb(77, 102, 204);
     -fx-pref-width: 80;
     -fx-text-fill: WHITE;
 }
@@ -284,7 +284,7 @@
 *                          							   *
 *******************************************************/
 
-.jfx-slider-colored{
+.jfx-slider-colored {
     -jfx-default-thumb: #5264AE;
     -jfx-default-track: #212121;
 }
@@ -303,7 +303,7 @@
     -fx-pref-width: 5px;
 }
 
-.jfx-slider-style .animated-thumb{
+.jfx-slider-style .animated-thumb {
     -fx-background-color: darkorange;
 }
 
@@ -393,7 +393,8 @@
 .custom-jfx-progress-bar > .bar {
     -fx-background-color: #ff8000;
 }
-.custom-jfx-progress-bar > .secondary-bar{
+
+.custom-jfx-progress-bar > .secondary-bar {
     -fx-background-color: rgba(255, 135, 21, 0.18);
 }
 
@@ -800,6 +801,7 @@
     -jfx-size: 15;
     -fx-background-color: WHITE;
 }
+
 /*******************************************************************************
 *                                                                              *
 * Tree Table View                                                              *
@@ -1002,20 +1004,18 @@
     -fx-font-size: 1.0em;
 }
 
-
-
 /*******************************************************************************
 *                                                                              *
 * Pickers                                                                      *
 *                                                                              *
 *******************************************************************************/
 
-.custom-color-picker{
+.custom-color-picker {
     -jfx-default-color: #3f51b5;
 }
 
 .jfx-date-picker > .jfx-text-field,
-.jfx-time-picker > .jfx-text-field{
+.jfx-time-picker > .jfx-text-field {
     -jfx-focus-color: -jfx-default-color;
 }
 

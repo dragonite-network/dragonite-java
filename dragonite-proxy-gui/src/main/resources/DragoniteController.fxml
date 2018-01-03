@@ -5,13 +5,14 @@
 <?import de.jensd.fx.glyphs.fontawesome.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="740.0"
             prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.vecsight.dragonite.proxy.gui.controller.DragoniteController" stylesheets="Theme.css">
     <children>
-        <LineChart fx:id="lcSystemLoad" layoutX="350.0" layoutY="55.0" prefHeight="200.0" prefWidth="300.0" minHeight="140.0"
+        <LineChart fx:id="lcSystemLoad" layoutX="350.0" layoutY="55.0" prefHeight="200.0" prefWidth="300.0"
+                   minHeight="140.0"
                    minWidth="300" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1">
             <xAxis>
                 <CategoryAxis fx:id="lcSystemLoadxAxis" side="BOTTOM"/>
@@ -33,19 +34,20 @@
 
         <JFXRippler position="BACK" styleClass="icons-started" layoutX="380.0" layoutY="310.0">
             <StackPane style="-fx-padding: 10;">
-                <FontAwesomeIconView fx:id="faiConfigSaved" glyphName="CLOSE" size="2em" />
+                <FontAwesomeIconView fx:id="faiConfigSaved" glyphName="CLOSE" size="2em"/>
             </StackPane>
         </JFXRippler>
-        <Label fx:id="lbConfigSaved" text="Config Not Saved ..." styleClass="jfx-text-field" layoutX="435.0" layoutY="325.0" />
+        <Label fx:id="lbConfigSaved" text="Config Not Saved ..." styleClass="jfx-text-field" layoutX="435.0"
+               layoutY="325.0"/>
 
         <JFXRippler position="BACK" styleClass="icons-started" layoutX="380.0" layoutY="350.0">
             <StackPane style="-fx-padding: 10;">
-                <FontAwesomeIconView fx:id="faiStarted" glyphName="STOP_CIRCLE" size="2em" />
+                <FontAwesomeIconView fx:id="faiStarted" glyphName="STOP_CIRCLE" size="2em"/>
             </StackPane>
         </JFXRippler>
-        <Label fx:id="lbStarted" text="Proxy Stopped ..." styleClass="jfx-text-field" layoutX="435.0" layoutY="365.0" />
+        <Label fx:id="lbStarted" text="Proxy Stopped ..." styleClass="jfx-text-field" layoutX="435.0" layoutY="365.0"/>
 
-        <JFXProgressBar fx:id="pbGoogleStatus" layoutX="450.0" layoutY="600.0" prefWidth="100.0" />
+        <JFXProgressBar fx:id="pbGoogleStatus" layoutX="450.0" layoutY="600.0" prefWidth="100.0"/>
         <JFXButton fx:id="btStart" layoutX="57.0" layoutY="580.0" mnemonicParsing="false"
                    onAction="#dragoniteProxyStart"
                    text="START" style="-jfx-button-type: RAISED" styleClass="button-raised"/>
