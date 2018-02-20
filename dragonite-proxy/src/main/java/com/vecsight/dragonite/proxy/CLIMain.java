@@ -297,12 +297,12 @@ public final class CLIMain {
 
         if (isServer) {
 
-            final ProxyServerConfig config;
+            ProxyServerConfig config = null;
             if (useConfigFile) {
                 config = serverConfigFromConfigParser(configParser);
-            } else {
-                config = serverConfigFromCommandline(commandLine);
             }
+
+            config = serverConfigFromCommandline(commandLine, config);
 
             if (config != null) {
                 try {
@@ -321,12 +321,12 @@ public final class CLIMain {
 
         } else {
 
-            final ProxyClientConfig config;
+            ProxyClientConfig config = null;
             if (useConfigFile) {
                 config = clientConfigFromConfigParser(configParser);
-            } else {
-                config = clientConfigFromCommandline(commandLine);
             }
+
+            config = clientConfigFromCommandline(commandLine, config);
 
             if (config != null) {
                 try {
@@ -364,43 +364,55 @@ public final class CLIMain {
         }
     }
 
-    private static ProxyServerConfig serverConfigFromCommandline(final CommandLine commandLine) {
+    private static ProxyServerConfig serverConfigFromCommandline(final CommandLine commandLine, final ProxyServerConfig originalConfig) {
         try {
-            if (commandLine.hasOption("k")) {
+            if ((!commandLine.hasOption("k")) && originalConfig == null) {
+                Logger.error("Missing required argument(s): -k");
+                return null;
+            }
+
+            final ProxyServerConfig config;
+            if (originalConfig == null) {
                 final InetSocketAddress bindAddress = new InetSocketAddress(commandLine.hasOption("a") ? InetAddress.getByName(commandLine.getOptionValue("a")) : null,
                         commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ProxyGlobalConstants.DEFAULT_SERVER_PORT);
-                final ProxyServerConfig config = new ProxyServerConfig(bindAddress, commandLine.getOptionValue("k"));
-
-                if (commandLine.hasOption("m")) {
-                    config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
-                }
-                if (commandLine.hasOption("l")) {
-                    config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).intValue());
-                }
-                if (commandLine.hasOption("w")) {
-                    config.setWelcomeMessage(commandLine.getOptionValue("w"));
-                }
-
-                if (commandLine.hasOption("web-panel")) {
-                    config.setWebPanelEnabled(true);
-                }
-                if (commandLine.hasOption("web-panel-public")) {
-                    config.setWebPanelEnabled(true);
-                    config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
-                }
-                if (commandLine.hasOption("window-size-multiplier")) {
-                    config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
-                }
-                if (commandLine.hasOption("dscp")) {
-                    config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(((Number) commandLine.getParsedOptionValue("dscp")).intValue()));
-                }
-                if (commandLine.hasOption("allow-loopback")) {
-                    config.setAllowLoopback(true);
-                }
-                return config;
+                config = new ProxyServerConfig(bindAddress, commandLine.getOptionValue("k"));
             } else {
-                Logger.error("Missing required argument(s): -k");
+                config = originalConfig;
+                if (commandLine.hasOption("a")) {
+                    config.setBindAddress(new InetSocketAddress(InetAddress.getByName(commandLine.getOptionValue("a")), config.getBindAddress().getPort()));
+                }
+                if (commandLine.hasOption("p")) {
+                    config.setBindAddress(new InetSocketAddress(config.getBindAddress().getAddress(), ((Number) commandLine.getParsedOptionValue("p")).intValue()));
+                }
             }
+
+            if (commandLine.hasOption("m")) {
+                config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
+            }
+            if (commandLine.hasOption("l")) {
+                config.setMbpsLimit(((Number) commandLine.getParsedOptionValue("l")).intValue());
+            }
+            if (commandLine.hasOption("w")) {
+                config.setWelcomeMessage(commandLine.getOptionValue("w"));
+            }
+
+            if (commandLine.hasOption("web-panel")) {
+                config.setWebPanelEnabled(true);
+            }
+            if (commandLine.hasOption("web-panel-public")) {
+                config.setWebPanelEnabled(true);
+                config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
+            }
+            if (commandLine.hasOption("window-size-multiplier")) {
+                config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+            }
+            if (commandLine.hasOption("dscp")) {
+                config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(((Number) commandLine.getParsedOptionValue("dscp")).intValue()));
+            }
+            if (commandLine.hasOption("allow-loopback")) {
+                config.setAllowLoopback(true);
+            }
+            return config;
         } catch (final ParseException | IllegalArgumentException e) {
             Logger.error(e, "Incorrect value");
         } catch (final UnknownHostException e) {
@@ -411,45 +423,70 @@ public final class CLIMain {
         return null;
     }
 
-    private static ProxyClientConfig clientConfigFromCommandline(final CommandLine commandLine) {
+    private static ProxyClientConfig clientConfigFromCommandline(final CommandLine commandLine, final ProxyClientConfig originalConfig) {
         try {
-            if (commandLine.hasOption("a") && commandLine.hasOption("d") && commandLine.hasOption("u") && commandLine.hasOption("k")) {
-                final ProxyClientConfig config = new ProxyClientConfig(new InetSocketAddress(InetAddress.getByName(commandLine.getOptionValue("a")),
+            if ((!(commandLine.hasOption("a") && commandLine.hasOption("d") && commandLine.hasOption("u") && commandLine.hasOption("k"))) && originalConfig == null) {
+                Logger.error("Missing required argument(s): -a / -k / -d / -u");
+                return null;
+            }
+
+            final ProxyClientConfig config;
+            if (originalConfig == null) {
+                config = new ProxyClientConfig(new InetSocketAddress(InetAddress.getByName(commandLine.getOptionValue("a")),
                         commandLine.hasOption("p") ? ((Number) commandLine.getParsedOptionValue("p")).intValue() : ProxyGlobalConstants.DEFAULT_SERVER_PORT),
                         (commandLine.hasOption("x") ? ((Number) commandLine.getParsedOptionValue("x")).intValue() : ProxyGlobalConstants.SOCKS5_PORT),
                         commandLine.getOptionValue("k"),
                         ((Number) commandLine.getParsedOptionValue("d")).intValue(),
                         ((Number) commandLine.getParsedOptionValue("u")).intValue()
                 );
-                if (commandLine.hasOption("m")) {
-                    config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
-                }
-
-                if (commandLine.hasOption("web-panel")) {
-                    config.setWebPanelEnabled(true);
-                }
-                if (commandLine.hasOption("web-panel-public")) {
-                    config.setWebPanelEnabled(true);
-                    config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
-                }
-                if (commandLine.hasOption("window-size-multiplier")) {
-                    config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
-                }
-                if (commandLine.hasOption("dscp")) {
-                    config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(((Number) commandLine.getParsedOptionValue("dscp")).intValue()));
-                }
-
-                if (commandLine.hasOption("r")) {
-                    try {
-                        config.setAcl(ACLFileParser.parse(FileUtils.pathToReader(commandLine.getOptionValue("r"))));
-                    } catch (IOException | ACLException e) {
-                        Logger.error(e, "Failed to parse ACL file");
-                    }
-                }
-                return config;
             } else {
-                Logger.error("Missing required argument(s): -a / -k / -d / -u");
+                config = originalConfig;
+                if (commandLine.hasOption("a")) {
+                    config.setRemoteAddress(new InetSocketAddress(InetAddress.getByName(commandLine.getOptionValue("a")), config.getRemoteAddress().getPort()));
+                }
+                if (commandLine.hasOption("p")) {
+                    config.setRemoteAddress(new InetSocketAddress(config.getRemoteAddress().getAddress(), ((Number) commandLine.getParsedOptionValue("p")).intValue()));
+                }
+                if (commandLine.hasOption("x")) {
+                    config.setSocks5port(((Number) commandLine.getParsedOptionValue("x")).intValue());
+                }
+                if (commandLine.hasOption("k")) {
+                    config.setPassword(commandLine.getOptionValue("k"));
+                }
+                if (commandLine.hasOption("d")) {
+                    config.setDownMbps(((Number) commandLine.getParsedOptionValue("d")).intValue());
+                }
+                if (commandLine.hasOption("u")) {
+                    config.setUpMbps(((Number) commandLine.getParsedOptionValue("u")).intValue());
+                }
             }
+
+            if (commandLine.hasOption("m")) {
+                config.setMTU(((Number) commandLine.getParsedOptionValue("m")).intValue());
+            }
+
+            if (commandLine.hasOption("web-panel")) {
+                config.setWebPanelEnabled(true);
+            }
+            if (commandLine.hasOption("web-panel-public")) {
+                config.setWebPanelEnabled(true);
+                config.setWebPanelBind(new InetSocketAddress(DragoniteGlobalConstants.WEB_PANEL_PORT));
+            }
+            if (commandLine.hasOption("window-size-multiplier")) {
+                config.setWindowMultiplier(((Number) commandLine.getParsedOptionValue("window-size-multiplier")).intValue());
+            }
+            if (commandLine.hasOption("dscp")) {
+                config.setTrafficClass(UnitConverter.DSCPtoTrafficClass(((Number) commandLine.getParsedOptionValue("dscp")).intValue()));
+            }
+
+            if (commandLine.hasOption("r")) {
+                try {
+                    config.setAcl(ACLFileParser.parse(FileUtils.pathToReader(commandLine.getOptionValue("r"))));
+                } catch (IOException | ACLException e) {
+                    Logger.error(e, "Failed to parse ACL file");
+                }
+            }
+            return config;
         } catch (final ParseException | IllegalArgumentException e) {
             Logger.error(e, "Incorrect value");
         } catch (final UnknownHostException e) {
