@@ -33,6 +33,9 @@ Add CRXObfuscator
 ### 0.3.3
 Obfuscators are now Cryptors, shipped with a new AESCryptor
 
+### 0.3.4
+Add DSCP option
+
 ## dragonite-mux
 
 ### 0.1.0
@@ -85,6 +88,11 @@ Add an option (-r) for forwarding connections to remote servers
 ### 0.3.3
 Add the same encryption system as dragonite-proxy, use option (-k) to set passwords
 
+### 0.4.0
+Add an option (--dscp) for customizing DSCP field of UDP packets
+
+Add an option (--skip-update) for skipping update-checking
+
 ## dragonite-proxy
 
 ### 0.1.0
@@ -112,3 +120,10 @@ Fix a buffer length bug in UDP relay
 
 ### 0.3.1
 Update checking system
+
+### 0.4.0
+Add an option (--dscp) for customizing DSCP field of UDP packets
+
+Add an option (--skip-update) for skipping update-checking
+
+Fix unclear ACL exception messages
