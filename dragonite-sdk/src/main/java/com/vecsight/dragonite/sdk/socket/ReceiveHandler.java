@@ -24,7 +24,7 @@ public class ReceiveHandler {
 
     private final DragoniteSocket socket;
 
-    private final ACKMessageManager ackMessageManager;
+    private final ACKSender ackSender;
 
     private final ResendHandler resender;
 
@@ -56,10 +56,10 @@ public class ReceiveHandler {
 
     private volatile long receivedPktCount = 0, dupPktCount = 0;
 
-    protected ReceiveHandler(final DragoniteSocket socket, final ACKMessageManager ackMessageManager, final ConnectionState state,
+    protected ReceiveHandler(final DragoniteSocket socket, final ACKSender ackSender, final ConnectionState state,
                              final int windowMultiplier, final ResendHandler resender, final int MTU) {
         this.socket = socket;
-        this.ackMessageManager = ackMessageManager;
+        this.ackSender = ackSender;
         this.state = state;
         this.windowMultiplier = windowMultiplier;
         this.resender = resender;
@@ -81,7 +81,7 @@ public class ReceiveHandler {
                     throw new ConnectionNotAliveException();
                 }
 
-                ackMessageManager.updateReceivedSeq(nextReadSequence);
+                ackSender.updateReceivedSeq(nextReadSequence);
 
                 nextReadSequence++;
                 receiveMap.remove(reliableMessage.getSequence());
@@ -91,7 +91,7 @@ public class ReceiveHandler {
                 return ((DataMessage) reliableMessage).getData();
             } else if (reliableMessage instanceof CloseMessage) {
 
-                ackMessageManager.waitAckLoop();
+                ackSender.waitAckLoop();
                 socket.destroy();
                 return null;
 
@@ -125,12 +125,12 @@ public class ReceiveHandler {
 
                 if (message instanceof CloseMessage) {
 
-                    ackMessageManager.sendACKArray(new int[]{reliableMessage.getSequence()});
+                    ackSender.sendACKArray(new int[]{reliableMessage.getSequence()});
                     socket.closeSender();
 
                 }
 
-                ackMessageManager.addACK(reliableMessage.getSequence());
+                ackSender.addACK(reliableMessage.getSequence());
 
                 synchronized (receiveLock) {
 

@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ACKMessageManager {
+public class ACKSender {
 
     private final DragoniteSocket socket;
 
@@ -38,7 +38,7 @@ public class ACKMessageManager {
 
     private final Object ackLoopLock = new Object();
 
-    protected ACKMessageManager(final DragoniteSocket socket, final PacketSender action, final int delayMS, final int MTU) {
+    protected ACKSender(final DragoniteSocket socket, final PacketSender action, final int delayMS, final int MTU) {
         this.socket = socket;
         this.MTU = MTU;
         this.action = action;

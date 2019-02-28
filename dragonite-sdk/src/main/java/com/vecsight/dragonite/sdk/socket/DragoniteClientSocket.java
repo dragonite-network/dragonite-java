@@ -60,7 +60,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     private final SendHandler sender;
 
-    private final ACKMessageManager ackMessageManager; //THREAD
+    private final ACKSender ackSender; //THREAD
 
     private final ConnectionState state = new ConnectionState();
 
@@ -106,11 +106,11 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         bucketPacketSender = new BucketPacketSender(bytes -> sendPacket(bytes, remoteAddress), sendSpeed);
 
-        ackMessageManager = new ACKMessageManager(this, bucketPacketSender, DragoniteGlobalConstants.ACK_INTERVAL_MS, packetSize);
+        ackSender = new ACKSender(this, bucketPacketSender, DragoniteGlobalConstants.ACK_INTERVAL_MS, packetSize);
 
         resender = new ResendHandler(this, bucketPacketSender, state, resendMinDelayMS, DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
-        receiver = new ReceiveHandler(this, ackMessageManager, state, windowMultiplier,
+        receiver = new ReceiveHandler(this, ackSender, state, windowMultiplier,
                 resender, packetSize);
 
         sender = new SendHandler(this, bucketPacketSender, receiver, state, resender, packetSize);
@@ -286,7 +286,7 @@ public class DragoniteClientSocket extends DragoniteSocket {
                 sender.stopSend();
                 receiver.close();
                 resender.close();
-                ackMessageManager.close();
+                ackSender.close();
 
                 receiveThread.interrupt();
                 handleThread.interrupt();

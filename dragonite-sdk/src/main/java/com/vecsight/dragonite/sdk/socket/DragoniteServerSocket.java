@@ -26,7 +26,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
 
     private final BucketPacketSender bucketPacketSender;
 
-    private final ACKMessageManager ackMessageManager; //THREAD
+    private final ACKSender ackSender; //THREAD
 
     private final SocketAddress remoteAddress;
 
@@ -53,11 +53,11 @@ public class DragoniteServerSocket extends DragoniteSocket {
             updateLastSendTime();
         }, sendSpeed);
 
-        ackMessageManager = new ACKMessageManager(this, bucketPacketSender, DragoniteGlobalConstants.ACK_INTERVAL_MS, dragoniteServer.getPacketSize());
+        ackSender = new ACKSender(this, bucketPacketSender, DragoniteGlobalConstants.ACK_INTERVAL_MS, dragoniteServer.getPacketSize());
 
         resender = new ResendHandler(this, bucketPacketSender, state, dragoniteServer.getResendMinDelayMS(), DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
-        receiver = new ReceiveHandler(this, ackMessageManager, state, dragoniteServer.getWindowMultiplier(),
+        receiver = new ReceiveHandler(this, ackSender, state, dragoniteServer.getWindowMultiplier(),
                 resender, dragoniteServer.getPacketSize());
 
         sender = new SendHandler(this, bucketPacketSender, receiver, state, resender, dragoniteServer.getPacketSize());
@@ -184,7 +184,7 @@ public class DragoniteServerSocket extends DragoniteSocket {
                 sender.stopSend();
                 receiver.close();
                 resender.close();
-                ackMessageManager.close();
+                ackSender.close();
                 if (remove) dragoniteServer.removeConnectionFromMap(remoteAddress);
             }
         }
