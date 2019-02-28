@@ -17,13 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ConnectionResendHandler {
+public class ResendHandler {
 
     private final DragoniteSocket socket;
 
-    private final SendAction sendAction;
+    private final PacketSender packetSender;
 
-    private final ConnectionSharedData sharedData;
+    private final ConnectionState state;
 
     private final int minResendMS;
 
@@ -47,11 +47,11 @@ public class ConnectionResendHandler {
     private final PriorityQueue<ResendItem> riQueue = new PriorityQueue<>(100,
             (o1, o2) -> (int) (o1.getNextSendTime() - o2.getNextSendTime()));
 
-    protected ConnectionResendHandler(final DragoniteSocket socket, final SendAction sendAction, final ConnectionSharedData sharedData, final int minResendMS,
-                                      final int ackDelayCompensation) {
+    protected ResendHandler(final DragoniteSocket socket, final PacketSender packetSender, final ConnectionState state, final int minResendMS,
+                            final int ackDelayCompensation) {
         this.socket = socket;
-        this.sendAction = sendAction;
-        this.sharedData = sharedData;
+        this.packetSender = packetSender;
+        this.state = state;
         this.minResendMS = minResendMS;
         this.ackDelayCompensation = ackDelayCompensation;
 
@@ -98,7 +98,7 @@ public class ConnectionResendHandler {
                     if (message != null) {
                         try {
                             resendItem.setResended();
-                            sendAction.sendPacket(message.toBytes());
+                            packetSender.sendPacket(message.toBytes());
                             resendCount++;
                             //System.out.println(message.getSequence());
                         } catch (final IOException ignored) {
@@ -120,9 +120,9 @@ public class ConnectionResendHandler {
     private long getNextSendTime(final int count, final long timeOffset) {
         final int resendMult = count <= DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT ? 1 :
                 NumUtils.min(count - DragoniteGlobalConstants.MAX_FAST_RESEND_COUNT + 1, DragoniteGlobalConstants.MAX_SLOW_RESEND_MULT);
-        //int delay = (int) (sharedData.getEstimatedRTT() * (count <= fastResendMaxCount ? DragoniteGlobalConstants.fastResendMul : DragoniteGlobalConstants.slowResendMul));
-        final long drtt = NumUtils.max(DragoniteGlobalConstants.DEV_RTT_MULT * sharedData.getDevRTT(), ackDelayCompensation);
-        int delay = (int) ((sharedData.getEstimatedRTT() + drtt) * resendMult);
+        //int delay = (int) (state.getEstimatedRTT() * (count <= fastResendMaxCount ? DragoniteGlobalConstants.fastResendMul : DragoniteGlobalConstants.slowResendMul));
+        final long drtt = NumUtils.max(DragoniteGlobalConstants.DEV_RTT_MULT * state.getDevRTT(), ackDelayCompensation);
+        int delay = (int) ((state.getEstimatedRTT() + drtt) * resendMult);
         if (delay < minResendMS) {
             delay = minResendMS;
         }

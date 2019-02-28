@@ -20,13 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ConnectionReceiveHandler {
+public class ReceiveHandler {
 
     private final DragoniteSocket socket;
 
     private final ACKMessageManager ackMessageManager;
 
-    private final ConnectionResendHandler resender;
+    private final ResendHandler resender;
 
     private final Map<Integer, ReliableMessage> receiveMap = new HashMap<>();
 
@@ -36,7 +36,7 @@ public class ConnectionReceiveHandler {
 
     private volatile int remoteConsumedSeq = 0;
 
-    private final ConnectionSharedData sharedData;
+    private final ConnectionState state;
 
     private final int windowMultiplier;
 
@@ -56,15 +56,15 @@ public class ConnectionReceiveHandler {
 
     private volatile long receivedPktCount = 0, dupPktCount = 0;
 
-    protected ConnectionReceiveHandler(final DragoniteSocket socket, final ACKMessageManager ackMessageManager, final ConnectionSharedData sharedData,
-                                       final int windowMultiplier, final ConnectionResendHandler resender, final int MTU) {
+    protected ReceiveHandler(final DragoniteSocket socket, final ACKMessageManager ackMessageManager, final ConnectionState state,
+                             final int windowMultiplier, final ResendHandler resender, final int MTU) {
         this.socket = socket;
         this.ackMessageManager = ackMessageManager;
-        this.sharedData = sharedData;
+        this.state = state;
         this.windowMultiplier = windowMultiplier;
         this.resender = resender;
         this.MTU = MTU;
-        this.rttController = new RTTController(sharedData);
+        this.rttController = new RTTController(state);
     }
 
     private byte[] readRaw() throws InterruptedException, ConnectionNotAliveException {
@@ -168,9 +168,9 @@ public class ConnectionReceiveHandler {
 
                 }
 
-                synchronized (sharedData.sendWindowLock) {
+                synchronized (state.sendWindowLock) {
                     if (checkWindowAvailable()) {
-                        sharedData.sendWindowLock.notifyAll();
+                        state.sendWindowLock.notifyAll();
                     }
                 }
 
@@ -193,21 +193,21 @@ public class ConnectionReceiveHandler {
     protected void waitRemoteReceiveClose() throws InterruptedException {
         synchronized (closeWaitLock) {
             if (!closeACKReceived) {
-                closeWaitLock.wait(NumUtils.max(sharedData.getEstimatedRTT() * DragoniteGlobalConstants.CLOSE_WAIT_RTT_MULT, DragoniteGlobalConstants.MIN_CLOSE_WAIT_MS));
+                closeWaitLock.wait(NumUtils.max(state.getEstimatedRTT() * DragoniteGlobalConstants.CLOSE_WAIT_RTT_MULT, DragoniteGlobalConstants.MIN_CLOSE_WAIT_MS));
             }
         }
     }
 
     private int getProperWindow() {
         final float targetPPS = socket.getSendSpeed() / (float) MTU;
-        final long currentRTT = sharedData.getEstimatedRTT();
+        final long currentRTT = state.getEstimatedRTT();
         final int wnd = (int) (targetPPS * (currentRTT / 1000f) * windowMultiplier);
 
         return NumUtils.max(wnd, DragoniteGlobalConstants.MIN_SEND_WINDOW_SIZE);
     }
 
     protected boolean checkWindowAvailable() {
-        final int delta = sharedData.getSendSequence() - remoteConsumedSeq;
+        final int delta = state.getSendSequence() - remoteConsumedSeq;
         return delta < getProperWindow();
     }
 

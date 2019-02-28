@@ -17,17 +17,17 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ConnectionSendHandler {
+public class SendHandler {
 
     private final DragoniteSocket socket;
 
-    private final SendAction sendAction;
+    private final PacketSender packetSender;
 
-    private final ConnectionReceiveHandler receiveHandler;
+    private final ReceiveHandler receiveHandler;
 
-    private final ConnectionSharedData sharedData;
+    private final ConnectionState state;
 
-    private final ConnectionResendHandler resender;
+    private final ResendHandler resender;
 
     private final int MTU;
 
@@ -39,25 +39,25 @@ public class ConnectionSendHandler {
 
     private final AtomicLong sendLength = new AtomicLong(0);
 
-    protected ConnectionSendHandler(final DragoniteSocket socket, final SendAction sendAction, final ConnectionReceiveHandler receiveHandler,
-                                    final ConnectionSharedData sharedData, final ConnectionResendHandler resender, final int MTU) {
+    protected SendHandler(final DragoniteSocket socket, final PacketSender packetSender, final ReceiveHandler receiveHandler,
+                          final ConnectionState state, final ResendHandler resender, final int MTU) {
         this.socket = socket;
-        this.sendAction = sendAction;
+        this.packetSender = packetSender;
         this.receiveHandler = receiveHandler;
-        this.sharedData = sharedData;
+        this.state = state;
         this.resender = resender;
         this.MTU = MTU;
     }
 
     private void addSendSequence() {
         sendSequence++;
-        sharedData.setSendSequence(sendSequence);
+        state.setSendSequence(sendSequence);
     }
 
     protected void stopSend() {
         stopSend = true;
-        synchronized (sharedData.sendWindowLock) {
-            sharedData.sendWindowLock.notifyAll();
+        synchronized (state.sendWindowLock) {
+            state.sendWindowLock.notifyAll();
         }
     }
 
@@ -71,9 +71,9 @@ public class ConnectionSendHandler {
             if (tlength > MTU) {
                 throw new IncorrectSizeException("Packet is too big (" + tlength + ")");
             }
-            synchronized (sharedData.sendWindowLock) {
+            synchronized (state.sendWindowLock) {
                 while (!receiveHandler.checkWindowAvailable() && canSend()) {
-                    sharedData.sendWindowLock.wait();
+                    state.sendWindowLock.wait();
                 }
             }
             //have to check again after wait!
@@ -84,7 +84,7 @@ public class ConnectionSendHandler {
                 dataMessage = new DataMessage(sendSequence, data);
                 addSendSequence();
             }
-            sendAction.sendPacket(dataMessage.toBytes());
+            packetSender.sendPacket(dataMessage.toBytes());
             resender.addMessage(dataMessage);
             sendLength.addAndGet(data.length);
         } else {
@@ -126,7 +126,7 @@ public class ConnectionSendHandler {
                 heartbeatMessage = new HeartbeatMessage(sendSequence);
                 addSendSequence();
             }
-            sendAction.sendPacket(heartbeatMessage.toBytes());
+            packetSender.sendPacket(heartbeatMessage.toBytes());
             resender.addMessage(heartbeatMessage);
         } else {
             throw new SenderClosedException();
@@ -142,7 +142,7 @@ public class ConnectionSendHandler {
                 receiveHandler.setRemoteReceiveCloseSeq(sendSequence);
                 addSendSequence();
             }
-            sendAction.sendPacket(closeMessage.toBytes());
+            packetSender.sendPacket(closeMessage.toBytes());
             resender.addMessage(closeMessage);
             if (waitRemote) receiveHandler.waitRemoteReceiveClose();
         } else {

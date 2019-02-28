@@ -52,17 +52,17 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     private final BlockingQueue<DatagramPacket> packetBuffer;
 
-    private final ManagedSendAction managedSendAction;
+    private final BucketPacketSender bucketPacketSender;
 
-    private final ConnectionReceiveHandler receiver;
+    private final ReceiveHandler receiver;
 
-    private final ConnectionResendHandler resender; //THREAD
+    private final ResendHandler resender; //THREAD
 
-    private final ConnectionSendHandler sender;
+    private final SendHandler sender;
 
     private final ACKMessageManager ackMessageManager; //THREAD
 
-    private final ConnectionSharedData sharedData = new ConnectionSharedData();
+    private final ConnectionState state = new ConnectionState();
 
     private volatile boolean alive = true;
 
@@ -104,16 +104,16 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
         updateLastReceiveTime();
 
-        managedSendAction = new ManagedSendAction(bytes -> sendPacket(bytes, remoteAddress), sendSpeed);
+        bucketPacketSender = new BucketPacketSender(bytes -> sendPacket(bytes, remoteAddress), sendSpeed);
 
-        ackMessageManager = new ACKMessageManager(this, managedSendAction, DragoniteGlobalConstants.ACK_INTERVAL_MS, packetSize);
+        ackMessageManager = new ACKMessageManager(this, bucketPacketSender, DragoniteGlobalConstants.ACK_INTERVAL_MS, packetSize);
 
-        resender = new ConnectionResendHandler(this, managedSendAction, sharedData, resendMinDelayMS, DragoniteGlobalConstants.ACK_INTERVAL_MS);
+        resender = new ResendHandler(this, bucketPacketSender, state, resendMinDelayMS, DragoniteGlobalConstants.ACK_INTERVAL_MS);
 
-        receiver = new ConnectionReceiveHandler(this, ackMessageManager, sharedData, windowMultiplier,
+        receiver = new ReceiveHandler(this, ackMessageManager, state, windowMultiplier,
                 resender, packetSize);
 
-        sender = new ConnectionSendHandler(this, managedSendAction, receiver, sharedData, resender, packetSize);
+        sender = new SendHandler(this, bucketPacketSender, receiver, state, resender, packetSize);
 
         description = "DCSocket";
 
@@ -236,9 +236,9 @@ public class DragoniteClientSocket extends DragoniteSocket {
     @Override
     public DragoniteSocketStatistics getStatistics() {
         return new DragoniteSocketStatistics(remoteAddress, description,
-                sender.getSendLength(), managedSendAction.getSendRawLength(),
+                sender.getSendLength(), bucketPacketSender.getSendRawLength(),
                 receiver.getReadLength(), receiver.getReceivedRawLength(),
-                sharedData.getEstimatedRTT(), sharedData.getDevRTT(),
+                state.getEstimatedRTT(), state.getDevRTT(),
                 resender.getTotalMessageCount(), resender.getResendCount(),
                 receiver.getReceivedPktCount(), receiver.getDupPktCount());
     }
@@ -330,12 +330,12 @@ public class DragoniteClientSocket extends DragoniteSocket {
 
     @Override
     public void setSendSpeed(final long sendSpeed) {
-        managedSendAction.setSpeed(sendSpeed);
+        bucketPacketSender.setSpeed(sendSpeed);
     }
 
     @Override
     public long getSendSpeed() {
-        return managedSendAction.getSpeed();
+        return bucketPacketSender.getSpeed();
     }
 
     public int getPacketSize() {

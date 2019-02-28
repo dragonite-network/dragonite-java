@@ -17,7 +17,7 @@ import java.util.*;
 
 public class Multiplexer {
 
-    private final SendAction sendAction;
+    private final PacketSender packetSender;
 
     private final FrameParser frameParser;
 
@@ -31,8 +31,8 @@ public class Multiplexer {
 
     private volatile boolean alive = true;
 
-    public Multiplexer(final SendAction sendAction, final int maxFrameSize) {
-        this.sendAction = sendAction;
+    public Multiplexer(final PacketSender packetSender, final int maxFrameSize) {
+        this.packetSender = packetSender;
         frameParser = new FrameParser(maxFrameSize);
     }
 
@@ -40,9 +40,9 @@ public class Multiplexer {
         if (alive) {
             synchronized (connLock) {
                 if (!connectionMap.containsKey(connID)) {
-                    final MultiplexedConnection connection = new MultiplexedConnection(this, connID, sendAction);
+                    final MultiplexedConnection connection = new MultiplexedConnection(this, connID, packetSender);
                     connectionMap.put(connID, connection);
-                    sendAction.sendPacket(new CreateConnectionFrame(connID).toBytes());
+                    packetSender.sendPacket(new CreateConnectionFrame(connID).toBytes());
                     return connection;
                 } else {
                     throw new ConnectionAlreadyExistsException();
@@ -127,7 +127,7 @@ public class Multiplexer {
             final short connID = ((CreateConnectionFrame) frame).getConnectionID();
             final MultiplexedConnection connection;
             synchronized (connLock) {
-                connection = new MultiplexedConnection(this, connID, sendAction);
+                connection = new MultiplexedConnection(this, connID, packetSender);
                 connectionMap.put(connID, connection);
             }
 

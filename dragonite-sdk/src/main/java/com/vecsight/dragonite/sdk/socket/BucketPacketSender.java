@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.vecsight.dragonite.utils.flow.Preconditions.checkArgument;
 
-public class ManagedSendAction implements SendAction {
+public class BucketPacketSender implements PacketSender {
 
-    private final SendAction sendAction;
+    private final PacketSender packetSender;
 
     private volatile Bucket bucket;
 
@@ -27,8 +27,8 @@ public class ManagedSendAction implements SendAction {
 
     private final AtomicLong sendRawLength = new AtomicLong(0);
 
-    public ManagedSendAction(final SendAction sendAction, final long speed) {
-        this.sendAction = sendAction;
+    public BucketPacketSender(final PacketSender packetSender, final long speed) {
+        this.packetSender = packetSender;
         setSpeed(speed);
     }
 
@@ -44,7 +44,7 @@ public class ManagedSendAction implements SendAction {
 
     public void sendPacket(final byte[] bytes) throws InterruptedException, IOException {
         bucket.consume(bytes.length);
-        sendAction.sendPacket(bytes);
+        packetSender.sendPacket(bytes);
         sendRawLength.addAndGet(bytes.length);
     }
 

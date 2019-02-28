@@ -25,7 +25,7 @@ public class MultiplexedConnection {
 
     private final short connectionID;
 
-    private final SendAction sendAction;
+    private final PacketSender packetSender;
 
     private final Queue<Frame> frameQueue = new LinkedList<>();
 
@@ -45,10 +45,10 @@ public class MultiplexedConnection {
 
     private final Object sendLock = new Object();
 
-    public MultiplexedConnection(final Multiplexer multiplexer, final short connectionID, final SendAction sendAction) {
+    public MultiplexedConnection(final Multiplexer multiplexer, final short connectionID, final PacketSender packetSender) {
         this.multiplexer = multiplexer;
         this.connectionID = connectionID;
-        this.sendAction = sendAction;
+        this.packetSender = packetSender;
     }
 
     protected void addFrame(final Frame frame) {
@@ -60,7 +60,7 @@ public class MultiplexedConnection {
                     bufSize += ((DataFrame) frame).getData().length;
                     if (bufSize > MuxGlobalConstants.CONNECTION_MAX_DATA_BUFFER_SIZE && !remotePauseSend) {
                         remotePauseSend = true;
-                        sendAction.sendPacket(new PauseConnectionFrame(connectionID).toBytes());
+                        packetSender.sendPacket(new PauseConnectionFrame(connectionID).toBytes());
                     }
                 }
 
@@ -89,7 +89,7 @@ public class MultiplexedConnection {
                     bufSize -= data.length;
                     if (bufSize < MuxGlobalConstants.CONNECTION_MAX_DATA_BUFFER_SIZE && remotePauseSend) {
                         remotePauseSend = false;
-                        sendAction.sendPacket(new ContinueConnectionFrame(connectionID).toBytes());
+                        packetSender.sendPacket(new ContinueConnectionFrame(connectionID).toBytes());
                     }
                 }
 
@@ -124,7 +124,7 @@ public class MultiplexedConnection {
                     sendLock.wait();
                 }
             }
-            sendAction.sendPacket(new DataFrame(connectionID, bytes).toBytes());
+            packetSender.sendPacket(new DataFrame(connectionID, bytes).toBytes());
         } else {
             throw new SenderClosedException();
         }
@@ -165,7 +165,7 @@ public class MultiplexedConnection {
         synchronized (closeLock) {
             if (alive) {
 
-                sendAction.sendPacket(new CloseConnectionFrame(connectionID).toBytes());
+                packetSender.sendPacket(new CloseConnectionFrame(connectionID).toBytes());
 
                 alive = false;
 

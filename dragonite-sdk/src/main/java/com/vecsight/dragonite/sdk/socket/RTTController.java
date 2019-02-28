@@ -14,7 +14,7 @@ public class RTTController {
 
     private final static float estimatedRTTUpdateFactor = 0.125f, devRTTUpdateFactor = 0.25f;
 
-    private final ConnectionSharedData sharedData;
+    private final ConnectionState state;
 
     private long estimatedRTT = DragoniteGlobalConstants.INIT_RTT_MS, devRTT;
 
@@ -22,8 +22,8 @@ public class RTTController {
 
     private int continuousResendCount = 0;
 
-    public RTTController(final ConnectionSharedData sharedData) {
-        this.sharedData = sharedData;
+    public RTTController(final ConnectionState state) {
+        this.state = state;
     }
 
     public void pushInfo(final ResendInfo info) {
@@ -72,8 +72,8 @@ public class RTTController {
     private void setRTT(final long estimatedRTT, final long devRTT) {
         this.estimatedRTT = estimatedRTT;
         this.devRTT = devRTT;
-        sharedData.setEstimatedRTT(estimatedRTT);
-        sharedData.setDevRTT(devRTT);
+        state.setEstimatedRTT(estimatedRTT);
+        state.setDevRTT(devRTT);
         //System.out.println("Update estimated RTT " + estimatedRTT + " devRTT " + devRTT);
     }
 

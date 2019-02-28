@@ -20,7 +20,7 @@ public class ACKMessageManager {
 
     private final int MTU;
 
-    private final SendAction action;
+    private final PacketSender action;
 
     private final Thread sendThread;
 
@@ -38,7 +38,7 @@ public class ACKMessageManager {
 
     private final Object ackLoopLock = new Object();
 
-    protected ACKMessageManager(final DragoniteSocket socket, final SendAction action, final int delayMS, final int MTU) {
+    protected ACKMessageManager(final DragoniteSocket socket, final PacketSender action, final int delayMS, final int MTU) {
         this.socket = socket;
         this.MTU = MTU;
         this.action = action;

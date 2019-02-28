@@ -9,7 +9,7 @@ package com.vecsight.dragonite.sdk.socket;
 
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 
-public class ConnectionSharedData {
+public class ConnectionState {
 
     private volatile long estimatedRTT = DragoniteGlobalConstants.INIT_RTT_MS;
 
