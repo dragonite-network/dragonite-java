@@ -77,7 +77,7 @@ public class DevConsoleWebServer {
     }
 
     private String getConnectionsJSONArray(final List<DragoniteSocketStatistics> statisticsList) {
-        String json = "[";
+        StringBuilder json = new StringBuilder("[");
         int i = 0;
         for (final DragoniteSocketStatistics statistics : statisticsList) {
             final String cinfo = "{\"remote\":\"" + statistics.getRemoteAddress().toString() +
@@ -92,13 +92,13 @@ public class DevConsoleWebServer {
                     ",\"recvraw\":" + statistics.getReceiveRawLength() +
                     ",\"recvcount\":" + statistics.getReceiveCount() +
                     ",\"dup\":" + statistics.getDupCount() + "}";
-            json += cinfo;
+            json.append(cinfo);
             if (++i != statisticsList.size()) {
-                json += ",";
+                json.append(",");
             }
         }
-        json += "]";
-        return json;
+        json.append("]");
+        return json.toString();
     }
 
     public void stop() {

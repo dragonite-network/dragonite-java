@@ -115,9 +115,7 @@ public class DragoniteServer {
             try {
                 while (doHandle) {
                     final DatagramPacket packet = packetBuffer.take();
-                    if (packet != null) {
-                        handlePacket(packet);
-                    }
+                    handlePacket(packet);
                 }
             } catch (final InterruptedException ignored) {
                 //okay

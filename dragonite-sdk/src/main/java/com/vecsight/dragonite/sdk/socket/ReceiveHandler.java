@@ -48,7 +48,7 @@ public class ReceiveHandler {
 
     private final Object closeWaitLock = new Object();
 
-    private final RTTController rttController;
+    private final RTTEstimator rttEstimator;
 
     private final AtomicLong readLength = new AtomicLong(0);
 
@@ -64,7 +64,7 @@ public class ReceiveHandler {
         this.windowMultiplier = windowMultiplier;
         this.resender = resender;
         this.MTU = MTU;
-        this.rttController = new RTTController(state);
+        this.rttEstimator = new RTTEstimator(state);
     }
 
     private byte[] readRaw() throws InterruptedException, ConnectionNotAliveException {
@@ -160,7 +160,7 @@ public class ReceiveHandler {
 
                 for (final int seq : seqs) {
 
-                    rttController.pushInfo(resender.removeMessage(seq));
+                    rttEstimator.pushInfo(resender.removeMessage(seq));
 
                     if (waitForClose && seq == closeMsgSequence) {
                         closeACKReceived = true;

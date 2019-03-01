@@ -197,9 +197,7 @@ public class ProxyMuxHandler {
         }
 
         try {
-            while (muxConn.read() != null) {
-                //We do literally nothing :(
-            }
+            while (muxConn.read() != null) ;
         } catch (final ConnectionNotAliveException e) {
             muxConn.close();
             udpRelay.stop();

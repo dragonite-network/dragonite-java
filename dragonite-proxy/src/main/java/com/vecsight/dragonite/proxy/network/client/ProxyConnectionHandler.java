@@ -166,9 +166,7 @@ public class ProxyConnectionHandler {
         //Here we go
         if (socks5Header.isUdp()) {
             try {
-                while (socket.getInputStream().read() != -1) {
-                    //We do literally nothing :(
-                }
+                while (socket.getInputStream().read() != -1) ;
             } catch (final IOException e) {
                 Logger.debug(e, "UDP relay closed");
             } finally {

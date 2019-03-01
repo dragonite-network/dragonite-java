@@ -10,7 +10,7 @@ package com.vecsight.dragonite.sdk.socket;
 import com.vecsight.dragonite.sdk.misc.DragoniteGlobalConstants;
 import com.vecsight.dragonite.sdk.misc.NumUtils;
 
-public class RTTController {
+public class RTTEstimator {
 
     private final static float estimatedRTTUpdateFactor = 0.125f, devRTTUpdateFactor = 0.25f;
 
@@ -22,7 +22,7 @@ public class RTTController {
 
     private int continuousResendCount = 0;
 
-    public RTTController(final ConnectionState state) {
+    public RTTEstimator(final ConnectionState state) {
         this.state = state;
     }
 
