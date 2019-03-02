@@ -45,7 +45,7 @@ public class DragoniteSocketParameters {
     }
 
     public void setPacketSize(final int packetSize) {
-        checkArgument(packetSize >= 200, "Packet size is too small");
+        checkArgument(packetSize >= 500, "Packet size is too small");
         this.packetSize = packetSize;
     }
 

@@ -7,7 +7,7 @@
 
 package com.vecsight.dragonite.sdk.socket;
 
-public class ResendInfo {
+public class MessageStat {
 
     private boolean exist = false;
 
@@ -15,18 +15,18 @@ public class ResendInfo {
 
     private boolean resended;
 
-    public ResendInfo(final boolean exist, final long RTT, final boolean resended) {
+    public MessageStat(final boolean exist, final long RTT, final boolean resended) {
         this.exist = exist;
         this.RTT = RTT;
         this.resended = resended;
     }
 
-    public ResendInfo() {
+    public MessageStat() {
     }
 
     @Override
     public String toString() {
-        return "ResendInfo{" + "exist=" + exist +
+        return "MessageStat{" + "exist=" + exist +
                 ", RTT=" + RTT +
                 ", resended=" + resended +
                 '}';

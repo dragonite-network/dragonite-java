@@ -11,8 +11,6 @@ import com.vecsight.dragonite.UtilsBuildConfig;
 
 public final class UtilsGlobalConstants {
 
-    //Version shits
-
     public static final String LIBRARY_VERSION = UtilsBuildConfig.VERSION;
 
 }

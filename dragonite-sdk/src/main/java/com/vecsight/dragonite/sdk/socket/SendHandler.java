@@ -133,12 +133,12 @@ public class SendHandler {
         }
     }
 
-    protected void sendCloseMessage(final short status, final boolean stopLocalSend, final boolean waitRemote) throws IOException, InterruptedException, SenderClosedException {
+    protected void sendCloseMessage(final int status, final boolean stopLocalSend, final boolean waitRemote) throws IOException, InterruptedException, SenderClosedException {
         if (canSend()) {
             if (stopLocalSend) stopSend();
             final CloseMessage closeMessage;
             synchronized (sendLock) {
-                closeMessage = new CloseMessage(sendSequence, status);
+                closeMessage = new CloseMessage(sendSequence, (short) status);
                 receiveHandler.setRemoteReceiveCloseSeq(sendSequence);
                 addSendSequence();
             }

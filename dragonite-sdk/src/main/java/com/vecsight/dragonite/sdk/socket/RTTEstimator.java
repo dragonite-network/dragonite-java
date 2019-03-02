@@ -26,32 +26,32 @@ public class RTTEstimator {
         this.state = state;
     }
 
-    public void pushInfo(final ResendInfo info) {
-        //System.out.println(info);
-        if (info.isExist()) {
+    public void pushStat(final MessageStat stat) {
+        //System.out.println(stat);
+        if (stat.isExist()) {
             final long currentTime = System.currentTimeMillis();
             /*if (currentTime - lastRefresh >= DragoniteGlobalConstants.rttRefreshIntervalMS) {
                 lastRefresh = System.currentTimeMillis();
-                if (info.isResended()) {
+                if (stat.isResended()) {
                     long maxCRTT = (long) (estimatedRTT * DragoniteGlobalConstants.RTT_RESENDED_REFRESH_MAX_MULT);
-                    setRTT(NumUtils.min(info.getRTT(), maxCRTT), 0);
+                    setRTT(NumUtils.min(stat.getRTT(), maxCRTT), 0);
                 }
             }*/
             if (currentTime - lastUpdate >= DragoniteGlobalConstants.RTT_UPDATE_INTERVAL_MS) {
                 lastUpdate = currentTime;
 
-                //System.out.println(info.toString());
+                //System.out.println(stat.toString());
 
-                if (!info.isResended()) {
+                if (!stat.isResended()) {
                     continuousResendCount = 0;
-                    setRTT_limited((long) ((1 - estimatedRTTUpdateFactor) * estimatedRTT + estimatedRTTUpdateFactor * info.getRTT()),
-                            (long) ((1 - devRTTUpdateFactor) * devRTT + devRTTUpdateFactor * Math.abs(info.getRTT() - estimatedRTT)));
+                    clampSetRTT((long) ((1 - estimatedRTTUpdateFactor) * estimatedRTT + estimatedRTTUpdateFactor * stat.getRTT()),
+                            (long) ((1 - devRTTUpdateFactor) * devRTT + devRTTUpdateFactor * Math.abs(stat.getRTT() - estimatedRTT)));
                 } else {
                     continuousResendCount++;
                     if (continuousResendCount > (DragoniteGlobalConstants.RTT_RESEND_CORRECTION_INTERVAL_MS / DragoniteGlobalConstants.RTT_UPDATE_INTERVAL_MS)) {
                         final long maxCRTT = (long) (estimatedRTT * DragoniteGlobalConstants.RTT_RESENDED_REFRESH_MAX_MULT);
-                        final long tmpRTT = NumUtils.min(info.getRTT(), maxCRTT);
-                        setRTT_limited((long) ((1 - estimatedRTTUpdateFactor) * estimatedRTT + estimatedRTTUpdateFactor * tmpRTT),
+                        final long tmpRTT = NumUtils.min(stat.getRTT(), maxCRTT);
+                        clampSetRTT((long) ((1 - estimatedRTTUpdateFactor) * estimatedRTT + estimatedRTTUpdateFactor * tmpRTT),
                                 (long) ((1 - devRTTUpdateFactor) * devRTT + devRTTUpdateFactor * Math.abs(tmpRTT - estimatedRTT)));
                         continuousResendCount = 0;
                     }
@@ -60,7 +60,7 @@ public class RTTEstimator {
         }
     }
 
-    private void setRTT_limited(final long estimatedRTT, final long devRTT) {
+    private void clampSetRTT(final long estimatedRTT, final long devRTT) {
         long tempDevRTT = devRTT * DragoniteGlobalConstants.DEV_RTT_MULT;
         if (tempDevRTT > estimatedRTT && tempDevRTT > DragoniteGlobalConstants.RTT_MAX_VARIATION_MS) {
             tempDevRTT = estimatedRTT;

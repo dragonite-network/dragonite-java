@@ -56,7 +56,7 @@ public class DragoniteServer {
 
     private volatile boolean doReceive = true, doHandle = true, doAliveDetect = true;
 
-    private final ConcurrentMap<SocketAddress, DragoniteServerSocket> connectionMap_concurrent = new ConcurrentHashMap<>();
+    private final ConcurrentMap<SocketAddress, DragoniteServerSocket> connectionMap = new ConcurrentHashMap<>();
 
     private final BlockingQueue<DragoniteSocket> acceptQueue = new LinkedBlockingQueue<>();
 
@@ -127,7 +127,7 @@ public class DragoniteServer {
             try {
                 while (doAliveDetect) {
                     final long current = System.currentTimeMillis();
-                    final Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap_concurrent.entrySet().iterator();
+                    final Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap.entrySet().iterator();
                     while (it.hasNext()) {
                         final DragoniteServerSocket socket = it.next().getValue();
                         if (socket.isAlive()) {
@@ -160,7 +160,7 @@ public class DragoniteServer {
             try {
                 tmpServer = new DevConsoleWebServer(devConsoleBindAddress, () -> {
                     final ArrayList<DragoniteSocketStatistics> list = new ArrayList<>();
-                    for (final DragoniteServerSocket socket : connectionMap_concurrent.values()) {
+                    for (final DragoniteServerSocket socket : connectionMap.values()) {
                         list.add(socket.getStatistics());
                     }
                     return list;
@@ -190,7 +190,7 @@ public class DragoniteServer {
         }
 
         if (message != null) {
-            DragoniteServerSocket dragoniteServerSocket = connectionMap_concurrent.get(remoteAddress);
+            DragoniteServerSocket dragoniteServerSocket = connectionMap.get(remoteAddress);
             if (dragoniteServerSocket == null) {
                 //no connection yet
                 if (message instanceof ReliableMessage) {
@@ -215,12 +215,12 @@ public class DragoniteServer {
 
     private DragoniteServerSocket createConnection(final SocketAddress remoteAddress, final long sendSpeed) {
         final DragoniteServerSocket socket = new DragoniteServerSocket(remoteAddress, sendSpeed, this);
-        connectionMap_concurrent.put(remoteAddress, socket);
+        connectionMap.put(remoteAddress, socket);
         return socket;
     }
 
     protected void removeConnectionFromMap(final SocketAddress remoteAddress) {
-        connectionMap_concurrent.remove(remoteAddress);
+        connectionMap.remove(remoteAddress);
     }
 
     //SEND ALL PACKETS THROUGH THIS!!
@@ -279,7 +279,7 @@ public class DragoniteServer {
                 doHandle = false;
                 doAliveDetect = false;
 
-                final Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap_concurrent.entrySet().iterator();
+                final Iterator<Map.Entry<SocketAddress, DragoniteServerSocket>> it = connectionMap.entrySet().iterator();
                 while (it.hasNext()) {
                     final DragoniteServerSocket socket = it.next().getValue();
                     socket.destroy_NoRemove();

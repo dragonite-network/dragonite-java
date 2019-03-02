@@ -14,11 +14,7 @@ import java.nio.charset.StandardCharsets;
 
 public final class ForwarderGlobalConstants {
 
-    //Version shits
-
     public static final String APP_VERSION = ForwarderBuildConfig.VERSION;
-
-    //Protocol shits
 
     public static final byte PROTOCOL_VERSION = 3;
 
@@ -28,17 +24,11 @@ public final class ForwarderGlobalConstants {
 
     public static final Charset STRING_CHARSET = StandardCharsets.UTF_8;
 
-    //Sizes
-
     public static final short PIPE_BUFFER_SIZE = 10240;
 
     public static final short MAX_FRAME_SIZE = 20480;
 
-    //Encryption shits
-
     public static final int PASSWORD_MIN_LENGTH = 4;
-
-    //Update shits
 
     public static final String UPDATE_API_URL = "https://github.com/dragonite-network/dragonite-java/raw/master/VERSIONS";
 

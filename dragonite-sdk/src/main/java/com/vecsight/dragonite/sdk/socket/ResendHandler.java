@@ -41,9 +41,6 @@ public class ResendHandler {
 
     private volatile long resendCount = 0;
 
-    /*private final PriorityBlockingQueue<ResendItem> resendQueue =
-            new PriorityBlockingQueue<>(100, (o1, o2) -> (int) (o1.getNextSendTime() - o2.getNextSendTime()));*/
-
     private final PriorityQueue<ResendItem> riQueue = new PriorityQueue<>(100,
             (o1, o2) -> (int) (o1.getNextSendTime() - o2.getNextSendTime()));
 
@@ -139,14 +136,14 @@ public class ResendHandler {
     }
 
     //only returns valid (existing & unresended) RTTs or -1
-    protected ResendInfo removeMessage(final int sequence) {
-        final ResendInfo resendInfo = new ResendInfo();
+    protected MessageStat removeMessage(final int sequence) {
+        final MessageStat messageStat = new MessageStat();
         synchronized (queueLock) {
             riQueue.removeIf(resendItem -> {
                 if (resendItem.getSequence() == sequence) {
-                    resendInfo.setExist(true);
-                    resendInfo.setResended(resendItem.isResended());
-                    resendInfo.setRTT(System.currentTimeMillis() - resendItem.getStartTime());
+                    messageStat.setExist(true);
+                    messageStat.setResended(resendItem.isResended());
+                    messageStat.setRTT(System.currentTimeMillis() - resendItem.getStartTime());
                     return true;
                 } else {
                     return false;
@@ -154,7 +151,7 @@ public class ResendHandler {
             });
             messageConcurrentMap.remove(sequence);
         }
-        return resendInfo;
+        return messageStat;
     }
 
     protected int queueTaskCount() {

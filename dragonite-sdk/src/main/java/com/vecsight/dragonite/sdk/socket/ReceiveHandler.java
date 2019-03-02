@@ -112,6 +112,10 @@ public class ReceiveHandler {
         return tmp;
     }
 
+    private int getWrapDelta(final int x, final int y) { // x<=y then return<0
+        return Integer.compareUnsigned(y - x, 0x80000000);
+    }
+
     //single threaded
     protected void onHandleMessage(final Message message, final int pktLength) {
         if (socket.isAlive()) {
@@ -136,7 +140,8 @@ public class ReceiveHandler {
 
                     receivedPktCount++;
 
-                    if (reliableMessage.getSequence() >= nextReadSequence) {
+                    if (getWrapDelta(nextReadSequence, reliableMessage.getSequence()) < 0) {
+
                         receiveMap.put(reliableMessage.getSequence(), reliableMessage);
 
                         if (receiveMap.containsKey(nextReadSequence)) {
@@ -152,7 +157,8 @@ public class ReceiveHandler {
             if (message instanceof ACKMessage) {
 
                 final ACKMessage ackMessage = (ACKMessage) message;
-                if (ackMessage.getConsumedSeq() > remoteConsumedSeq) {
+
+                if (getWrapDelta(remoteConsumedSeq, ackMessage.getConsumedSeq()) < 0) {
                     remoteConsumedSeq = ackMessage.getConsumedSeq();
                 }
 
@@ -160,7 +166,9 @@ public class ReceiveHandler {
 
                 for (final int seq : seqs) {
 
-                    rttEstimator.pushInfo(resender.removeMessage(seq));
+                    final MessageStat stat = resender.removeMessage(seq);
+
+                    rttEstimator.pushStat(stat);
 
                     if (waitForClose && seq == closeMsgSequence) {
                         closeACKReceived = true;
@@ -198,7 +206,7 @@ public class ReceiveHandler {
         }
     }
 
-    private int getProperWindow() {
+    private int getWindowSize() {
         final float targetPPS = socket.getSendSpeed() / (float) MTU;
         final long currentRTT = state.getEstimatedRTT();
         final int wnd = (int) (targetPPS * (currentRTT / 1000f) * windowMultiplier);
@@ -208,7 +216,7 @@ public class ReceiveHandler {
 
     protected boolean checkWindowAvailable() {
         final int delta = state.getSendSequence() - remoteConsumedSeq;
-        return delta < getProperWindow();
+        return delta < getWindowSize();
     }
 
     protected long getReceivedPktCount() {
