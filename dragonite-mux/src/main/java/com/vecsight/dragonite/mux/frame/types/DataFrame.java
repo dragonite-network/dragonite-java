@@ -7,7 +7,6 @@
 
 package com.vecsight.dragonite.mux.frame.types;
 
-import com.vecsight.dragonite.mux.exception.DataLengthMismatchException;
 import com.vecsight.dragonite.mux.exception.IncorrectFrameException;
 import com.vecsight.dragonite.mux.frame.Frame;
 import com.vecsight.dragonite.mux.frame.FrameType;
@@ -37,12 +36,14 @@ public class DataFrame implements Frame {
 
     private byte[] data;
 
+    private int expectedLength = 0;
+
     public DataFrame(final short connectionID, final byte[] data) {
         this.connectionID = connectionID;
         this.data = data;
     }
 
-    public DataFrame(final byte[] frame) throws IncorrectFrameException, DataLengthMismatchException {
+    public DataFrame(final byte[] frame) throws IncorrectFrameException {
         final BinaryReader reader = new BinaryReader(frame);
 
         try {
@@ -62,11 +63,11 @@ public class DataFrame implements Frame {
             final int length = reader.getUnsignedShort();
 
             if (reader.remaining() < length) {
-                throw new DataLengthMismatchException(length, reader.remaining());
+                expectedLength = length;
+            } else {
+                data = new byte[length];
+                reader.getBytes(data);
             }
-
-            data = new byte[length];
-            reader.getBytes(data);
 
         } catch (final BufferUnderflowException e) {
             throw new IncorrectFrameException("Incorrect frame length");
@@ -114,5 +115,10 @@ public class DataFrame implements Frame {
     @Override
     public int getFixedLength() {
         return FIXED_LENGTH;
+    }
+
+    @Override
+    public int getExpectedLength() {
+        return expectedLength;
     }
 }

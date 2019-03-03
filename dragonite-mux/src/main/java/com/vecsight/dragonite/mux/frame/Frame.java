@@ -17,4 +17,6 @@ public interface Frame {
 
     int getFixedLength();
 
+    int getExpectedLength();
+
 }

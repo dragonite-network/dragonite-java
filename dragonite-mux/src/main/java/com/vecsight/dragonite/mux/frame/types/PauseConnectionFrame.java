@@ -91,4 +91,9 @@ public class PauseConnectionFrame implements Frame {
     public int getFixedLength() {
         return FIXED_LENGTH;
     }
+
+    @Override
+    public int getExpectedLength() {
+        return 0;
+    }
 }

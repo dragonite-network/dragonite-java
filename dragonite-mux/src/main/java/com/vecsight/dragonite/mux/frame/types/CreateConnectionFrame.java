@@ -91,4 +91,9 @@ public class CreateConnectionFrame implements Frame {
     public int getFixedLength() {
         return FIXED_LENGTH;
     }
+
+    @Override
+    public int getExpectedLength() {
+        return 0;
+    }
 }

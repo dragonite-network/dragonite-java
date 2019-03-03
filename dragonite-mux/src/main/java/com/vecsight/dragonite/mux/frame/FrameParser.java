@@ -8,7 +8,6 @@
 package com.vecsight.dragonite.mux.frame;
 
 
-import com.vecsight.dragonite.mux.exception.DataLengthMismatchException;
 import com.vecsight.dragonite.mux.exception.IncorrectFrameException;
 import com.vecsight.dragonite.mux.frame.types.*;
 
@@ -30,19 +29,23 @@ public class FrameParser {
 
         if (!needMore || frameBuffer.getSize() >= expectedLength) {
 
-            Frame frame = null;
             try {
-                frame = parseFrameRaw(frameBuffer.get());
-                frameBuffer.reset();
-                needMore = false;
+                final Frame frame = parseFrameRaw(frameBuffer.get());
+
+                if (frame.getExpectedLength() == 0) {
+                    frameBuffer.reset();
+                    needMore = false;
+                    return frame;
+
+                } else {
+                    expectedLength = frame.getExpectedLength();
+                    needMore = true;
+                }
             } catch (final IncorrectFrameException e) {
                 frameBuffer.reset();
                 needMore = false;
-            } catch (final DataLengthMismatchException e) {
-                expectedLength = e.getExpectedLength();
-                needMore = true;
             }
-            return frame;
+            return null;
 
         } else {
             return null;
@@ -50,7 +53,7 @@ public class FrameParser {
 
     }
 
-    private static Frame parseFrameRaw(final byte[] rawBytes) throws IncorrectFrameException, DataLengthMismatchException {
+    private static Frame parseFrameRaw(final byte[] rawBytes) throws IncorrectFrameException {
         if (rawBytes.length >= 2) {
             try {
                 switch (FrameType.fromByte(rawBytes[1])) {
