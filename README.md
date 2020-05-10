@@ -6,6 +6,10 @@
 
 [![https://t.me/DragoniteProject](https://img.shields.io/badge/Telegram%20Group%20CN-https%3A%2F%2Ft.me%2FDragoniteProject-blue.svg)](https://t.me/DragoniteProject)
 
+**This project is no longer being maintained and has been superseded by https://github.com/tobyxdd/hysteria**
+
+**本项目已经停止维护，请使用续作 https://github.com/tobyxdd/hysteria**
+
 Dragonite is a reliable application level data transport protocol based on UDP. Highly optimized for lossy & unstable networks. Use cases include
 
 - Transfer data between countries over lossy network connections
